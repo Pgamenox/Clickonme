@@ -6,8 +6,12 @@
 
 <title>Claudia Almaraz | ClickOnMe</title>
 
+<meta name="description"
+content="Claudia Almaraz. Conductora y creadora de El Soneto del Colibrí.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -21,39 +25,57 @@ box-sizing:border-box;
 body{
 font-family:'Poppins',sans-serif;
 min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:35px 20px;
-color:#3c2940;
+padding:35px 18px;
+color:#4a3045;
 
 background:
-radial-gradient(circle at 10% 10%,rgba(255,91,160,.35),transparent 35%),
-radial-gradient(circle at 90% 20%,rgba(255,194,91,.35),transparent 35%),
-radial-gradient(circle at 80% 90%,rgba(69,173,255,.30),transparent 35%),
-linear-gradient(135deg,#fff4ec,#ffe8f3,#e8f7ff);
+radial-gradient(circle at 12% 10%,rgba(255,73,145,.30),transparent 35%),
+radial-gradient(circle at 90% 20%,rgba(255,189,73,.30),transparent 35%),
+radial-gradient(circle at 80% 90%,rgba(69,173,255,.28),transparent 35%),
+linear-gradient(135deg,#fff3ec,#ffe6f2,#e9f7ff);
+}
+
+.wrapper{
+width:100%;
+max-width:470px;
+margin:auto;
+}
+
+.back{
+display:flex;
+justify-content:center;
+margin-bottom:18px;
+}
+
+.back a{
+text-decoration:none;
+font-size:12px;
+font-weight:600;
+color:#895b7c;
+background:rgba(255,255,255,.72);
+padding:8px 15px;
+border-radius:999px;
+box-shadow:0 6px 20px rgba(100,60,90,.08);
 }
 
 .card{
-width:100%;
-max-width:460px;
-background:rgba(255,255,255,.82);
-border:1px solid rgba(255,255,255,.8);
+background:rgba(255,255,255,.88);
+border:1px solid rgba(255,255,255,.9);
 border-radius:38px;
-padding:32px 26px 28px;
+padding:32px 25px 28px;
 text-align:center;
-box-shadow:0 25px 70px rgba(101,57,99,.18);
+box-shadow:0 24px 70px rgba(112,62,100,.17);
 backdrop-filter:blur(20px);
 }
 
-.photo-wrap{
-width:142px;
-height:142px;
+.photo-ring{
+width:145px;
+height:145px;
 margin:0 auto 18px;
 padding:5px;
 border-radius:50%;
-background:linear-gradient(135deg,#ff4f9a,#f8b53d,#54aaf8);
-box-shadow:0 10px 30px rgba(210,67,141,.25);
+background:linear-gradient(135deg,#ff4d91,#ffbd42,#55a8ff);
+box-shadow:0 12px 35px rgba(209,72,137,.23);
 }
 
 .photo{
@@ -66,40 +88,44 @@ border:4px solid white;
 
 h1{
 font-family:'DM Serif Display',serif;
-font-size:34px;
+font-size:35px;
 font-weight:400;
-color:#442e48;
+color:#442d45;
 }
 
-.subtitle{
+.role{
 font-size:14px;
-color:#865b7e;
-margin-top:5px;
-font-weight:500;
+font-weight:600;
+color:#895a80;
+margin-top:6px;
 }
 
 .bio{
 font-size:14px;
-line-height:1.65;
-color:#6e5a6c;
-margin:17px auto 22px;
-max-width:360px;
+line-height:1.7;
+color:#715e6e;
+margin:19px auto 24px;
+max-width:370px;
 }
 
-.quick{
+.contact{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:12px;
 margin-bottom:22px;
 }
 
-.quick a{
+.contact a{
 text-decoration:none;
-padding:14px 8px;
+padding:15px 8px;
 border-radius:18px;
 font-size:14px;
-font-weight:600;
+font-weight:700;
 transition:.25s;
+}
+
+.contact a:hover{
+transform:translateY(-3px);
 }
 
 .whatsapp{
@@ -108,42 +134,50 @@ color:white;
 }
 
 .call{
-background:#49354e;
+background:#513851;
 color:white;
 }
 
-.quick a:hover{
-transform:translateY(-3px);
-}
+/* SONETO */
 
 .project{
-background:linear-gradient(145deg,#fff8f1,#fff);
-border-radius:28px;
-padding:22px;
-margin-top:12px;
-box-shadow:0 10px 35px rgba(91,56,91,.10);
-border:1px solid rgba(225,174,205,.35);
+background:linear-gradient(145deg,#fff9f5,#ffffff);
+border:1px solid rgba(224,169,199,.38);
+border-radius:29px;
+padding:23px;
+box-shadow:0 12px 34px rgba(92,55,86,.09);
 }
 
-.logo{
+.project-label{
+font-size:11px;
+font-weight:700;
+letter-spacing:1.5px;
+text-transform:uppercase;
+color:#b46b94;
+margin-bottom:15px;
+}
+
+.logo-soneto{
 width:100%;
-max-width:230px;
+max-width:245px;
 border-radius:22px;
-margin-bottom:16px;
+display:block;
+margin:0 auto 18px;
+box-shadow:0 10px 25px rgba(144,69,117,.13);
 }
 
 .project h2{
 font-family:'DM Serif Display',serif;
-font-size:26px;
+font-size:29px;
 font-weight:400;
-color:#c83d83;
+color:#c63d80;
 }
 
 .project p{
 font-size:13px;
-line-height:1.6;
-color:#746071;
-margin:8px 0 16px;
+line-height:1.65;
+color:#76616f;
+margin:10px 0 18px;
 }
 
 .links{
@@ -152,70 +186,88 @@ flex-direction:column;
 gap:12px;
 }
 
-.btn{
+.link{
 display:flex;
 align-items:center;
 justify-content:center;
-gap:10px;
-padding:15px;
-border-radius:17px;
+gap:9px;
 text-decoration:none;
+padding:15px;
+border-radius:18px;
 font-size:14px;
 font-weight:600;
-background:#f7e7f1;
-color:#693b61;
+background:#f7e4ef;
+color:#693c61;
 transition:.25s;
 }
 
-.btn:hover{
+.link:hover{
 transform:translateY(-2px);
-background:#f3d8e9;
+background:#f2d6e7;
 }
 
+/* CLUB */
+
 .club{
-margin-top:18px;
-padding:20px;
-border-radius:24px;
-background:linear-gradient(135deg,#fce3ee,#fff1d9);
+margin-top:19px;
+padding:23px;
+border-radius:27px;
+background:linear-gradient(135deg,#fde3ed,#fff0d9);
+border:1px solid rgba(255,255,255,.8);
+}
+
+.club small{
+font-size:10px;
+font-weight:700;
+text-transform:uppercase;
+letter-spacing:1.5px;
+color:#ae6a89;
 }
 
 .club h3{
 font-family:'DM Serif Display',serif;
-font-size:24px;
+font-size:27px;
 font-weight:400;
-color:#844568;
+color:#844565;
+margin-top:5px;
 }
 
 .club p{
 font-size:13px;
-color:#795f70;
-margin-top:6px;
-line-height:1.5;
+line-height:1.6;
+color:#765d6b;
+margin-top:8px;
 }
 
-.coming{
+.soon{
 display:inline-block;
-margin-top:12px;
-padding:7px 13px;
-border-radius:20px;
+margin-top:13px;
+padding:7px 14px;
+border-radius:999px;
 background:white;
 font-size:11px;
 font-weight:600;
-color:#b15d87;
+color:#ab5d82;
 }
 
-.footer{
-margin-top:27px;
+/* FIRMA */
+
+.signature{
+margin-top:28px;
 font-size:11px;
-color:#a28b9d;
+color:#998595;
 }
 
 .clickonme{
-margin-top:7px;
-font-size:13px;
+margin-top:8px;
+}
+
+.clickonme a{
+text-decoration:none;
+font-size:14px;
 font-weight:700;
 letter-spacing:2px;
-color:#d64791;
+color:#d84391;
 }
 
 @media(max-width:480px){
@@ -226,7 +278,11 @@ border-radius:30px;
 }
 
 h1{
-font-size:30px;
+font-size:31px;
+}
+
+.contact{
+grid-template-columns:1fr 1fr;
 }
 
 }
@@ -236,44 +292,60 @@ font-size:30px;
 
 <body>
 
+<div class="wrapper">
+
+<div class="back">
+<a href="/">← Volver a ClickOnMe</a>
+</div>
+
 <main class="card">
 
-<div class="photo-wrap">
-<img class="photo" src="claudia.jpg" alt="Claudia Almaraz">
+<div class="photo-ring">
+<img
+class="photo"
+src="claudia.jpg"
+alt="Claudia Almaraz">
 </div>
 
 <h1>Claudia Almaraz</h1>
 
-<div class="subtitle">
+<div class="role">
 Conductora • Comunicadora • Creadora de contenido
 </div>
 
 <p class="bio">
-Creadora y conductora de <strong>El Soneto del Colibrí</strong>,
-un espacio de conversación, historias y experiencias del que nacen
-proyectos y comunidades como <strong>El Club de los 50</strong>.
+Creadora y conductora de
+<strong>El Soneto del Colibrí</strong>,
+un espacio de conversación, historias y experiencias
+del que nacen proyectos y comunidades como
+<strong>El Club de los 50</strong>.
 </p>
 
-<div class="quick">
+<div class="contact">
 
-<a class="whatsapp"
+<a
+class="whatsapp"
 href="https://wa.me/528146156901"
 target="_blank">
 💬 WhatsApp
 </a>
 
-<a class="call"
+<a
+class="call"
 href="tel:+528146156901">
 📞 Llamar
 </a>
 
 </div>
 
-
 <section class="project">
 
+<div class="project-label">
+Proyecto principal
+</div>
+
 <img
-class="logo"
+class="logo-soneto"
 src="soneto-logo.png"
 alt="El Soneto del Colibrí">
 
@@ -281,31 +353,33 @@ alt="El Soneto del Colibrí">
 
 <p>
 Podcast y comunidad creada por Claudia Almaraz.
-Historias, conversaciones y nuevas formas de conectar.
+Historias, conversaciones, experiencias y nuevas formas
+de conectar.
 </p>
 
 <div class="links">
 
 <a
-class="btn"
+class="link"
 href="https://www.facebook.com/claudiarosalinda.aguilaralmaraz"
 target="_blank">
 👤 Facebook de Claudia
 </a>
 
 <a
-class="btn"
+class="link"
 href="https://www.facebook.com/profile.php?id=100071137147602"
 target="_blank">
-🎙️ Facebook · El Soneto del Colibrí
+🎙️ El Soneto del Colibrí
 </a>
 
 </div>
 
 </section>
 
-
 <section class="club">
+
+<small>Comunidad</small>
 
 <h3>El Club de los 50</h3>
 
@@ -314,22 +388,23 @@ Una de las comunidades que forman parte del universo
 de El Soneto del Colibrí.
 </p>
 
-<span class="coming">
+<span class="soon">
 Próximamente más información
 </span>
 
 </section>
 
-
-<div class="footer">
-Tu identidad. Tus proyectos. Un solo enlace.
+<div class="signature">
+Creado con
 </div>
 
 <div class="clickonme">
-<a href="/" style="color:inherit;text-decoration:none;">CLICKONME</a>
+<a href="/">CLICKONME</a>
 </div>
 
 </main>
+
+</div>
 
 </body>
 </html>
