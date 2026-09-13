@@ -506,6 +506,15 @@ select:focus{
     max="30"
     value="15"
   >
+</div> <div class="field">
+  <label>Tipografía</label>
+  <select id="fontFamily">
+    <option value="Arial, Helvetica, sans-serif">Moderna</option>
+    <option value="Georgia, serif">Elegante</option>
+    <option value="'Trebuchet MS', sans-serif">Creativa</option>
+    <option value="'Courier New', monospace">Tecnológica</option>
+    <option value="Verdana, sans-serif">Clásica</option>
+  </select>
 </div>
   <div class="section-title">Contacto</div>
 
@@ -1111,6 +1120,17 @@ cardOpacity.addEventListener(
 buttonRadius.addEventListener(
   "input",
   updateCardStyle
+); const fontFamily =
+document.getElementById("fontFamily");
+
+fontFamily.addEventListener(
+  "change",
+  function(){
+
+    previewCard.style.fontFamily =
+    this.value;
+
+  }
 );
 </script>
 
