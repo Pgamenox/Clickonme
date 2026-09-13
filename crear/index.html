@@ -423,7 +423,40 @@ select:focus{
 
   </div>
 
+<div class="section-title">Diseña tu tarjeta</div>
 
+<div class="field">
+  <label>Tipo de fondo</label>
+  <select id="backgroundType">
+    <option value="gradient">Degradado</option>
+    <option value="color">Color sólido</option>
+    <option value="image">Imagen de fondo</option>
+  </select>
+</div>
+
+<div class="row">
+
+  <div class="field">
+    <label>Color 1</label>
+    <input type="color" id="color1" value="#353f92">
+  </div>
+
+  <div class="field">
+    <label>Color 2</label>
+    <input type="color" id="color2" value="#0b0d18">
+  </div>
+
+</div>
+
+<div class="field">
+  <label>Imagen de fondo</label>
+  <input
+    class="photo-input"
+    type="file"
+    id="backgroundImage"
+    accept="image/*"
+  >
+</div>
   <div class="section-title">Contacto</div>
 
 
@@ -836,7 +869,89 @@ document
   reader.readAsDataURL(file);
 
 });
+const backgroundType =
+document.getElementById("backgroundType");
 
+const color1 =
+document.getElementById("color1");
+
+const color2 =
+document.getElementById("color2");
+
+const backgroundImage =
+document.getElementById("backgroundImage");
+
+const previewScreen =
+document.querySelector(".screen");
+
+
+function updateBackground(){
+
+  const type =
+  backgroundType.value;
+
+  if(type === "gradient"){
+
+    previewScreen.style.background =
+    `linear-gradient(160deg, ${color1.value}, ${color2.value})`;
+
+    previewScreen.style.backgroundSize = "cover";
+    previewScreen.style.backgroundPosition = "center";
+
+  }
+
+  if(type === "color"){
+
+    previewScreen.style.background =
+    color1.value;
+
+  }
+
+}
+
+
+backgroundType.addEventListener(
+  "change",
+  updateBackground
+);
+
+color1.addEventListener(
+  "input",
+  updateBackground
+);
+
+color2.addEventListener(
+  "input",
+  updateBackground
+);
+
+
+backgroundImage.addEventListener(
+  "change",
+  function(event){
+
+    const file =
+    event.target.files[0];
+
+    if(!file) return;
+
+    const reader =
+    new FileReader();
+
+    reader.onload =
+    function(e){
+
+      backgroundType.value = "image";
+
+      previewScreen.style.background =
+      `url("${e.target.result}") center/cover no-repeat`;
+
+    };
+
+    reader.readAsDataURL(file);
+
+  }
+);
 </script>
 
 
