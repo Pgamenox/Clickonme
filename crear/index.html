@@ -556,7 +556,25 @@ select:focus{
 
   </div>
 
+<div class="section-title">Botón personalizado</div>
 
+<div class="field">
+  <label>Texto del botón</label>
+  <input
+    type="text"
+    id="customButtonText"
+    placeholder="Ej. Reservar cita"
+  >
+</div>
+
+<div class="field">
+  <label>Enlace del botón</label>
+  <input
+    type="url"
+    id="customButtonUrl"
+    placeholder="https://..."
+  >
+</div>
   <div class="section-title">Redes y enlaces</div>
 
 
@@ -1212,6 +1230,164 @@ function updateButtonStyle(){
 buttonStyle.addEventListener(
   "change",
   updateButtonStyle
+); const customButtonText =
+document.getElementById("customButtonText");
+
+const customButtonUrl =
+document.getElementById("customButtonUrl");
+
+const customButton =
+document.createElement("a");
+
+customButton.className =
+"preview-btn";
+
+customButton.style.display =
+"none";
+
+customButton.target =
+"_blank";
+
+document
+.getElementById("previewLinks")
+.appendChild(customButton);
+
+
+function styleCustomButton(){
+
+  const style =
+  buttonStyle.value;
+
+  customButton.style.borderRadius =
+  buttonRadius.value + "px";
+
+  customButton.style.boxShadow =
+  "none";
+
+  customButton.style.backdropFilter =
+  "none";
+
+  customButton.style.border =
+  "1px solid transparent";
+
+
+  if(style === "solid"){
+
+    customButton.style.background =
+    buttonColor.value;
+
+    customButton.style.color =
+    textColor.value;
+
+  }
+
+
+  if(style === "outline"){
+
+    customButton.style.background =
+    "transparent";
+
+    customButton.style.border =
+    `2px solid ${buttonColor.value}`;
+
+    customButton.style.color =
+    buttonColor.value;
+
+  }
+
+
+  if(style === "glass"){
+
+    customButton.style.background =
+    "rgba(255,255,255,.10)";
+
+    customButton.style.border =
+    "1px solid rgba(255,255,255,.22)";
+
+    customButton.style.backdropFilter =
+    "blur(10px)";
+
+    customButton.style.color =
+    textColor.value;
+
+  }
+
+
+  if(style === "shadow"){
+
+    customButton.style.background =
+    buttonColor.value;
+
+    customButton.style.color =
+    textColor.value;
+
+    customButton.style.boxShadow =
+    "0 8px 20px rgba(0,0,0,.35)";
+
+  }
+
+}
+
+
+function updateCustomButton(){
+
+  const text =
+  customButtonText.value.trim();
+
+  const url =
+  customButtonUrl.value.trim();
+
+  if(text){
+
+    customButton.textContent =
+    "🔗 " + text;
+
+    customButton.style.display =
+    "flex";
+
+    customButton.href =
+    url || "#";
+
+    styleCustomButton();
+
+  }else{
+
+    customButton.style.display =
+    "none";
+
+  }
+
+}
+
+
+customButtonText.addEventListener(
+  "input",
+  updateCustomButton
+);
+
+customButtonUrl.addEventListener(
+  "input",
+  updateCustomButton
+);
+
+buttonStyle.addEventListener(
+  "change",
+  styleCustomButton
+);
+
+buttonColor.addEventListener(
+  "input",
+  styleCustomButton
+);
+
+textColor.addEventListener(
+  "input",
+  styleCustomButton
+);
+
+buttonRadius.addEventListener(
+  "input",
+  styleCustomButton
 );
 </script>
 
