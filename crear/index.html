@@ -456,6 +456,56 @@ select:focus{
     id="backgroundImage"
     accept="image/*"
   >
+</div> <div class="section-title">Personaliza tarjeta y botones</div>
+
+<div class="row">
+
+  <div class="field">
+    <label>Color de tarjeta</label>
+    <input type="color" id="cardColor" value="#0b0d18">
+  </div>
+
+  <div class="field">
+    <label>Color de botones</label>
+    <input type="color" id="buttonColor" value="#222533">
+  </div>
+
+</div>
+
+<div class="row">
+
+  <div class="field">
+    <label>Color del texto</label>
+    <input type="color" id="textColor" value="#ffffff">
+  </div>
+
+  <div class="field">
+    <label>Color secundario</label>
+    <input type="color" id="secondaryTextColor" value="#bbc2d6">
+  </div>
+
+</div>
+
+<div class="field">
+  <label>Transparencia de la tarjeta</label>
+  <input
+    type="range"
+    id="cardOpacity"
+    min="20"
+    max="100"
+    value="72"
+  >
+</div>
+
+<div class="field">
+  <label>Redondeo de botones</label>
+  <input
+    type="range"
+    id="buttonRadius"
+    min="0"
+    max="30"
+    value="15"
+  >
 </div>
   <div class="section-title">Contacto</div>
 
@@ -951,6 +1001,116 @@ backgroundImage.addEventListener(
     reader.readAsDataURL(file);
 
   }
+); const cardColor =
+document.getElementById("cardColor");
+
+const buttonColor =
+document.getElementById("buttonColor");
+
+const textColor =
+document.getElementById("textColor");
+
+const secondaryTextColor =
+document.getElementById("secondaryTextColor");
+
+const cardOpacity =
+document.getElementById("cardOpacity");
+
+const buttonRadius =
+document.getElementById("buttonRadius");
+
+const previewCard =
+document.querySelector(".card");
+
+const previewButtons =
+document.querySelectorAll(".preview-btn");
+
+
+function hexToRgb(hex){
+
+  const value =
+  hex.replace("#","");
+
+  const bigint =
+  parseInt(value,16);
+
+  return {
+    r:(bigint >> 16) & 255,
+    g:(bigint >> 8) & 255,
+    b:bigint & 255
+  };
+
+}
+
+
+function updateCardStyle(){
+
+  const rgb =
+  hexToRgb(cardColor.value);
+
+  const opacity =
+  cardOpacity.value / 100;
+
+  previewCard.style.background =
+  `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
+
+  previewCard.style.color =
+  textColor.value;
+
+  document.querySelector(".preview-role").style.color =
+  secondaryTextColor.value;
+
+  document.querySelector(".preview-description").style.color =
+  secondaryTextColor.value;
+
+  document.querySelector(".footer").style.color =
+  secondaryTextColor.value;
+
+
+  previewButtons.forEach(function(button){
+
+    button.style.background =
+    buttonColor.value;
+
+    button.style.color =
+    textColor.value;
+
+    button.style.borderRadius =
+    buttonRadius.value + "px";
+
+  });
+
+}
+
+
+cardColor.addEventListener(
+  "input",
+  updateCardStyle
+);
+
+buttonColor.addEventListener(
+  "input",
+  updateCardStyle
+);
+
+textColor.addEventListener(
+  "input",
+  updateCardStyle
+);
+
+secondaryTextColor.addEventListener(
+  "input",
+  updateCardStyle
+);
+
+cardOpacity.addEventListener(
+  "input",
+  updateCardStyle
+);
+
+buttonRadius.addEventListener(
+  "input",
+  updateCardStyle
 );
 </script>
 
