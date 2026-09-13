@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Claudia Almaraz | ClickOnMe</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Poppins',sans-serif;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:35px 20px;
+color:#3c2940;
+
+background:
+radial-gradient(circle at 10% 10%,rgba(255,91,160,.35),transparent 35%),
+radial-gradient(circle at 90% 20%,rgba(255,194,91,.35),transparent 35%),
+radial-gradient(circle at 80% 90%,rgba(69,173,255,.30),transparent 35%),
+linear-gradient(135deg,#fff4ec,#ffe8f3,#e8f7ff);
+}
+
+.card{
+width:100%;
+max-width:460px;
+background:rgba(255,255,255,.82);
+border:1px solid rgba(255,255,255,.8);
+border-radius:38px;
+padding:32px 26px 28px;
+text-align:center;
+box-shadow:0 25px 70px rgba(101,57,99,.18);
+backdrop-filter:blur(20px);
+}
+
+.photo-wrap{
+width:142px;
+height:142px;
+margin:0 auto 18px;
+padding:5px;
+border-radius:50%;
+background:linear-gradient(135deg,#ff4f9a,#f8b53d,#54aaf8);
+box-shadow:0 10px 30px rgba(210,67,141,.25);
+}
+
+.photo{
+width:100%;
+height:100%;
+object-fit:cover;
+border-radius:50%;
+border:4px solid white;
+}
+
+h1{
+font-family:'DM Serif Display',serif;
+font-size:34px;
+font-weight:400;
+color:#442e48;
+}
+
+.subtitle{
+font-size:14px;
+color:#865b7e;
+margin-top:5px;
+font-weight:500;
+}
+
+.bio{
+font-size:14px;
+line-height:1.65;
+color:#6e5a6c;
+margin:17px auto 22px;
+max-width:360px;
+}
+
+.quick{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-bottom:22px;
+}
+
+.quick a{
+text-decoration:none;
+padding:14px 8px;
+border-radius:18px;
+font-size:14px;
+font-weight:600;
+transition:.25s;
+}
+
+.whatsapp{
+background:#25D366;
+color:white;
+}
+
+.call{
+background:#49354e;
+color:white;
+}
+
+.quick a:hover{
+transform:translateY(-3px);
+}
+
+.project{
+background:linear-gradient(145deg,#fff8f1,#fff);
+border-radius:28px;
+padding:22px;
+margin-top:12px;
+box-shadow:0 10px 35px rgba(91,56,91,.10);
+border:1px solid rgba(225,174,205,.35);
+}
+
+.logo{
+width:100%;
+max-width:230px;
+border-radius:22px;
+margin-bottom:16px;
+}
+
+.project h2{
+font-family:'DM Serif Display',serif;
+font-size:26px;
+font-weight:400;
+color:#c83d83;
+}
+
+.project p{
+font-size:13px;
+line-height:1.6;
+color:#746071;
+margin:8px 0 16px;
+}
+
+.links{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.btn{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+padding:15px;
+border-radius:17px;
+text-decoration:none;
+font-size:14px;
+font-weight:600;
+background:#f7e7f1;
+color:#693b61;
+transition:.25s;
+}
+
+.btn:hover{
+transform:translateY(-2px);
+background:#f3d8e9;
+}
+
+.club{
+margin-top:18px;
+padding:20px;
+border-radius:24px;
+background:linear-gradient(135deg,#fce3ee,#fff1d9);
+}
+
+.club h3{
+font-family:'DM Serif Display',serif;
+font-size:24px;
+font-weight:400;
+color:#844568;
+}
+
+.club p{
+font-size:13px;
+color:#795f70;
+margin-top:6px;
+line-height:1.5;
+}
+
+.coming{
+display:inline-block;
+margin-top:12px;
+padding:7px 13px;
+border-radius:20px;
+background:white;
+font-size:11px;
+font-weight:600;
+color:#b15d87;
+}
+
+.footer{
+margin-top:27px;
+font-size:11px;
+color:#a28b9d;
+}
+
+.clickonme{
+margin-top:7px;
+font-size:13px;
+font-weight:700;
+letter-spacing:2px;
+color:#d64791;
+}
+
+@media(max-width:480px){
+
+.card{
+padding:27px 19px;
+border-radius:30px;
+}
+
+h1{
+font-size:30px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<main class="card">
+
+<div class="photo-wrap">
+<img class="photo" src="claudia.jpg" alt="Claudia Almaraz">
+</div>
+
+<h1>Claudia Almaraz</h1>
+
+<div class="subtitle">
+Conductora • Comunicadora • Creadora de contenido
+</div>
+
+<p class="bio">
+Creadora y conductora de <strong>El Soneto del Colibrí</strong>,
+un espacio de conversación, historias y experiencias del que nacen
+proyectos y comunidades como <strong>El Club de los 50</strong>.
+</p>
+
+<div class="quick">
+
+<a class="whatsapp"
+href="https://wa.me/528146156901"
+target="_blank">
+💬 WhatsApp
+</a>
+
+<a class="call"
+href="tel:+528146156901">
+📞 Llamar
+</a>
+
+</div>
+
+
+<section class="project">
+
+<img
+class="logo"
+src="soneto-logo.png"
+alt="El Soneto del Colibrí">
+
+<h2>El Soneto del Colibrí</h2>
+
+<p>
+Podcast y comunidad creada por Claudia Almaraz.
+Historias, conversaciones y nuevas formas de conectar.
+</p>
+
+<div class="links">
+
+<a
+class="btn"
+href="https://www.facebook.com/claudiarosalinda.aguilaralmaraz"
+target="_blank">
+👤 Facebook de Claudia
+</a>
+
+<a
+class="btn"
+href="https://www.facebook.com/profile.php?id=100071137147602"
+target="_blank">
+🎙️ Facebook · El Soneto del Colibrí
+</a>
+
+</div>
+
+</section>
+
+
+<section class="club">
+
+<h3>El Club de los 50</h3>
+
+<p>
+Una de las comunidades que forman parte del universo
+de El Soneto del Colibrí.
+</p>
+
+<span class="coming">
+Próximamente más información
+</span>
+
+</section>
+
+
+<div class="footer">
+Tu identidad. Tus proyectos. Un solo enlace.
+</div>
+
+<div class="clickonme">
+CLICKONME
+</div>
+
+</main>
+
+</body>
+</html>
