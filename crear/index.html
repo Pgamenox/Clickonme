@@ -1425,7 +1425,9 @@ addCustomButton.addEventListener(
   function(){
 
     extraButtonCount++;
-
+if (extraButtonCount >= 2) {
+  addCustomButton.style.display = "none";
+}
     const wrapper =
     document.createElement("div");
 
