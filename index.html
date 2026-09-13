@@ -3,200 +3,574 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ClickOnMe | Lic. Pablo Garza Méndez</title>
+
+<title>ClickOnMe | Tu identidad en un solo enlace</title>
+
+<meta name="description" content="Crea tu tarjeta digital ClickOnMe. Contacto, redes, proyectos, negocio y contenido en un solo enlace.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+html{
+scroll-behavior:smooth;
+}
 
 body{
 font-family:'Poppins',sans-serif;
-background:linear-gradient(135deg,#0a0a0a,#14142b,#0b0b18);
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:30px;
+background:#080811;
 color:white;
+min-height:100vh;
 overflow-x:hidden;
 }
 
 body::before{
 content:'';
 position:fixed;
-width:500px;
-height:500px;
+width:650px;
+height:650px;
 background:#ff2bd6;
-filter:blur(170px);
-opacity:.15;
-top:-150px;
-right:-100px;
+filter:blur(220px);
+opacity:.16;
+top:-220px;
+right:-180px;
 z-index:-2;
 }
 
 body::after{
 content:'';
 position:fixed;
-width:450px;
-height:450px;
-background:#3b82f6;
-filter:blur(160px);
-opacity:.18;
-bottom:-120px;
-left:-100px;
+width:650px;
+height:650px;
+background:#326bff;
+filter:blur(230px);
+opacity:.16;
+bottom:-250px;
+left:-220px;
 z-index:-2;
 }
 
-.card{
+/* NAVEGACIÓN */
+
+nav{
 width:100%;
-max-width:430px;
-background:rgba(255,255,255,.07);
-backdrop-filter:blur(25px);
-border:1px solid rgba(255,255,255,.12);
-border-radius:34px;
-padding:34px 28px;
-text-align:center;
-box-shadow:0 20px 60px rgba(0,0,0,.45);
-animation:fade .7s ease;
-}
-
-@keyframes fade{
-from{opacity:0;transform:translateY(20px)}
-to{opacity:1;transform:none}
-}
-
-.avatar{
-width:118px;
-height:118px;
+max-width:1180px;
 margin:auto;
-border-radius:50%;
-background:linear-gradient(135deg,#ff2bd6,#3b82f6);
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:44px;
-font-weight:700;
-box-shadow:0 0 40px rgba(255,43,214,.4);
-margin-bottom:18px;
-}
-
-h1{
-font-size:28px;
-font-weight:700;
-}
-
-.role{
-margin-top:6px;
-color:#cfcfe7;
-font-size:15px;
-line-height:1.6;
-}
-
-.brand{
-display:inline-block;
-margin-top:16px;
-padding:7px 16px;
-border-radius:999px;
-background:rgba(255,255,255,.08);
-font-size:13px;
-color:#d9d9ff;
-}
-
-.links{
-margin-top:28px;
-display:flex;
-flex-direction:column;
-gap:16px;
-}
-
-.btn{
+padding:26px 28px;
 display:flex;
 align-items:center;
-justify-content:center;
-gap:12px;
-text-decoration:none;
-color:white;
-padding:17px;
-border-radius:18px;
-font-weight:600;
-font-size:16px;
-background:rgba(255,255,255,.09);
-border:1px solid rgba(255,255,255,.12);
-transition:.25s;
-}
-
-.btn:hover{
-transform:translateY(-3px) scale(1.02);
-background:rgba(255,255,255,.16);
-box-shadow:0 10px 25px rgba(0,0,0,.3);
-}
-
-.icon{
-font-size:22px;
-}
-
-.footer{
-margin-top:28px;
-font-size:12px;
-color:#9ca3af;
+justify-content:space-between;
 }
 
 .logo{
-margin-top:10px;
+font-size:21px;
+font-weight:800;
+letter-spacing:2px;
+}
+
+.logo span{
+color:#ff5cda;
+}
+
+.nav-link{
+text-decoration:none;
+color:#d8d8e7;
 font-size:14px;
+font-weight:500;
+}
+
+/* HERO */
+
+.hero{
+max-width:1000px;
+margin:auto;
+padding:105px 24px 80px;
+text-align:center;
+}
+
+.badge{
+display:inline-block;
+padding:8px 16px;
+border-radius:999px;
+background:rgba(255,255,255,.07);
+border:1px solid rgba(255,255,255,.11);
+font-size:13px;
+color:#d7d7ee;
+margin-bottom:25px;
+}
+
+.hero h1{
+font-size:clamp(46px,8vw,82px);
+line-height:1.02;
+letter-spacing:-3px;
+font-weight:800;
+max-width:900px;
+margin:auto;
+}
+
+.gradient-text{
+background:linear-gradient(90deg,#ff5cda,#9c62ff,#4c8dff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+}
+
+.hero p{
+max-width:690px;
+margin:28px auto 0;
+font-size:18px;
+line-height:1.8;
+color:#bdbdd0;
+}
+
+.actions{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:15px;
+margin-top:38px;
+}
+
+.btn{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+padding:16px 25px;
+border-radius:16px;
+text-decoration:none;
+font-size:15px;
 font-weight:600;
-color:#ff77e9;
+transition:.25s;
+}
+
+.btn-primary{
+background:linear-gradient(135deg,#ff35d1,#6b61ff);
+color:white;
+box-shadow:0 12px 35px rgba(174,61,255,.28);
+}
+
+.btn-secondary{
+background:rgba(255,255,255,.07);
+border:1px solid rgba(255,255,255,.12);
+color:white;
+}
+
+.btn:hover{
+transform:translateY(-3px);
+}
+
+/* PROPUESTA */
+
+.features{
+max-width:1000px;
+margin:auto;
+padding:35px 24px 100px;
+}
+
+.section-title{
+text-align:center;
+font-size:34px;
+font-weight:700;
+margin-bottom:13px;
+}
+
+.section-subtitle{
+text-align:center;
+color:#a9a9bd;
+font-size:15px;
+max-width:620px;
+margin:0 auto 42px;
+line-height:1.7;
+}
+
+.feature-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:18px;
+}
+
+.feature{
+background:rgba(255,255,255,.055);
+border:1px solid rgba(255,255,255,.09);
+border-radius:24px;
+padding:27px 24px;
+}
+
+.feature-icon{
+font-size:29px;
+margin-bottom:14px;
+}
+
+.feature h3{
+font-size:17px;
+margin-bottom:8px;
+}
+
+.feature p{
+font-size:13px;
+color:#a8a8bb;
+line-height:1.65;
+}
+
+/* EJEMPLOS */
+
+.examples{
+max-width:1000px;
+margin:auto;
+padding:20px 24px 110px;
+}
+
+.profile-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:22px;
+max-width:780px;
+margin:auto;
+}
+
+.profile{
+position:relative;
+overflow:hidden;
+background:rgba(255,255,255,.065);
+border:1px solid rgba(255,255,255,.11);
+border-radius:28px;
+padding:30px;
+text-decoration:none;
+color:white;
+transition:.3s;
+}
+
+.profile:hover{
+transform:translateY(-7px);
+background:rgba(255,255,255,.10);
+box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+
+.profile::before{
+content:'';
+position:absolute;
+width:180px;
+height:180px;
+border-radius:50%;
+filter:blur(65px);
+opacity:.25;
+right:-55px;
+top:-55px;
+}
+
+.profile.pablo::before{
+background:#8c55ff;
+}
+
+.profile.claudia::before{
+background:#ff589f;
+}
+
+.avatar{
+width:72px;
+height:72px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:25px;
+font-weight:700;
+margin-bottom:22px;
+position:relative;
+z-index:2;
+}
+
+.pablo .avatar{
+background:linear-gradient(135deg,#f22bd9,#4d82ff);
+}
+
+.claudia .avatar{
+background:linear-gradient(135deg,#ff7698,#ffba46,#64a9ff);
+}
+
+.profile small{
+font-size:11px;
+text-transform:uppercase;
+letter-spacing:1.5px;
+color:#a9a9bb;
+}
+
+.profile h3{
+font-size:22px;
+margin-top:7px;
+}
+
+.profile p{
+font-size:13px;
+color:#b2b2c2;
+margin-top:7px;
+line-height:1.5;
+}
+
+.profile-link{
+display:inline-block;
+margin-top:22px;
+font-size:13px;
+font-weight:600;
+color:#ff6bdd;
+}
+
+/* CTA */
+
+.cta{
+max-width:900px;
+margin:0 auto 100px;
+padding:0 24px;
+}
+
+.cta-box{
+text-align:center;
+padding:55px 25px;
+border-radius:32px;
+background:
+linear-gradient(135deg,rgba(255,38,208,.12),rgba(70,92,255,.13));
+border:1px solid rgba(255,255,255,.11);
+}
+
+.cta h2{
+font-size:34px;
+}
+
+.cta p{
+color:#aeaec0;
+margin:14px auto 25px;
+font-size:15px;
+}
+
+/* FOOTER */
+
+footer{
+padding:30px 20px 45px;
+text-align:center;
+color:#747486;
+font-size:12px;
+}
+
+footer strong{
+color:#ff5cda;
 letter-spacing:1px;
 }
+
+@media(max-width:750px){
+
+.feature-grid{
+grid-template-columns:1fr;
+}
+
+.profile-grid{
+grid-template-columns:1fr;
+}
+
+.hero{
+padding-top:75px;
+}
+
+.hero h1{
+letter-spacing:-2px;
+}
+
+nav{
+padding:22px 20px;
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<nav>
+
+<div class="logo">
+CLICK<span>ONME</span>
+</div>
+
+<a class="nav-link" href="#ejemplos">
+Ejemplos
+</a>
+
+</nav>
+
+
+<header class="hero">
+
+<div class="badge">
+✨ Tu presencia digital en un solo lugar
+</div>
+
+<h1>
+Todo sobre ti.
+<br>
+<span class="gradient-text">En un solo enlace.</span>
+</h1>
+
+<p>
+Reúne tu contacto, WhatsApp, redes sociales, proyectos,
+negocio, contenido y comunidad en una página diseñada para ti.
+Comparte una sola dirección. Haz que encontrarte sea fácil.
+</p>
+
+<div class="actions">
+
+<a
+class="btn btn-primary"
+href="https://wa.me/528444013560?text=Hola%2C%20quiero%20crear%20mi%20ClickOnMe"
+target="_blank">
+Quiero mi ClickOnMe
+</a>
+
+<a
+class="btn btn-secondary"
+href="#ejemplos">
+Ver ejemplos
+</a>
+
+</div>
+
+</header>
+
+
+<section class="features">
+
+<h2 class="section-title">
+Más que una lista de enlaces
+</h2>
+
+<p class="section-subtitle">
+ClickOnMe reúne tu identidad digital para que tus clientes,
+seguidores y contactos encuentren todo lo importante desde un solo lugar.
+</p>
+
+<div class="feature-grid">
+
+<div class="feature">
+<div class="feature-icon">💬</div>
+<h3>Contacto inmediato</h3>
+<p>
+WhatsApp, llamada, correo y las formas de contacto que realmente utilizas.
+</p>
+</div>
+
+<div class="feature">
+<div class="feature-icon">🚀</div>
+<h3>Tus proyectos</h3>
+<p>
+Presenta marcas, negocios, podcasts, contenido, servicios y comunidades.
+</p>
+</div>
+
+<div class="feature">
+<div class="feature-icon">🔗</div>
+<h3>Un enlace sencillo</h3>
+<p>
+Obtén tu propia dirección ClickOnMe para compartirla en redes, tarjetas y QR.
+</p>
+</div>
+
+</div>
+
+</section>
+
+
+<section class="examples" id="ejemplos">
+
+<h2 class="section-title">
+Conoce algunos ClickOnMe
+</h2>
+
+<p class="section-subtitle">
+Cada perfil puede tener una identidad completamente diferente.
+</p>
+
+<div class="profile-grid">
+
+<a class="profile pablo" href="/pablogarza/">
 
 <div class="avatar">PG</div>
 
-<h1>Lic. Pablo Garza Méndez</h1>
+<small>Perfil profesional</small>
 
-<p class="role">
-Comunicación • Producción Audiovisual • IA • Estrategia Digital
+<h3>Pablo Garza Méndez</h3>
+
+<p>
+Comunicación, producción audiovisual, IA y proyectos digitales.
 </p>
 
-<div class="brand">ClickOnMe</div>
+<span class="profile-link">
+Ver ClickOnMe →
+</span>
 
-<div class="links">
-
-<a class="btn" href="https://wa.me/528444013560" target="_blank">
-<span class="icon">💬</span> WhatsApp
 </a>
 
-<a class="btn" href="tel:+528444013560">
-<span class="icon">📞</span> Llamar
-</a>
 
-<a class="btn" href="https://youtube.com/@nortedelvalle?si=NGq91O7RM-sAU4GP" target="_blank">
-<span class="icon">▶️</span> Norte del Valle Producciones
-</a>
+<a class="profile claudia" href="/claudiaalmaraz/">
 
-<a class="btn" href="https://youtube.com/@nortedelvalle?si=NGq91O7RM-sAU4GP" target="_blank">
-<span class="icon">🎙️</span> Con Todo, Menos con Miedo
+<div class="avatar">CA</div>
+
+<small>Podcast y comunidad</small>
+
+<h3>Claudia Almaraz</h3>
+
+<p>
+El Soneto del Colibrí, El Club de los 50 y sus proyectos.
+</p>
+
+<span class="profile-link">
+Ver ClickOnMe →
+</span>
+
 </a>
 
 </div>
 
-<div class="footer">
-Tu tarjeta digital inteligente.
+</section>
+
+
+<section class="cta">
+
+<div class="cta-box">
+
+<h2>
+¿Y tú, qué quieres conectar?
+</h2>
+
+<p>
+Crea tu espacio digital personalizado con ClickOnMe.
+</p>
+
+<a
+class="btn btn-primary"
+href="https://wa.me/528444013560?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20ClickOnMe"
+target="_blank">
+Crear mi ClickOnMe
+</a>
+
 </div>
 
-<div class="logo">
-CLICKONME
-</div>
+</section>
 
-</div>
+
+<footer>
+
+<strong>CLICKONME</strong>
+<br><br>
+Tu identidad. Tus proyectos. Un solo enlace.
+
+</footer>
 
 </body>
 </html>
