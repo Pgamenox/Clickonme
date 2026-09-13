@@ -1410,7 +1410,126 @@ textColor.addEventListener(
 buttonRadius.addEventListener(
   "input",
   styleCustomButton
-);
+); 
+const addCustomButton =
+document.getElementById("addCustomButton");
+
+const extraCustomButtons =
+document.getElementById("extraCustomButtons");
+
+let extraButtonCount = 0;
+
+
+addCustomButton.addEventListener(
+  "click",
+  function(){
+
+    extraButtonCount++;
+
+    const wrapper =
+    document.createElement("div");
+
+    wrapper.className =
+    "field";
+
+    wrapper.innerHTML =
+    `
+    <label>Texto del botón ${extraButtonCount + 1}</label>
+
+    <input
+      type="text"
+      class="extraButtonText"
+      placeholder="Ej. Ver catálogo"
+    >
+
+    <label style="margin-top:10px;">
+      Enlace del botón ${extraButtonCount + 1}
+    </label>
+
+    <input
+      type="url"
+      class="extraButtonUrl"
+      placeholder="https://..."
+    >
+    `;
+
+    extraCustomButtons.appendChild(wrapper);
+
+
+    const previewButton =
+    document.createElement("a");
+
+    previewButton.className =
+    "preview-btn";
+
+    previewButton.style.display =
+    "none";
+
+    previewButton.target =
+    "_blank";
+
+    document
+    .getElementById("previewLinks")
+    .appendChild(previewButton);
+
+
+    const textInput =
+    wrapper.querySelector(".extraButtonText");
+
+    const urlInput =
+    wrapper.querySelector(".extraButtonUrl");
+
+
+    function updateExtraButton(){
+
+      const text =
+      textInput.value.trim();
+
+      const url =
+      urlInput.value.trim();
+
+      if(text){
+
+        previewButton.textContent =
+        "🔗 " + text;
+
+        previewButton.href =
+        url || "#";
+
+        previewButton.style.display =
+        "flex";
+
+        previewButton.style.borderRadius =
+        buttonRadius.value + "px";
+
+        previewButton.style.background =
+        buttonColor.value;
+
+        previewButton.style.color =
+        textColor.value;
+
+      }else{
+
+        previewButton.style.display =
+        "none";
+
+      }
+
+    }
+
+
+    textInput.addEventListener(
+      "input",
+      updateExtraButton
+    );
+
+    urlInput.addEventListener(
+      "input",
+      updateExtraButton
+    );
+
+  }
+);  
 </script>
 
 
