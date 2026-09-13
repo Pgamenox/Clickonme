@@ -515,6 +515,14 @@ select:focus{
     <option value="'Courier New', monospace">Tecnológica</option>
     <option value="Verdana, sans-serif">Clásica</option>
   </select>
+</div> <div class="field">
+  <label>Estilo de botones</label>
+  <select id="buttonStyle">
+    <option value="solid">Sólido</option>
+    <option value="outline">Contorno</option>
+    <option value="glass">Cristal</option>
+    <option value="shadow">Sombra</option>
+  </select>
 </div>
   <div class="section-title">Contacto</div>
 
@@ -1131,6 +1139,79 @@ fontFamily.addEventListener(
     this.value;
 
   }
+); const buttonStyle =
+document.getElementById("buttonStyle");
+
+function updateButtonStyle(){
+
+  const style =
+  buttonStyle.value;
+
+  previewButtons.forEach(function(button){
+
+    button.style.boxShadow = "none";
+    button.style.backdropFilter = "none";
+    button.style.border = "1px solid transparent";
+
+    if(style === "solid"){
+
+      button.style.background =
+      buttonColor.value;
+
+      button.style.color =
+      textColor.value;
+
+    }
+
+    if(style === "outline"){
+
+      button.style.background =
+      "transparent";
+
+      button.style.border =
+      `2px solid ${buttonColor.value}`;
+
+      button.style.color =
+      buttonColor.value;
+
+    }
+
+    if(style === "glass"){
+
+      button.style.background =
+      "rgba(255,255,255,.10)";
+
+      button.style.border =
+      "1px solid rgba(255,255,255,.22)";
+
+      button.style.backdropFilter =
+      "blur(10px)";
+
+      button.style.color =
+      textColor.value;
+
+    }
+
+    if(style === "shadow"){
+
+      button.style.background =
+      buttonColor.value;
+
+      button.style.color =
+      textColor.value;
+
+      button.style.boxShadow =
+      "0 8px 20px rgba(0,0,0,.35)";
+
+    }
+
+  });
+
+}
+
+buttonStyle.addEventListener(
+  "change",
+  updateButtonStyle
 );
 </script>
 
