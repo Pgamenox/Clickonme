@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Crear mi ClickOnMe</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial, Helvetica, sans-serif;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top left,#18204f 0,#090b18 45%,#05060c 100%);
+  color:white;
+}
+
+.header{
+  width:100%;
+  padding:20px 28px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(5,6,12,.75);
+  backdrop-filter:blur(12px);
+}
+
+.header-inner{
+  max-width:1300px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:-1px;
+}
+
+.logo span{
+  color:#3d8cff;
+}
+
+.header p{
+  font-size:13px;
+  color:#aab1c5;
+}
+
+.layout{
+  width:100%;
+  max-width:1300px;
+  margin:auto;
+  padding:32px 24px 60px;
+
+  display:grid;
+  grid-template-columns:minmax(320px,1fr) minmax(340px,500px);
+  gap:40px;
+  align-items:start;
+}
+
+.panel{
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:24px;
+  padding:28px;
+  backdrop-filter:blur(18px);
+}
+
+.panel h1{
+  font-size:30px;
+  margin-bottom:8px;
+}
+
+.panel .intro{
+  color:#aeb5ca;
+  margin-bottom:28px;
+  line-height:1.5;
+}
+
+.section-title{
+  margin-top:25px;
+  margin-bottom:12px;
+  font-size:15px;
+  color:#dfe5f5;
+}
+
+.field{
+  margin-bottom:16px;
+}
+
+label{
+  display:block;
+  font-size:13px;
+  margin-bottom:7px;
+  color:#c7cde0;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  background:#111525;
+  border:1px solid rgba(255,255,255,.10);
+  color:white;
+  border-radius:12px;
+  padding:13px 14px;
+  font-size:15px;
+  outline:none;
+}
+
+textarea{
+  min-height:80px;
+  resize:vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#448cff;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.photo-input{
+  padding:12px;
+}
+
+.preview-area{
+  position:sticky;
+  top:20px;
+}
+
+.preview-label{
+  margin-bottom:12px;
+  color:#b8bfd2;
+  font-size:13px;
+  text-align:center;
+}
+
+.phone{
+  width:100%;
+  max-width:390px;
+  margin:auto;
+  padding:12px;
+
+  background:#090b12;
+  border-radius:38px;
+  border:1px solid rgba(255,255,255,.12);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.5);
+}
+
+.screen{
+  min-height:720px;
+  border-radius:30px;
+  overflow:hidden;
+  padding:20px 16px;
+
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+
+  background:
+    radial-gradient(circle at 50% -10%,#353f92 0,#171b42 35%,#0b0d18 75%);
+}
+
+.card{
+  width:100%;
+  padding:18px 16px 20px;
+  background:rgba(9,10,20,.72);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:24px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+.avatar{
+  width:82px;
+  height:82px;
+  object-fit:cover;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,.85);
+  margin-bottom:10px;
+  background:#252b47;
+}
+
+.preview-name{
+  font-size:21px;
+  line-height:1.15;
+  margin-bottom:6px;
+}
+
+.preview-role{
+  font-size:12.5px;
+  line-height:1.4;
+  color:#bbc2d6;
+  min-height:18px;
+}
+
+.brand{
+  margin-top:10px;
+  font-size:26px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.brand span{
+  color:#3d8cff;
+}
+
+.brand-tag{
+  margin-top:2px;
+  font-size:9px;
+  letter-spacing:1.5px;
+  color:#8f97ad;
+  text-transform:uppercase;
+}
+
+.preview-description{
+  margin:12px auto 0;
+  font-size:12px;
+  color:#aab1c3;
+  line-height:1.4;
+  max-width:290px;
+}
+
+.links{
+  margin-top:16px;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.preview-btn{
+  width:100%;
+  min-height:50px;
+  padding:12px 10px;
+  border-radius:15px;
+  text-decoration:none;
+  color:white;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  background:rgba(255,255,255,.075);
+  border:1px solid rgba(255,255,255,.11);
+  font-size:13.5px;
+  font-weight:600;
+}
+
+.footer{
+  margin-top:15px;
+  font-size:10px;
+  line-height:1.4;
+  color:#737b91;
+}
+
+.notice{
+  margin-top:20px;
+  padding:14px 16px;
+  border-radius:14px;
+  background:rgba(61,140,255,.10);
+  border:1px solid rgba(61,140,255,.18);
+  font-size:13px;
+  line-height:1.5;
+  color:#bfcceb;
+}
+
+@media(max-width:900px){
+
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .preview-area{
+    position:static;
+  }
+
+}
+
+@media(max-width:600px){
+
+  .header{
+    padding:16px;
+  }
+
+  .header-inner{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:4px;
+  }
+
+  .layout{
+    padding:20px 12px 40px;
+    gap:26px;
+  }
+
+  .panel{
+    padding:20px 16px;
+    border-radius:20px;
+  }
+
+  .panel h1{
+    font-size:24px;
+  }
+
+  .row{
+    grid-template-columns:1fr;
+  }
+
+  .phone{
+    padding:7px;
+    border-radius:30px;
+  }
+
+  .screen{
+    min-height:660px;
+    border-radius:25px;
+    padding:14px 10px;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<header class="header">
+
+  <div class="header-inner">
+
+    <div class="logo">
+      Click<span>OnMe</span>
+    </div>
+
+    <p>Crea tu tarjeta digital</p>
+
+  </div>
+
+</header>
+
+
+<main class="layout">
+
+<section class="panel">
+
+  <h1>Crea tu ClickOnMe</h1>
+
+  <p class="intro">
+    Completa tus datos y observa en tiempo real cómo se verá tu tarjeta digital.
+  </p>
+
+
+  <div class="section-title">Foto y datos principales</div>
+
+
+  <div class="field">
+
+    <label>Foto o logotipo</label>
+
+    <input
+      class="photo-input"
+      type="file"
+      id="photo"
+      accept="image/*"
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Nombre</label>
+
+    <input
+      type="text"
+      id="name"
+      value="Tu nombre"
+      placeholder="Ej. Pablo Garza Méndez"
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Actividad o profesión</label>
+
+    <input
+      type="text"
+      id="role"
+      value="Tu actividad profesional"
+      placeholder="Ej. Comunicación • Producción • IA"
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Descripción breve</label>
+
+    <textarea
+      id="description"
+      placeholder="Cuéntales brevemente quién eres o qué haces."
+    >Todo lo que necesitas para contactarme, en un solo lugar.</textarea>
+
+  </div>
+
+
+  <div class="section-title">Contacto</div>
+
+
+  <div class="row">
+
+    <div class="field">
+
+      <label>WhatsApp</label>
+
+      <input
+        type="tel"
+        id="whatsapp"
+        placeholder="528441234567"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label>Teléfono</label>
+
+      <input
+        type="tel"
+        id="phone"
+        placeholder="8441234567"
+      >
+
+    </div>
+
+  </div>
+
+
+  <div class="section-title">Redes y enlaces</div>
+
+
+  <div class="field">
+
+    <label>Facebook</label>
+
+    <input
+      type="url"
+      id="facebook"
+      placeholder="https://facebook.com/..."
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Instagram</label>
+
+    <input
+      type="url"
+      id="instagram"
+      placeholder="https://instagram.com/..."
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>YouTube</label>
+
+    <input
+      type="url"
+      id="youtube"
+      placeholder="https://youtube.com/..."
+    >
+
+  </div>
+
+
+  <div class="field">
+
+    <label>Sitio web u otro enlace</label>
+
+    <input
+      type="url"
+      id="website"
+      placeholder="https://..."
+    >
+
+  </div>
+
+
+  <div class="notice">
+
+    Esta es la primera versión del creador.
+    Todavía no publica ni guarda la tarjeta.
+    Primero estamos construyendo y probando la experiencia del cliente.
+
+  </div>
+
+</section>
+
+
+
+<section class="preview-area">
+
+  <div class="preview-label">
+    Vista previa de tu tarjeta
+  </div>
+
+
+  <div class="phone">
+
+    <div class="screen">
+
+      <div class="card">
+
+        <img
+          id="previewPhoto"
+          class="avatar"
+          src="https://ui-avatars.com/api/?name=Click+On+Me&background=252b47&color=ffffff"
+          alt="Foto"
+        >
+
+
+        <h2
+          id="previewName"
+          class="preview-name"
+        >
+          Tu nombre
+        </h2>
+
+
+        <div
+          id="previewRole"
+          class="preview-role"
+        >
+          Tu actividad profesional
+        </div>
+
+
+        <div class="brand">
+          Click<span>OnMe</span>
+        </div>
+
+        <div class="brand-tag">
+          Tu contacto, en un solo clic
+        </div>
+
+
+        <div
+          id="previewDescription"
+          class="preview-description"
+        >
+          Todo lo que necesitas para contactarme, en un solo lugar.
+        </div>
+
+
+        <div
+          class="links"
+          id="previewLinks"
+        >
+
+          <a
+            id="waButton"
+            class="preview-btn"
+            href="#"
+          >
+            💬 WhatsApp
+          </a>
+
+
+          <a
+            id="phoneButton"
+            class="preview-btn"
+            href="#"
+          >
+            📞 Llamar
+          </a>
+
+
+          <a
+            id="fbButton"
+            class="preview-btn"
+            href="#"
+            style="display:none"
+          >
+            Facebook
+          </a>
+
+
+          <a
+            id="igButton"
+            class="preview-btn"
+            href="#"
+            style="display:none"
+          >
+            Instagram
+          </a>
+
+
+          <a
+            id="ytButton"
+            class="preview-btn"
+            href="#"
+            style="display:none"
+          >
+            ▶ YouTube
+          </a>
+
+
+          <a
+            id="webButton"
+            class="preview-btn"
+            href="#"
+            style="display:none"
+          >
+            🌐 Sitio web
+          </a>
+
+        </div>
+
+
+        <div class="footer">
+
+          Tu tarjeta digital inteligente.<br>
+
+          <strong>
+            CLICKONME.PRO
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+
+<script>
+
+const nameInput =
+document.getElementById("name");
+
+const roleInput =
+document.getElementById("role");
+
+const descriptionInput =
+document.getElementById("description");
+
+const whatsappInput =
+document.getElementById("whatsapp");
+
+const phoneInput =
+document.getElementById("phone");
+
+const facebookInput =
+document.getElementById("facebook");
+
+const instagramInput =
+document.getElementById("instagram");
+
+const youtubeInput =
+document.getElementById("youtube");
+
+const websiteInput =
+document.getElementById("website");
+
+
+
+nameInput.addEventListener("input",function(){
+
+  document.getElementById("previewName").textContent =
+  this.value || "Tu nombre";
+
+});
+
+
+roleInput.addEventListener("input",function(){
+
+  document.getElementById("previewRole").textContent =
+  this.value || "Tu actividad profesional";
+
+});
+
+
+descriptionInput.addEventListener("input",function(){
+
+  document.getElementById("previewDescription").textContent =
+  this.value;
+
+});
+
+
+
+whatsappInput.addEventListener("input",function(){
+
+  let number =
+  this.value.replace(/\D/g,"");
+
+  document.getElementById("waButton").href =
+  number
+  ? "https://wa.me/" + number
+  : "#";
+
+});
+
+
+phoneInput.addEventListener("input",function(){
+
+  let number =
+  this.value.replace(/\D/g,"");
+
+  document.getElementById("phoneButton").href =
+  number
+  ? "tel:+" + number
+  : "#";
+
+});
+
+
+
+function updateOptionalButton(
+  input,
+  button
+){
+
+  const value =
+  input.value.trim();
+
+  if(value){
+
+    button.style.display="flex";
+    button.href=value;
+
+  }else{
+
+    button.style.display="none";
+
+  }
+
+}
+
+
+
+facebookInput.addEventListener("input",function(){
+
+  updateOptionalButton(
+    this,
+    document.getElementById("fbButton")
+  );
+
+});
+
+
+instagramInput.addEventListener("input",function(){
+
+  updateOptionalButton(
+    this,
+    document.getElementById("igButton")
+  );
+
+});
+
+
+youtubeInput.addEventListener("input",function(){
+
+  updateOptionalButton(
+    this,
+    document.getElementById("ytButton")
+  );
+
+});
+
+
+websiteInput.addEventListener("input",function(){
+
+  updateOptionalButton(
+    this,
+    document.getElementById("webButton")
+  );
+
+});
+
+
+
+document
+.getElementById("photo")
+.addEventListener("change",function(event){
+
+  const file =
+  event.target.files[0];
+
+  if(!file) return;
+
+  const reader =
+  new FileReader();
+
+  reader.onload =
+  function(e){
+
+    document
+    .getElementById("previewPhoto")
+    .src = e.target.result;
+
+  };
+
+  reader.readAsDataURL(file);
+
+});
+
+</script>
+
+
+</body>
+</html>
