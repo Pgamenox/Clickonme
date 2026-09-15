@@ -1581,7 +1581,7 @@ const profileData = {
 };
 
   localStorage.setItem("clickonme_" + slug, JSON.stringify(profileData));
-  window.location.href = "/" + slug + "/";
+window.location.href = "/perfil/?u=" + encodeURIComponent(slug);
   });
 </script>
 
