@@ -242,7 +242,29 @@ if(!slug){
 
       btn.style.display="flex";
     }
+if(data.facebook){
+  const btn = document.getElementById("facebookBtn");
+  btn.href = data.facebook;
+  btn.style.display = "flex";
+}
 
+if(data.instagram){
+  const btn = document.getElementById("instagramBtn");
+  btn.href = data.instagram;
+  btn.style.display = "flex";
+}
+
+if(data.youtube){
+  const btn = document.getElementById("youtubeBtn");
+  btn.href = data.youtube;
+  btn.style.display = "flex";
+}
+
+if(data.website){
+  const btn = document.getElementById("websiteBtn");
+  btn.href = data.website;
+  btn.style.display = "flex";
+}
   }
 
 }
