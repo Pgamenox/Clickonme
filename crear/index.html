@@ -1585,7 +1585,9 @@ const profileData = {
   facebook: document.getElementById("facebook")?.value.trim() || "",
   instagram: document.getElementById("instagram")?.value.trim() || "",
   youtube: document.getElementById("youtube")?.value.trim() || "",
-  website: document.getElementById("website")?.value.trim() || ""
+  website: document.getElementById("website")?.value.trim() || "",
+  customButtonText: document.getElementById("customButtonText")?.value.trim() || "",
+customButtonUrl: document.getElementById("customButtonUrl")?.value.trim() || ""
 };
 
   localStorage.setItem("clickonme_" + slug, JSON.stringify(profileData));
