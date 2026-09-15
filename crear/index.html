@@ -1577,6 +1577,7 @@ const slug = name
 const profileData = {
   name: name,
   role: role,
+  description: document.getElementById("description")?.value.trim() || "",
   slug: slug,
   whatsapp: document.getElementById("whatsapp")?.value.trim() || "",
   phone: document.getElementById("phone")?.value.trim() || "",
