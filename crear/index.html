@@ -1567,7 +1567,14 @@ publishButton.addEventListener("click", function () {
     return;
   }
 
-  alert("Tu ClickOnMe está listo para crearse.");
+const slug = name
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-z0-9]+/g, "")
+  .trim();
+
+alert("Tu dirección será: clickonme.pro/" + slug);
 });
 </script>
 
