@@ -1553,10 +1553,17 @@ if (extraButtonCount >= 2) {
 const publishButton = document.getElementById("publishButton");
 
 publishButton.addEventListener("click", function () {
+
   const name = document.getElementById("name").value.trim();
+  const role = document.getElementById("role").value.trim();
 
   if (!name) {
-    alert("Por favor escribe tu nombre antes de crear tu ClickOnMe.");
+    alert("Por favor escribe tu nombre.");
+    return;
+  }
+
+  if (!role) {
+    alert("Por favor escribe tu actividad o profesión.");
     return;
   }
 
