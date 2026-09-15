@@ -1574,7 +1574,11 @@ const slug = name
   .replace(/[^a-z0-9]+/g, "")
   .trim();
 
-alert("Tu dirección será: clickonme.pro/" + slug);
+const profileData = {
+  name: name,
+  role: role,
+  slug: slug
+};
 });
 </script>
 
