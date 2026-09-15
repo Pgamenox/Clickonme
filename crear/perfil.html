@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi ClickOnMe</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  min-height:100vh;
+  font-family:Arial, Helvetica, sans-serif;
+  background:radial-gradient(circle at top right,#26143b 0,#10152b 45%,#070810 100%);
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.card{
+  width:100%;
+  max-width:440px;
+  padding:34px 28px;
+  border-radius:32px;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.15);
+  box-shadow:0 25px 60px rgba(0,0,0,.35);
+  text-align:center;
+}
+
+.avatar{
+  width:110px;
+  height:110px;
+  margin:0 auto 20px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:34px;
+  background:rgba(255,255,255,.08);
+  border:3px solid rgba(255,255,255,.35);
+  overflow:hidden;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+h1{
+  font-size:28px;
+  margin-bottom:10px;
+}
+
+.role{
+  color:#d5d6e5;
+  font-size:16px;
+  margin-bottom:16px;
+}
+
+.description{
+  color:#b9bbca;
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:22px;
+}
+
+.brand{
+  font-size:27px;
+  font-weight:800;
+  margin:12px 0 25px;
+}
+
+.brand span{
+  color:#1677ff;
+}
+
+.links{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:58px;
+  padding:15px;
+  border-radius:17px;
+  text-decoration:none;
+  color:white;
+  font-weight:700;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.12);
+}
+
+.btn:hover{
+  background:rgba(255,255,255,.15);
+}
+
+.footer{
+  margin-top:25px;
+  color:#85889a;
+  font-size:11px;
+  line-height:1.5;
+}
+
+@media(max-width:600px){
+  body{
+    padding:10px;
+    align-items:flex-start;
+  }
+
+  .card{
+    max-width:390px;
+    padding:22px 16px;
+    border-radius:24px;
+  }
+
+  .avatar{
+    width:82px;
+    height:82px;
+    margin-bottom:12px;
+  }
+
+  h1{
+    font-size:22px;
+  }
+
+  .role{
+    font-size:14px;
+  }
+
+  .btn{
+    min-height:52px;
+    padding:12px;
+    font-size:14px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="avatar" id="avatar">
+    CM
+  </div>
+
+  <h1 id="profileName">Mi ClickOnMe</h1>
+
+  <div class="role" id="profileRole">
+    Tarjeta digital
+  </div>
+
+  <div class="brand">
+    Click<span>OnMe</span>
+  </div>
+
+  <div class="description">
+    Todo lo que necesitas para contactarme, en un solo lugar.
+  </div>
+
+  <div class="links">
+    <a class="btn" id="whatsappBtn" href="#" style="display:none;">
+      💬 &nbsp; WhatsApp
+    </a>
+
+    <a class="btn" id="phoneBtn" href="#" style="display:none;">
+      📞 &nbsp; Llamar
+    </a>
+  </div>
+
+  <div class="footer">
+    Tu tarjeta digital inteligente.<br>
+    <strong>CLICKONME.PRO</strong>
+  </div>
+
+</div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const slug = params.get("u");
+
+if(!slug){
+
+  document.getElementById("profileName").textContent =
+    "Perfil no encontrado";
+
+}else{
+
+  const saved =
+    localStorage.getItem("clickonme_" + slug);
+
+  if(!saved){
+
+    document.getElementById("profileName").textContent =
+      "Perfil no encontrado";
+
+    document.getElementById("profileRole").textContent =
+      "Esta tarjeta no existe en este dispositivo.";
+
+  }else{
+
+    const data = JSON.parse(saved);
+
+    document.getElementById("profileName").textContent =
+      data.name || "Mi ClickOnMe";
+
+    document.getElementById("profileRole").textContent =
+      data.role || "";
+
+    if(data.whatsapp){
+
+      const btn =
+        document.getElementById("whatsappBtn");
+
+      btn.href =
+        "https://wa.me/" +
+        data.whatsapp.replace(/\D/g,"");
+
+      btn.style.display="flex";
+    }
+
+    if(data.phone){
+
+      const btn =
+        document.getElementById("phoneBtn");
+
+      btn.href =
+        "tel:" + data.phone;
+
+      btn.style.display="flex";
+    }
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
