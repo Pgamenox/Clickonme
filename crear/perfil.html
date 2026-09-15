@@ -230,9 +230,10 @@ if(!slug){
 
     document.getElementById("profileName").textContent =
       data.name || "Mi ClickOnMe";
-
-    document.getElementById("profileRole").textContent =
-      data.role || "";
+document.getElementById("profileRole").textContent =
+  data.role || "";
+   document.getElementById("profileDescription").textContent =
+  data.description || "Todo lo que necesitas para contactarme, en un solo lugar.";
 
     if(data.whatsapp){
 
