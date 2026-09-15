@@ -1587,7 +1587,13 @@ const profileData = {
   youtube: document.getElementById("youtube")?.value.trim() || "",
   website: document.getElementById("website")?.value.trim() || "",
   customButtonText: document.getElementById("customButtonText")?.value.trim() || "",
-customButtonUrl: document.getElementById("customButtonUrl")?.value.trim() || ""
+customButtonUrl: document.getElementById("customButtonUrl")?.value.trim() || "",
+  extraCustomButtons: Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(function(field) {
+  return {
+    text: field.querySelector(".extraButtonText")?.value.trim() || "",
+    url: field.querySelector(".extraButtonUrl")?.value.trim() || ""
+  };
+})
 };
 
   localStorage.setItem("clickonme_" + slug, JSON.stringify(profileData));
