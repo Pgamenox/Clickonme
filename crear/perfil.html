@@ -227,7 +227,10 @@ if(!slug){
   }else{
 
     const data = JSON.parse(saved);
-
+if(data.photo){
+  const avatar = document.getElementById("avatar");
+  avatar.innerHTML = '<img src="' + data.photo + '" alt="Foto de perfil">';
+}
     document.getElementById("profileName").textContent =
       data.name || "Mi ClickOnMe";
 document.getElementById("profileRole").textContent =
