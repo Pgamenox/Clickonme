@@ -1553,9 +1553,15 @@ if (extraButtonCount >= 2) {
 const publishButton = document.getElementById("publishButton");
 
 publishButton.addEventListener("click", function () {
-  alert("¡Perfecto! El botón Crear mi ClickOnMe ya está funcionando.");
-});
+  const name = document.getElementById("name").value.trim();
 
+  if (!name) {
+    alert("Por favor escribe tu nombre antes de crear tu ClickOnMe.");
+    return;
+  }
+
+  alert("Tu ClickOnMe está listo para crearse.");
+});
 </script>
 
 
