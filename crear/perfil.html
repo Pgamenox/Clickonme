@@ -191,7 +191,7 @@ h1{
 
 <a class="btn" id="websiteBtn" href="#" style="display:none;">
   🌐 Sitio web
-</a>
+</a> <a class="btn" id="customButtonBtn" href="#" style="display:none;"></a>
   </div>
 
   <div class="footer">
@@ -281,6 +281,11 @@ if(data.youtube){
 if(data.website){
   const btn = document.getElementById("websiteBtn");
   btn.href = data.website;
+  btn.style.display = "flex";
+} if(data.customButtonText && data.customButtonUrl){
+  const btn = document.getElementById("customButtonBtn");
+  btn.textContent = "🔗 " + data.customButtonText;
+  btn.href = data.customButtonUrl;
   btn.style.display = "flex";
 }
   }
