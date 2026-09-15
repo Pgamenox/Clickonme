@@ -1577,7 +1577,13 @@ const slug = name
 const profileData = {
   name: name,
   role: role,
-  slug: slug
+  slug: slug,
+  whatsapp: document.getElementById("whatsapp")?.value.trim() || "",
+  phone: document.getElementById("phone")?.value.trim() || "",
+  facebook: document.getElementById("facebook")?.value.trim() || "",
+  instagram: document.getElementById("instagram")?.value.trim() || "",
+  youtube: document.getElementById("youtube")?.value.trim() || "",
+  website: document.getElementById("website")?.value.trim() || ""
 };
 
   localStorage.setItem("clickonme_" + slug, JSON.stringify(profileData));
