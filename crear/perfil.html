@@ -289,7 +289,20 @@ if(data.website){
   btn.style.display = "flex";
 }
   }
+if(data.extraCustomButtons && Array.isArray(data.extraCustomButtons)){
+  data.extraCustomButtons.slice(0, 2).forEach(function(item){
+    if(item.text && item.url){
+      const btn = document.createElement("a");
+      btn.href = item.url;
+      btn.target = "_blank";
+      btn.className = "btn";
+      btn.textContent = "🔗 " + item.text;
 
+      const customBtn = document.getElementById("customButtonBtn");
+      customBtn.parentNode.insertBefore(btn, customBtn.nextSibling);
+    }
+  });
+}
 }
 
 </script>
