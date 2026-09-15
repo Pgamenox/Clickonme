@@ -1579,7 +1579,9 @@ const profileData = {
   role: role,
   slug: slug
 };
-});
+
+  localStorage.setItem("clickonme_" + slug, JSON.stringify(profileData));
+  });
 </script>
 
 
