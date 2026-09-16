@@ -863,7 +863,7 @@ select:focus{
   <h3>Tu cuenta ClickOnMe</h3>
   <p>Regístrate o inicia sesión para guardar tu tarjeta en la nube y verla desde cualquier dispositivo.</p>
   <div class="field"><label>Correo</label><input id="authEmail" type="email" placeholder="tu@correo.com"></div>
-  <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="8" placeholder="Mínimo 8 caracteres"></div>
+  <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="10" autocomplete="new-password" placeholder="10+ caracteres: mayúscula, minúscula, número y símbolo"></div>
   <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
@@ -1735,7 +1735,8 @@ async function confirmReturnedPayment(){
 
 document.getElementById("signupBtn").addEventListener("click",async()=>{
   const email=document.getElementById("authEmail").value.trim(); const password=document.getElementById("authPassword").value;
-  if(!email || password.length<8){ alert("Escribe un correo válido y una contraseña de al menos 8 caracteres."); return; }
+  const strongPassword=password.length>=10 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /\d/.test(password) && /[^A-Za-z0-9]/.test(password);
+  if(!email || !strongPassword){ alert("Usa un correo válido y una contraseña de 10 o más caracteres con mayúscula, minúscula, número y símbolo."); return; }
   authStatus.textContent="Creando cuenta...";
   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://clickonme.pro/crear/"}});
   if(error){ authStatus.textContent="No se pudo crear la cuenta: "+error.message; return; }
