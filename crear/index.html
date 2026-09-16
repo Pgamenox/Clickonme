@@ -1721,6 +1721,26 @@ supabaseClient.auth.onAuthStateChange((_event,session)=>{ window.setTimeout(()=>
 
 function validWebUrl(value){ if(!value) return true; try{ const u=new URL(value); return u.protocol==="https:" || u.protocol==="http:"; }catch{return false;} }
 
+function dataUrlToBlob(dataUrl){
+  const match=dataUrl.match(/^data:([^;,]+);base64,(.+)$/);
+  if(!match) throw new Error("La imagen seleccionada no tiene un formato válido.");
+  const binary=atob(match[2]);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return new Blob([bytes],{type:match[1]});
+}
+
+async function uploadProfileAsset(value,folder,key){
+  if(!value || !value.startsWith("data:image/")) return value||"";
+  const blob=dataUrlToBlob(value);
+  if(blob.size>5*1024*1024) throw new Error("Cada imagen debe pesar menos de 5 MB.");
+  const path=`${currentUser.id}/${folder}/${key}`;
+  const {error}=await supabaseClient.storage.from("profile-assets").upload(path,blob,{contentType:blob.type,cacheControl:"60",upsert:true});
+  if(error) throw new Error("No se pudo subir la imagen: "+error.message);
+  const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path);
+  return data.publicUrl+"?v="+Date.now();
+}
+
 publishButton.addEventListener("click",async()=>{
   const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session);
   if(!currentUser){ alert("Primero crea tu cuenta o inicia sesión."); return; }
@@ -1731,6 +1751,20 @@ publishButton.addEventListener("click",async()=>{
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ alert("Los enlaces deben comenzar con http:// o https://"); return; }
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
   publishButton.disabled=true; publishButton.textContent="Guardando...";
+  try{
+    const assetFolder="profile-"+slug;
+    profileData.photo=await uploadProfileAsset(profileData.photo,assetFolder,"photo");
+    profileData.backgroundImage=await uploadProfileAsset(profileData.backgroundImage,assetFolder,"background");
+    const uploadedIcons={};
+    for(const [key,value] of Object.entries(profileData.customIcons||{})) uploadedIcons[key]=await uploadProfileAsset(value,assetFolder,"icon-"+key);
+    profileData.customIcons=uploadedIcons;
+    customIcons=uploadedIcons;
+  }catch(error){
+    publishButton.disabled=false;
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert(error.message||"No se pudieron subir las imágenes.");
+    return;
+  }
   const payload={user_id:currentUser.id,slug,name,role,description:profileData.description,photo_url:profileData.photo,data:profileData,updated_at:new Date().toISOString()};
   if(!currentProfileId) payload.created_by=currentUser.id;
   let result;
