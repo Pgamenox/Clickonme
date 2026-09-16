@@ -1566,6 +1566,9 @@ let currentUser = null;
 let currentProfileId = null;
 let currentProfileSlug = null;
 let profileLoadedFor = null;
+const editorParams = new URLSearchParams(window.location.search);
+const requestedProfileId = editorParams.get("id");
+const createNewProfile = editorParams.get("new") === "1";
 
 function makeSlug(value){
   return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0,40);
@@ -1599,8 +1602,14 @@ function populateProfile(row){
 async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
-  const {data,error}=await supabaseClient.from("profiles").select("id,slug,name,role,description,data").eq("user_id",currentUser.id).maybeSingle();
+  if(createNewProfile) return;
+  let query=supabaseClient.from("profiles").select("id,slug,name,role,description,data");
+  if(requestedProfileId) query=query.eq("id",requestedProfileId);
+  else query=query.eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1);
+  const {data:rows,error}=await query;
   if(error){ authStatus.textContent="Sesión activa, pero no se pudo cargar tu tarjeta: "+error.message; return; }
+  const data=rows?.[0];
+  if(requestedProfileId && !data){ authStatus.textContent="No tienes permiso para editar esta tarjeta."; return; }
   if(data) populateProfile(data);
 }
 
@@ -1645,8 +1654,9 @@ publishButton.addEventListener("click",async()=>{
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   const payload={user_id:currentUser.id,slug,name,role,description:profileData.description,photo_url:profileData.photo,data:profileData,updated_at:new Date().toISOString()};
+  if(!currentProfileId) payload.created_by=currentUser.id;
   let result;
-  if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).eq("user_id",currentUser.id).select("id,slug").single();
+  if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug").single();
   else result=await supabaseClient.from("profiles").insert(payload).select("id,slug").single();
   publishButton.disabled=false;
   if(result.error){ publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe"; alert(result.error.code==="23505"?"Esa dirección ya está ocupada. Elige otra.":"No se pudo guardar: "+result.error.message); return; }

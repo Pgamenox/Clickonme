@@ -12,7 +12,7 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
-create unique index if not exists profiles_user_id_key on public.profiles(user_id);
+create index if not exists profiles_user_id_idx on public.profiles(user_id);
 alter table public.profiles enable row level security;
 
 drop policy if exists "Profiles are publicly readable" on public.profiles;
@@ -46,3 +46,92 @@ grant select on table public.profiles to anon;
 revoke all on table public.profiles from authenticated;
 grant select, insert, update, delete on table public.profiles to authenticated;
 grant usage, select on sequence public.profiles_id_seq to authenticated;
+
+-- Controles comerciales y acceso de propietario.
+create table if not exists public.admin_users (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.admin_users enable row level security;
+revoke all on table public.admin_users from anon, authenticated;
+grant select on table public.admin_users to authenticated;
+
+create policy "Admins can verify their role"
+on public.admin_users for select to authenticated
+using (user_id = (select auth.uid()));
+
+alter table public.profiles
+  add column if not exists status text not null default 'trial'
+    check (status in ('trial','active','suspended','expired')),
+  add column if not exists trial_ends_at timestamptz default (now() + interval '30 days'),
+  add column if not exists current_period_end timestamptz,
+  add column if not exists created_by uuid references auth.users(id) on delete set null;
+
+create table if not exists public.business_settings (
+  id text primary key check (id = 'main'),
+  annual_price_mxn integer not null check (annual_price_mxn > 0),
+  launch_price_mxn integer check (launch_price_mxn is null or launch_price_mxn > 0),
+  design_service_price_mxn integer not null check (design_service_price_mxn > 0),
+  launch_promo_active boolean not null default false,
+  launch_promo_label text,
+  trial_days integer not null default 30 check (trial_days between 0 and 365),
+  updated_at timestamptz not null default now(),
+  updated_by uuid references auth.users(id) on delete set null
+);
+alter table public.business_settings enable row level security;
+
+insert into public.business_settings
+  (id, annual_price_mxn, launch_price_mxn, design_service_price_mxn,
+   launch_promo_active, launch_promo_label, trial_days)
+values ('main', 599, 399, 1199, true, 'Promoción de inauguración', 30)
+on conflict (id) do nothing;
+
+create policy "Business settings are public"
+on public.business_settings for select to anon, authenticated using (true);
+
+create policy "Admins update business settings"
+on public.business_settings for update to authenticated
+using (exists (
+  select 1 from public.admin_users a
+  where a.user_id = (select auth.uid())
+))
+with check (exists (
+  select 1 from public.admin_users a
+  where a.user_id = (select auth.uid())
+));
+
+create policy "Admins read all profiles"
+on public.profiles for select to authenticated
+using (exists (
+  select 1 from public.admin_users a
+  where a.user_id = (select auth.uid())
+));
+
+create policy "Admins create profiles"
+on public.profiles for insert to authenticated
+with check (exists (
+  select 1 from public.admin_users a
+  where a.user_id = (select auth.uid())
+));
+
+create policy "Admins update profiles"
+on public.profiles for update to authenticated
+using (exists (
+  select 1 from public.admin_users a
+  where a.user_id = (select auth.uid())
+))
+with check (exists (
+  select 1 from public.admin_users a
+  where a.user_id = (select auth.uid())
+));
+
+create policy "Admins delete profiles"
+on public.profiles for delete to authenticated
+using (exists (
+  select 1 from public.admin_users a
+  where a.user_id = (select auth.uid())
+));
+
+revoke all on table public.business_settings from anon, authenticated;
+grant select on table public.business_settings to anon, authenticated;
+grant update on table public.business_settings to authenticated;
