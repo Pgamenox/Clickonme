@@ -263,9 +263,9 @@ function styleButton(button,d){
 }
 async function loadProfile(){
  if(!slug){document.getElementById("profileName").textContent="Perfil no encontrado";document.getElementById("profileRole").textContent="La dirección está incompleta.";return;}
- const {data:row,error}=await client.from('profiles').select('data').eq('slug',slug).maybeSingle();
+ const {data:row,error}=await client.from('profiles').select('name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data').eq('slug',slug).maybeSingle();
  if(error || !row){document.getElementById("profileName").textContent="Perfil no encontrado";document.getElementById("profileRole").textContent="Esta tarjeta no existe o no está disponible.";return;}
- const d=row.data||{};
+ const d={...row,...(row.data||{})};
  document.getElementById("profileName").textContent=d.name||"Mi ClickOnMe";
  document.title=(d.name||"Mi ClickOnMe")+" | ClickOnMe";
  document.getElementById("profileRole").textContent=d.role||"";

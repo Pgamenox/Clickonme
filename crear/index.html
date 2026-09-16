@@ -1674,7 +1674,7 @@ function updateProfileLink(slug){
 }
 
 function populateProfile(row){
-  const d=row.data||{}; currentProfileId=row.id; currentProfileSlug=row.slug;
+  const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
   setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1";
   ["backgroundType","color1","color2","backgroundOverlay","backgroundBlur","backgroundOverlayColor","backgroundPosition","photoShape","photoFit","cardColor","buttonColor","textColor","secondaryTextColor","cardOpacity","buttonRadius","fontFamily","buttonStyle","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"].forEach(id=>setField(id,d[id]));
@@ -1691,7 +1691,7 @@ async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
   if(createNewProfile) return;
-  let query=supabaseClient.from("profiles").select("id,slug,name,role,description,data");
+  let query=supabaseClient.from("profiles").select("id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data");
   if(requestedProfileId) query=query.eq("id",requestedProfileId);
   else query=query.eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1);
   const {data:rows,error}=await query;
@@ -1812,18 +1812,33 @@ publishButton.addEventListener("click",async()=>{
     alert(error.message||"No se pudieron subir las imágenes.");
     return;
   }
-  const payload={user_id:currentUser.id,slug,name,role,description:profileData.description,photo_url:profileData.photo,data:profileData,updated_at:new Date().toISOString()};
+  const payload={
+    user_id:currentUser.id,slug,name,role,description:profileData.description,
+    photo_url:profileData.photo,whatsapp:profileData.whatsapp,phone:profileData.phone,
+    facebook:profileData.facebook,instagram:profileData.instagram,
+    youtube:profileData.youtube,website:profileData.website,
+    data:profileData,updated_at:new Date().toISOString()
+  };
   if(!currentProfileId) payload.created_by=currentUser.id;
   let result;
-  if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug").single();
-  else result=await supabaseClient.from("profiles").insert(payload).select("id,slug").single();
+  if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+  else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
   publishButton.disabled=false;
   if(result.error){ publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe"; alert(result.error.code==="23505"?"Esa dirección ya está ocupada. Elige otra.":"No se pudo guardar: "+result.error.message); return; }
+  const saved=result.data.data||{};
+  const verifyKeys=["whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"];
+  const missing=verifyKeys.filter(key=>String(saved[key]||"")!==String(profileData[key]||""));
+  if(missing.length){
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert("La tarjeta no se guardó completa. Intenta nuevamente.");
+    return;
+  }
   currentProfileId=result.data.id; currentProfileSlug=result.data.slug; updateProfileLink(currentProfileSlug); publishButton.textContent="Guardado ✓";
+  authStatus.textContent=`Tarjeta guardada correctamente. Dirección pública: clickonme.pro/crear/perfil.html?u=${currentProfileSlug}`;
   paymentBox.style.display="block";
   window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
   window.setTimeout(()=>{publishButton.textContent="Guardar cambios";},1400);
-  paymentBox.scrollIntoView({behavior:"smooth",block:"center"});
+  viewProfileLink.focus();
 });
 
 updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
