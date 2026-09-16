@@ -186,3 +186,31 @@ using (
   bucket_id = 'profile-assets'
   and (storage.foldername(name))[1] = (select auth.uid())::text
 );
+
+-- Órdenes creadas por la integración segura de Mercado Pago.
+create table if not exists public.payments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  profile_id bigint not null references public.profiles(id) on delete cascade,
+  provider text not null default 'mercado_pago',
+  provider_order_id text unique,
+  external_reference text not null unique,
+  amount_mxn integer not null check (amount_mxn > 0),
+  status text not null default 'created'
+    check (status in ('created','pending','approved','rejected','cancelled','refunded')),
+  environment text not null default 'test'
+    check (environment in ('test','production')),
+  checkout_url text,
+  provider_payload jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists payments_user_id_idx on public.payments(user_id);
+create index if not exists payments_profile_id_idx on public.payments(profile_id);
+alter table public.payments enable row level security;
+drop policy if exists "Users read own payments" on public.payments;
+create policy "Users read own payments"
+on public.payments for select to authenticated
+using ((select auth.uid()) = user_id);
+revoke all on table public.payments from anon, authenticated;
+grant select on table public.payments to authenticated;
