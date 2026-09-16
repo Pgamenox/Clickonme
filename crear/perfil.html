@@ -206,28 +206,54 @@ h1{
 <script>
 const client = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY);
 const params = new URLSearchParams(window.location.search);
-const slug = params.get("u");
-function setBtn(id, url, text){ const el=document.getElementById(id); if(url){el.href=url; if(text)el.textContent=text; el.style.display="flex";} }
+const slug = (params.get("u")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
+
+function safeWebUrl(value){
+  if(!value) return "";
+  try{ const url=new URL(value); return ["https:","http:"].includes(url.protocol)?url.href:""; }catch{return "";}
+}
+function safeImage(value){
+  if(!value) return "";
+  if(/^data:image\/(png|jpe?g|webp|gif);base64,/i.test(value)) return value;
+  return safeWebUrl(value);
+}
+function hexToRgba(hex,opacity){
+  const match=/^#([0-9a-f]{6})$/i.exec(hex||""); if(!match) return "rgba(9,10,20,.9)";
+  const n=parseInt(match[1],16); return `rgba(${n>>16},${(n>>8)&255},${n&255},${Math.max(0,Math.min(1,Number(opacity)/100))})`;
+}
+function setBtn(id,url,text){
+  const el=document.getElementById(id); const safe=safeWebUrl(url);
+  if(!safe) return; el.href=safe; if(text) el.textContent=text; el.target="_blank"; el.rel="noopener noreferrer"; el.style.display="flex";
+}
+function styleButton(button,d){
+  button.style.borderRadius=(d.buttonRadius||15)+"px"; button.style.color=d.textColor||"#fff"; button.style.boxShadow="none"; button.style.backdropFilter="none";
+  if(d.buttonStyle==="outline"){button.style.background="transparent";button.style.border=`2px solid ${d.buttonColor||"#075cff"}`;button.style.color=d.buttonColor||"#075cff";}
+  else if(d.buttonStyle==="glass"){button.style.background="rgba(255,255,255,.10)";button.style.border="1px solid rgba(255,255,255,.22)";button.style.backdropFilter="blur(10px)";}
+  else{button.style.background=d.buttonColor||"#222533";button.style.border="1px solid rgba(255,255,255,.12)";if(d.buttonStyle==="shadow")button.style.boxShadow="0 8px 20px rgba(0,0,0,.35)";}
+}
 async function loadProfile(){
- if(!slug){document.getElementById("profileName").textContent="Perfil no encontrado";return;}
+ if(!slug){document.getElementById("profileName").textContent="Perfil no encontrado";document.getElementById("profileRole").textContent="La dirección está incompleta.";return;}
  const {data:row,error}=await client.from('profiles').select('data').eq('slug',slug).maybeSingle();
- if(error || !row){document.getElementById("profileName").textContent="Perfil no encontrado";return;}
+ if(error || !row){document.getElementById("profileName").textContent="Perfil no encontrado";document.getElementById("profileRole").textContent="Esta tarjeta no existe o no está disponible.";return;}
  const d=row.data||{};
  document.getElementById("profileName").textContent=d.name||"Mi ClickOnMe";
+ document.title=(d.name||"Mi ClickOnMe")+" | ClickOnMe";
  document.getElementById("profileRole").textContent=d.role||"";
  document.getElementById("profileDescription").textContent=d.description||"";
- if(d.photo){const a=document.getElementById('avatar');a.innerHTML='';const img=document.createElement('img');img.src=d.photo;img.alt=d.name||'';img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';a.appendChild(img);}
- document.body.style.background=`radial-gradient(circle at 50% -10%,${d.color1||'#075cff'} 0,${d.color2||'#090b18'} 75%)`;
- const card=document.querySelector('.card'); if(d.cardColor) card.style.background=d.cardColor;
- if(d.textColor) document.getElementById('profileName').style.color=d.textColor;
+ const photo=safeImage(d.photo); if(photo){const a=document.getElementById('avatar');a.innerHTML='';const img=document.createElement('img');img.src=photo;img.alt=d.name||'Foto de perfil';a.appendChild(img);}
+ const background=safeImage(d.backgroundImage);
+ if(d.backgroundType==="image" && background) document.body.style.background=`linear-gradient(rgba(0,0,0,.18),rgba(0,0,0,.18)),url("${background}") center/cover fixed`;
+ else if(d.backgroundType==="color") document.body.style.background=d.color1||"#090b18";
+ else document.body.style.background=`linear-gradient(160deg,${d.color1||'#075cff'},${d.color2||'#090b18'})`;
+ const card=document.querySelector('.card'); card.style.background=hexToRgba(d.cardColor||"#0b0d18",d.cardOpacity||90); card.style.fontFamily=d.fontFamily||"Arial, Helvetica, sans-serif"; card.style.color=d.textColor||"#fff";
  if(d.secondaryTextColor){document.getElementById('profileRole').style.color=d.secondaryTextColor;document.getElementById('profileDescription').style.color=d.secondaryTextColor;}
- setBtn('whatsappBtn',d.whatsapp ? 'https://wa.me/'+d.whatsapp.replace(/\D/g,'') : '', '💬  WhatsApp');
- setBtn('phoneBtn',d.phone ? 'tel:'+d.phone : '', '📞  Llamar');
+ const wa=(d.whatsapp||"").replace(/\D/g,""); if(wa){const el=document.getElementById('whatsappBtn');el.href='https://wa.me/'+wa;el.textContent='💬  WhatsApp';el.style.display='flex';}
+ const phone=(d.phone||"").replace(/[^\d+]/g,""); if(phone){const el=document.getElementById('phoneBtn');el.href='tel:'+phone;el.textContent='📞  Llamar';el.style.display='flex';}
  setBtn('facebookBtn',d.facebook,'Facebook'); setBtn('instagramBtn',d.instagram,'Instagram'); setBtn('youtubeBtn',d.youtube,'▶ YouTube'); setBtn('websiteBtn',d.website,'🌐 Sitio web');
  setBtn('customButtonBtn',d.customButtonUrl,d.customButtonText||'Enlace');
  const links=document.querySelector('.links');
- (d.extraCustomButtons||[]).filter(x=>x.text&&x.url).forEach(x=>{const a=document.createElement('a');a.className='btn';a.href=x.url;a.textContent=x.text;a.target='_blank';links.appendChild(a);});
- document.querySelectorAll('.btn').forEach(b=>{if(d.buttonColor)b.style.background=d.buttonColor;if(d.buttonRadius)b.style.borderRadius=d.buttonRadius+'px';});
+ (Array.isArray(d.extraCustomButtons)?d.extraCustomButtons:[]).slice(0,2).forEach(x=>{const url=safeWebUrl(x.url);if(!x.text||!url)return;const a=document.createElement('a');a.className='btn';a.href=url;a.textContent='🔗 '+x.text;a.target='_blank';a.rel='noopener noreferrer';links.appendChild(a);});
+ document.querySelectorAll('.btn').forEach(button=>styleButton(button,d));
 }
 loadProfile();
 </script>
