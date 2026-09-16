@@ -8,17 +8,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../brand.css">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
 font-family:'Poppins',sans-serif;
-background:linear-gradient(135deg,#0a0a0a,#14142b,#0b0b18);
+background:radial-gradient(circle at top right,rgba(189,25,255,.22),transparent 38%),radial-gradient(circle at bottom left,rgba(0,229,255,.18),transparent 35%),var(--com-bg);
 min-height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
+flex-direction:column;
+gap:14px;
 padding:30px;
 color:white;
 overflow-x:hidden;
@@ -29,7 +32,7 @@ content:'';
 position:fixed;
 width:500px;
 height:500px;
-background:#ff2bd6;
+background:var(--com-purple);
 filter:blur(170px);
 opacity:.15;
 top:-150px;
@@ -42,7 +45,7 @@ content:'';
 position:fixed;
 width:450px;
 height:450px;
-background:#3b82f6;
+background:var(--com-cyan);
 filter:blur(160px);
 opacity:.18;
 bottom:-120px;
@@ -73,7 +76,7 @@ width:118px;
 height:118px;
 margin:auto;
 border-radius:50%;
-background:linear-gradient(135deg,#ff2bd6,#3b82f6);
+background:var(--com-gradient);
 display:flex;
 justify-content:center;
 align-items:center;
@@ -269,10 +272,16 @@ text-decoration:none;
     line-height:1.35;
   }
 
+}
+
 </style>
 </head>
 
 <body>
+
+<a class="com-brandbar" href="/" aria-label="ClickOnMe, inicio">
+  <img class="com-brand-logo" src="../logo-clickonme.png" alt="ClickOnMe — Un clic y listo">
+</a>
 
 <div class="card">
 
@@ -287,7 +296,8 @@ Comunicación • Producción Audiovisual • IA • Estrategia Digital
 </p>
 
 <div class="brand">
-  <img src="./Logo%20Clickonme.png" alt="ClickOnMe">
+  <div class="com-brand-tagline">Tu mundo, en un solo enlace</div>
+  <div class="com-brand-rule"></div>
 </div>
 
 <div class="links">

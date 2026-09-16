@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
 
 <style>
 
@@ -26,7 +27,7 @@ scroll-behavior:smooth;
 
 body{
 font-family:'Poppins',sans-serif;
-background:#080811;
+background:var(--com-bg);
 color:white;
 min-height:100vh;
 overflow-x:hidden;
@@ -37,7 +38,7 @@ content:'';
 position:fixed;
 width:650px;
 height:650px;
-background:#ff2bd6;
+background:var(--com-purple);
 filter:blur(220px);
 opacity:.16;
 top:-220px;
@@ -50,7 +51,7 @@ content:'';
 position:fixed;
 width:650px;
 height:650px;
-background:#326bff;
+background:var(--com-cyan);
 filter:blur(230px);
 opacity:.16;
 bottom:-250px;
@@ -70,15 +71,8 @@ align-items:center;
 justify-content:space-between;
 }
 
-.logo{
-font-size:21px;
-font-weight:800;
-letter-spacing:2px;
-}
-
-.logo span{
-color:#ff5cda;
-}
+.logo{display:flex;align-items:center;text-decoration:none}
+.logo .com-brand-logo{width:190px;max-width:42vw}
 
 .nav-link{
 text-decoration:none;
@@ -117,7 +111,7 @@ margin:auto;
 }
 
 .gradient-text{
-background:linear-gradient(90deg,#ff5cda,#9c62ff,#4c8dff);
+background:var(--com-gradient);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 background-clip:text;
@@ -152,7 +146,7 @@ transition:.25s;
 }
 
 .btn-primary{
-background:linear-gradient(135deg,#ff35d1,#6b61ff);
+background:var(--com-gradient);
 color:white;
 box-shadow:0 12px 35px rgba(174,61,255,.28);
 }
@@ -267,11 +261,11 @@ top:-55px;
 }
 
 .profile.pablo::before{
-background:#8c55ff;
+background:var(--com-purple);
 }
 
 .profile.claudia::before{
-background:#ff589f;
+background:var(--com-cyan);
 }
 
 .avatar{
@@ -289,11 +283,11 @@ z-index:2;
 }
 
 .pablo .avatar{
-background:linear-gradient(135deg,#f22bd9,#4d82ff);
+background:var(--com-gradient);
 }
 
 .claudia .avatar{
-background:linear-gradient(135deg,#ff7698,#ffba46,#64a9ff);
+background:var(--com-gradient);
 }
 
 .profile small{
@@ -320,7 +314,7 @@ display:inline-block;
 margin-top:22px;
 font-size:13px;
 font-weight:600;
-color:#ff6bdd;
+color:var(--com-cyan);
 }
 
 /* CTA */
@@ -336,7 +330,7 @@ text-align:center;
 padding:55px 25px;
 border-radius:32px;
 background:
-linear-gradient(135deg,rgba(255,38,208,.12),rgba(70,92,255,.13));
+linear-gradient(135deg,rgba(189,25,255,.12),rgba(0,229,255,.10));
 border:1px solid rgba(255,255,255,.11);
 }
 
@@ -360,7 +354,7 @@ font-size:12px;
 }
 
 footer strong{
-color:#ff5cda;
+color:var(--com-cyan);
 letter-spacing:1px;
 }
 
@@ -395,9 +389,9 @@ padding:22px 20px;
 
 <nav>
 
-<div class="logo">
-CLICK<span>ONME</span>
-</div>
+<a class="logo" href="/" aria-label="ClickOnMe, inicio">
+<img class="com-brand-logo" src="/logo-clickonme.png" alt="ClickOnMe — Un clic y listo">
+</a>
 
 <a class="nav-link" href="#ejemplos">
 Ejemplos
@@ -564,9 +558,8 @@ Crear mi ClickOnMe
 
 <footer>
 
-<strong>CLICKONME</strong>
-<br><br>
-Tu identidad. Tus proyectos. Un solo enlace.
+<img class="com-brand-logo" src="/logo-clickonme.png" alt="ClickOnMe — Un clic y listo" style="margin:0 auto 14px">
+Tu mundo, en un solo enlace.
 
 </footer>
 

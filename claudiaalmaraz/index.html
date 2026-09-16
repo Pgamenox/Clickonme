@@ -13,6 +13,7 @@ content="Claudia Almaraz. Conductora y creadora de El Soneto del Colibrí.">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../brand.css">
 
 <style>
 
@@ -26,13 +27,9 @@ body{
 font-family:'Poppins',sans-serif;
 min-height:100vh;
 padding:35px 18px;
-color:#4a3045;
+color:var(--com-text);
 
-background:
-radial-gradient(circle at 12% 10%,rgba(255,73,145,.30),transparent 35%),
-radial-gradient(circle at 90% 20%,rgba(255,189,73,.30),transparent 35%),
-radial-gradient(circle at 80% 90%,rgba(69,173,255,.28),transparent 35%),
-linear-gradient(135deg,#fff3ec,#ffe6f2,#e9f7ff);
+background:radial-gradient(circle at 12% 10%,rgba(189,25,255,.24),transparent 35%),radial-gradient(circle at 88% 88%,rgba(0,229,255,.18),transparent 35%),var(--com-bg);
 }
 
 .wrapper{
@@ -51,20 +48,20 @@ margin-bottom:18px;
 text-decoration:none;
 font-size:12px;
 font-weight:600;
-color:#895b7c;
-background:rgba(255,255,255,.72);
+color:var(--com-text);
+background:var(--com-surface-soft);
 padding:8px 15px;
 border-radius:999px;
 box-shadow:0 6px 20px rgba(100,60,90,.08);
 }
 
 .card{
-background:rgba(255,255,255,.88);
-border:1px solid rgba(255,255,255,.9);
+background:var(--com-surface);
+border:1px solid var(--com-border);
 border-radius:38px;
 padding:32px 25px 28px;
 text-align:center;
-box-shadow:0 24px 70px rgba(112,62,100,.17);
+box-shadow:var(--com-shadow);
 backdrop-filter:blur(20px);
 }
 
@@ -74,7 +71,7 @@ height:145px;
 margin:0 auto 18px;
 padding:5px;
 border-radius:50%;
-background:linear-gradient(135deg,#ff4d91,#ffbd42,#55a8ff);
+background:var(--com-gradient);
 box-shadow:0 12px 35px rgba(209,72,137,.23);
 }
 
@@ -87,23 +84,23 @@ border:4px solid white;
 }
 
 h1{
-font-family:'DM Serif Display',serif;
+font-family:'Poppins',sans-serif;
 font-size:35px;
 font-weight:400;
-color:#442d45;
+color:var(--com-text);
 }
 
 .role{
 font-size:14px;
 font-weight:600;
-color:#895a80;
+color:#c9d4ee;
 margin-top:6px;
 }
 
 .bio{
 font-size:14px;
 line-height:1.7;
-color:#715e6e;
+color:var(--com-muted);
 margin:19px auto 24px;
 max-width:370px;
 }
@@ -134,15 +131,15 @@ color:white;
 }
 
 .call{
-background:#513851;
+background:linear-gradient(100deg,var(--com-purple),var(--com-blue));
 color:white;
 }
 
 /* SONETO */
 
 .project{
-background:linear-gradient(145deg,#fff9f5,#ffffff);
-border:1px solid rgba(224,169,199,.38);
+background:rgba(255,255,255,.055);
+border:1px solid var(--com-border);
 border-radius:29px;
 padding:23px;
 box-shadow:0 12px 34px rgba(92,55,86,.09);
@@ -153,7 +150,7 @@ font-size:11px;
 font-weight:700;
 letter-spacing:1.5px;
 text-transform:uppercase;
-color:#b46b94;
+color:var(--com-cyan);
 margin-bottom:15px;
 }
 
@@ -167,16 +164,16 @@ box-shadow:0 10px 25px rgba(144,69,117,.13);
 }
 
 .project h2{
-font-family:'DM Serif Display',serif;
+font-family:'Poppins',sans-serif;
 font-size:29px;
 font-weight:400;
-color:#c63d80;
+color:var(--com-text);
 }
 
 .project p{
 font-size:13px;
 line-height:1.65;
-color:#76616f;
+color:var(--com-muted);
 margin:10px 0 18px;
 }
 
@@ -196,14 +193,14 @@ padding:15px;
 border-radius:18px;
 font-size:14px;
 font-weight:600;
-background:#f7e4ef;
-color:#693c61;
+background:rgba(255,255,255,.075);
+color:var(--com-text);
 transition:.25s;
 }
 
 .link:hover{
 transform:translateY(-2px);
-background:#f2d6e7;
+background:rgba(255,255,255,.13);
 }
 
 /* CLUB */
@@ -212,8 +209,8 @@ background:#f2d6e7;
 margin-top:19px;
 padding:23px;
 border-radius:27px;
-background:linear-gradient(135deg,#fde3ed,#fff0d9);
-border:1px solid rgba(255,255,255,.8);
+background:linear-gradient(135deg,rgba(189,25,255,.12),rgba(0,229,255,.08));
+border:1px solid var(--com-border);
 }
 
 .club small{
@@ -221,21 +218,21 @@ font-size:10px;
 font-weight:700;
 text-transform:uppercase;
 letter-spacing:1.5px;
-color:#ae6a89;
+color:var(--com-cyan);
 }
 
 .club h3{
-font-family:'DM Serif Display',serif;
+font-family:'Poppins',sans-serif;
 font-size:27px;
 font-weight:400;
-color:#844565;
+color:var(--com-text);
 margin-top:5px;
 }
 
 .club p{
 font-size:13px;
 line-height:1.6;
-color:#765d6b;
+color:var(--com-muted);
 margin-top:8px;
 }
 
@@ -244,10 +241,10 @@ display:inline-block;
 margin-top:13px;
 padding:7px 14px;
 border-radius:999px;
-background:white;
+background:rgba(255,255,255,.09);
 font-size:11px;
 font-weight:600;
-color:#ab5d82;
+color:#dce6ff;
 }
 
 /* FIRMA */
@@ -255,7 +252,7 @@ color:#ab5d82;
 .signature{
 margin-top:28px;
 font-size:11px;
-color:#998595;
+color:var(--com-muted);
 }
 
 .clickonme{
@@ -267,7 +264,7 @@ text-decoration:none;
 font-size:14px;
 font-weight:700;
 letter-spacing:2px;
-color:#d84391;
+color:var(--com-cyan);
 }
 
 @media(max-width:480px){
@@ -293,6 +290,11 @@ grid-template-columns:1fr 1fr;
 <body>
 
 <div class="wrapper">
+
+<a class="com-brandbar" href="/" aria-label="ClickOnMe, inicio">
+  <img class="com-brand-logo" src="../logo-clickonme.png" alt="ClickOnMe — Un clic y listo">
+</a>
+<div class="com-brand-rule" style="margin-bottom:18px"></div>
 
 <div class="back">
 <a href="/">← Volver a ClickOnMe</a>
@@ -399,7 +401,7 @@ Creado con
 </div>
 
 <div class="clickonme">
-<a href="/">CLICKONME</a>
+<a href="/">UN CLIC Y LISTO</a>
 </div>
 
 </main>
