@@ -210,8 +210,15 @@ create index if not exists payments_user_id_idx on public.payments(user_id);
 create index if not exists payments_profile_id_idx on public.payments(profile_id);
 alter table public.payments enable row level security;
 drop policy if exists "Users read own payments" on public.payments;
+drop policy if exists "Admins read all payments" on public.payments;
 create policy "Users read own payments"
 on public.payments for select to authenticated
 using ((select auth.uid()) = user_id);
+create policy "Admins read all payments"
+on public.payments for select to authenticated
+using (exists (
+  select 1 from public.admin_users a
+  where a.user_id = (select auth.uid())
+));
 revoke all on table public.payments from anon, authenticated;
 grant select on table public.payments to authenticated;
