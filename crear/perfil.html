@@ -227,6 +227,37 @@ if(!slug){
   }else{
 
     const data = JSON.parse(saved);
+    if(data.cardColor){
+  const opacity = (parseInt(data.cardOpacity || "90", 10) / 100);
+  const hex = data.cardColor.replace("#", "");
+  const r = parseInt(hex.substring(0,2), 16);
+  const g = parseInt(hex.substring(2,4), 16);
+  const b = parseInt(hex.substring(4,6), 16);
+
+  document.querySelector(".card").style.background =
+    `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
+
+if(data.buttonColor){
+  document.querySelectorAll(".btn").forEach(function(btn){
+    btn.style.background = data.buttonColor;
+  });
+}
+
+if(data.textColor){
+  document.querySelector(".card").style.color = data.textColor;
+}
+
+if(data.secondaryTextColor){
+  document.getElementById("profileRole").style.color = data.secondaryTextColor;
+  document.getElementById("profileDescription").style.color = data.secondaryTextColor;
+}
+
+if(data.buttonRadius){
+  document.querySelectorAll(".btn").forEach(function(btn){
+    btn.style.borderRadius = data.buttonRadius + "px";
+  });
+}
 if(data.photo){
   const avatar = document.getElementById("avatar");
   avatar.innerHTML = '<img src="' + data.photo + '" alt="Foto de perfil">';
