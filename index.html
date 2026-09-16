@@ -239,7 +239,7 @@ overflow:hidden;
 background:rgba(255,255,255,.065);
 border:1px solid rgba(255,255,255,.11);
 border-radius:28px;
-padding:30px;
+padding:0 0 24px;
 text-decoration:none;
 color:white;
 transition:.3s;
@@ -297,10 +297,20 @@ align-items:center;
 justify-content:center;
 font-size:25px;
 font-weight:700;
-margin-bottom:22px;
+margin:-36px 24px 16px;
 position:relative;
 z-index:2;
+border:4px solid #17152b;
+box-shadow:0 8px 24px rgba(0,0,0,.28);
 }
+
+.profile-cover{height:118px;position:relative;overflow:hidden}
+.profile-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.28))}
+.negocio .profile-cover{background:radial-gradient(circle at 75% 20%,#ffc65a 0 7%,transparent 8%),linear-gradient(135deg,#5a1f08,#d0600b 55%,#ffad32)}
+.creadora .profile-cover{background:radial-gradient(circle at 25% 30%,rgba(255,255,255,.55) 0 4%,transparent 5%),linear-gradient(135deg,#49147a,#e32387 55%,#ff8a38)}
+.profesional .profile-cover{background:linear-gradient(115deg,#071d47,#0e65b5 52%,#41dbe8)}
+.artista .profile-cover{background:radial-gradient(circle at 70% 25%,#ff8d32 0 5%,transparent 6%),linear-gradient(135deg,#170629,#7b19b8 55%,#f04b3b)}
+.profile-content{padding:0 24px}
 
 .pablo .avatar{
 background:var(--com-gradient);
@@ -357,6 +367,16 @@ border:1px solid rgba(255,255,255,.10);
 font-size:11px;
 color:#e7e7f2;
 }
+
+.mini-socials{display:flex;gap:8px;margin:15px 0}
+.mini-socials span{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.11);font-size:13px}
+.mini-actions{display:grid;gap:8px;margin-top:16px}
+.mini-action{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-radius:13px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.10);font-size:12px;font-weight:600}
+.negocio .mini-action{background:rgba(255,145,24,.16)}
+.creadora .mini-action{border-radius:999px;background:rgba(255,255,255,.14)}
+.profesional .mini-action{background:rgba(17,111,205,.18)}
+.artista .mini-action:first-child{background:linear-gradient(90deg,#942cff,#ff6535);border:0}
+.demo-note{margin:24px auto 0;max-width:760px;text-align:center;font-size:13px;line-height:1.6;color:#aeb0c3}
 
 /* CTA */
 
@@ -475,7 +495,7 @@ Comparte una sola dirección. Haz que encontrarte sea fácil.
 
 <a
 class="btn btn-primary"
-href="/crear/">
+href="/crear/?new=1">
 Quiero mi ClickOnMe
 </a>
 
@@ -545,40 +565,90 @@ No te limites a una lista de enlaces. Combina identidad, contenido y contacto en
 <div class="profile-grid">
 
 <article class="profile negocio">
+<div class="profile-cover"></div>
 <div class="avatar">LM</div>
+<div class="profile-content">
+
 <small>Negocio local</small>
+
 <h3>La Mesa Norteña</h3>
-<p>Menú, reservaciones, ubicación, promociones y pedidos por WhatsApp en un mismo espacio.</p>
-<div class="option-tags"><span>Menú</span><span>Mapa</span><span>WhatsApp</span></div>
+
+<p>
+Menú, reservaciones, ubicación, promociones y pedidos por WhatsApp en un mismo espacio.
+</p>
+
+<div class="mini-socials"><span>f</span><span>◎</span><span>▶</span></div>
+<div class="mini-actions"><div class="mini-action">🍽️ Ver menú <b>›</b></div><div class="mini-action">💬 Pedir por WhatsApp <b>›</b></div><div class="mini-action">📍 Cómo llegar <b>›</b></div></div>
+</div>
+
 </article>
+
 
 <article class="profile creadora">
+<div class="profile-cover"></div>
 <div class="avatar">VL</div>
+<div class="profile-content">
+
 <small>Creadora de contenido</small>
+
 <h3>Valeria Luna</h3>
-<p>Videos, redes, colaboraciones, comunidad y productos con una estética completamente personal.</p>
-<div class="option-tags"><span>Videos</span><span>Redes</span><span>Tienda</span></div>
+
+<p>
+Videos, redes, colaboraciones, comunidad y productos con una estética completamente personal.
+</p>
+
+<div class="mini-socials"><span>◎</span><span>♪</span><span>▶</span></div>
+<div class="mini-actions"><div class="mini-action">✨ Mi contenido nuevo <b>›</b></div><div class="mini-action">🛍️ Colección personal <b>›</b></div><div class="mini-action">🤝 Colaboraciones <b>›</b></div></div>
+</div>
+
 </article>
+
 
 <article class="profile profesional">
+<div class="profile-cover"></div>
 <div class="avatar">DR</div>
+<div class="profile-content">
+
 <small>Servicios profesionales</small>
+
 <h3>Daniel Ríos</h3>
-<p>Presentación, servicios, agenda, testimonios y contacto directo con una imagen sobria y confiable.</p>
-<div class="option-tags"><span>Agenda</span><span>Servicios</span><span>Contacto</span></div>
+
+<p>
+Presentación, servicios, agenda, testimonios y contacto directo con una imagen sobria y confiable.
+</p>
+
+<div class="mini-socials"><span>in</span><span>✉</span><span>☎</span></div>
+<div class="mini-actions"><div class="mini-action">📅 Agendar una consulta <b>›</b></div><div class="mini-action">📐 Ver proyectos <b>›</b></div><div class="mini-action">⭐ Testimonios <b>›</b></div></div>
+</div>
+
 </article>
 
+
 <article class="profile artista">
+<div class="profile-cover"></div>
 <div class="avatar">NS</div>
+<div class="profile-content">
+
 <small>Artista independiente</small>
+
 <h3>Nico Sol</h3>
-<p>Música, próximos eventos, contenido exclusivo y contratación reunidos en una experiencia visual propia.</p>
-<div class="option-tags"><span>Música</span><span>Eventos</span><span>Contratación</span></div>
+
+<p>
+Música, próximos eventos, contenido exclusivo y contratación reunidos en una experiencia visual propia.
+</p>
+
+<div class="mini-socials"><span>♫</span><span>▶</span><span>◎</span></div>
+<div class="mini-actions"><div class="mini-action">▶ Reproducir nuevo sencillo <b>›</b></div><div class="mini-action">🎟️ Próximas fechas <b>›</b></div><div class="mini-action">🎤 Contratación <b>›</b></div></div>
+</div>
+
 </article>
 
 </div>
 
+<p class="demo-note">Ejemplos ficticios para mostrar cómo una misma plataforma puede adaptarse a negocios, creadores, profesionistas y artistas.</p>
+
 </section>
+
 
 <section class="cta">
 
@@ -594,7 +664,7 @@ Crea tu espacio digital personalizado con ClickOnMe.
 
 <a
 class="btn btn-primary"
-href="/crear/">
+href="/crear/?new=1">
 Crear mi ClickOnMe
 </a>
 
