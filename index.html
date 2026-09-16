@@ -229,7 +229,7 @@ padding:20px 24px 110px;
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:22px;
-max-width:780px;
+max-width:920px;
 margin:auto;
 }
 
@@ -271,6 +271,23 @@ background:var(--com-purple);
 background:var(--com-cyan);
 }
 
+.profile.negocio{
+background:linear-gradient(145deg,rgba(255,153,0,.16),rgba(255,255,255,.055));
+}
+.profile.negocio::before{background:#ff9900}
+.profile.creadora{
+background:linear-gradient(145deg,rgba(255,42,123,.16),rgba(109,40,217,.08));
+}
+.profile.creadora::before{background:#ff2a7b}
+.profile.profesional{
+background:linear-gradient(145deg,rgba(0,229,255,.13),rgba(0,72,255,.08));
+}
+.profile.profesional::before{background:var(--com-cyan)}
+.profile.artista{
+background:linear-gradient(145deg,rgba(189,25,255,.17),rgba(255,109,0,.07));
+}
+.profile.artista::before{background:var(--com-purple)}
+
 .avatar{
 width:72px;
 height:72px;
@@ -292,6 +309,11 @@ background:var(--com-gradient);
 .claudia .avatar{
 background:var(--com-gradient);
 }
+
+.negocio .avatar{background:linear-gradient(135deg,#ffb000,#ff6200)}
+.creadora .avatar{background:linear-gradient(135deg,#ff2a7b,#8b35ff)}
+.profesional .avatar{background:linear-gradient(135deg,#00e5ff,#1268ff)}
+.artista .avatar{background:linear-gradient(135deg,#bd19ff,#ff6d00)}
 
 .profile small{
 font-size:11px;
@@ -318,6 +340,22 @@ margin-top:22px;
 font-size:13px;
 font-weight:600;
 color:var(--com-cyan);
+}
+
+.option-tags{
+display:flex;
+flex-wrap:wrap;
+gap:7px;
+margin-top:18px;
+}
+
+.option-tags span{
+padding:6px 9px;
+border-radius:999px;
+background:rgba(255,255,255,.09);
+border:1px solid rgba(255,255,255,.10);
+font-size:11px;
+color:#e7e7f2;
 }
 
 /* CTA */
@@ -497,56 +535,50 @@ Obtén tu propia dirección ClickOnMe para compartirla en redes, tarjetas y QR.
 <section class="examples" id="ejemplos">
 
 <h2 class="section-title">
-Conoce algunos ClickOnMe
+Cuatro estilos. Una sola plataforma.
 </h2>
 
 <p class="section-subtitle">
-Cada perfil puede tener una identidad completamente diferente.
+No te limites a una lista de enlaces. Combina identidad, contenido y contacto en un ClickOnMe hecho a tu medida.
 </p>
 
 <div class="profile-grid">
 
-<a class="profile pablo" href="/pablogarza/">
+<article class="profile negocio">
+<div class="avatar">LM</div>
+<small>Negocio local</small>
+<h3>La Mesa Norteña</h3>
+<p>Menú, reservaciones, ubicación, promociones y pedidos por WhatsApp en un mismo espacio.</p>
+<div class="option-tags"><span>Menú</span><span>Mapa</span><span>WhatsApp</span></div>
+</article>
 
-<div class="avatar">PG</div>
+<article class="profile creadora">
+<div class="avatar">VL</div>
+<small>Creadora de contenido</small>
+<h3>Valeria Luna</h3>
+<p>Videos, redes, colaboraciones, comunidad y productos con una estética completamente personal.</p>
+<div class="option-tags"><span>Videos</span><span>Redes</span><span>Tienda</span></div>
+</article>
 
-<small>Perfil profesional</small>
+<article class="profile profesional">
+<div class="avatar">DR</div>
+<small>Servicios profesionales</small>
+<h3>Daniel Ríos</h3>
+<p>Presentación, servicios, agenda, testimonios y contacto directo con una imagen sobria y confiable.</p>
+<div class="option-tags"><span>Agenda</span><span>Servicios</span><span>Contacto</span></div>
+</article>
 
-<h3>Pablo Garza Méndez</h3>
-
-<p>
-Comunicación, producción audiovisual, IA y proyectos digitales.
-</p>
-
-<span class="profile-link">
-Ver ClickOnMe →
-</span>
-
-</a>
-
-
-<a class="profile claudia" href="/claudiaalmaraz/">
-
-<div class="avatar">CA</div>
-
-<small>Podcast y comunidad</small>
-
-<h3>Claudia Almaraz</h3>
-
-<p>
-El Soneto del Colibrí, El Club de los 50 y sus proyectos.
-</p>
-
-<span class="profile-link">
-Ver ClickOnMe →
-</span>
-
-</a>
+<article class="profile artista">
+<div class="avatar">NS</div>
+<small>Artista independiente</small>
+<h3>Nico Sol</h3>
+<p>Música, próximos eventos, contenido exclusivo y contratación reunidos en una experiencia visual propia.</p>
+<div class="option-tags"><span>Música</span><span>Eventos</span><span>Contratación</span></div>
+</article>
 
 </div>
 
 </section>
-
 
 <section class="cta">
 
