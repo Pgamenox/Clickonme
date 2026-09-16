@@ -73,15 +73,15 @@ position:relative;
 }
 
 .logo{display:flex;align-items:center;text-decoration:none}
-.logo .com-brand-logo{width:240px;max-width:62vw}
+.logo .com-brand-logo{width:310px;max-width:78vw}
 
-.nav-link{
-position:absolute;
-right:28px;
-text-decoration:none;
-color:#d8d8e7;
+.nav-note{
+max-width:640px;
+margin:8px auto 0;
+text-align:center;
+color:#aeb2c9;
 font-size:14px;
-font-weight:500;
+line-height:1.55;
 }
 
 /* HERO */
@@ -312,6 +312,18 @@ box-shadow:0 8px 24px rgba(0,0,0,.28);
 .artista .profile-cover{background:radial-gradient(circle at 70% 25%,#ff8d32 0 5%,transparent 6%),linear-gradient(135deg,#170629,#7b19b8 55%,#f04b3b)}
 .profile-content{padding:0 24px}
 
+.cover-photo{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.9) contrast(1.04)}
+.profile-photo{width:100%;height:100%;object-fit:cover;display:block}
+.creadora .avatar{margin-left:auto;margin-right:auto;width:88px;height:88px;border-color:#35123f}
+.creadora .profile-content{text-align:center}
+.creadora .mini-socials{justify-content:center}
+.profesional .profile-cover{display:none}
+.professional-head{display:grid;grid-template-columns:96px 1fr;gap:18px;align-items:center;padding:24px 24px 10px}
+.professional-photo{width:96px;height:116px;object-fit:cover;border-radius:16px;box-shadow:0 12px 28px rgba(0,0,0,.3)}
+.profesional .profile-content{padding-top:0}
+.artista .profile-cover{height:190px}
+.artista .profile-content{padding-top:22px}
+
 .pablo .avatar{
 background:var(--com-gradient);
 }
@@ -443,14 +455,14 @@ flex-direction:column;
 }
 
 .logo .com-brand-logo{
-width:250px;
-max-width:65vw;
+width:285px;
+max-width:82vw;
 }
 
-.nav-link{
-position:static;
-margin-top:8px;
-font-size:15px;
+.nav-note{
+font-size:13px;
+padding:0 10px;
+margin-top:5px;
 }
 
 }
@@ -466,9 +478,7 @@ font-size:15px;
 <img class="com-brand-logo" src="/logo-clickonme.png" alt="ClickOnMe — Un clic y listo">
 </a>
 
-<a class="nav-link" href="#ejemplos">
-Ejemplos
-</a>
+<p class="nav-note">Tu identidad, contenido y formas de contacto reunidos en una página profesional hecha para compartir.</p>
 
 </nav>
 
@@ -565,8 +575,7 @@ No te limites a una lista de enlaces. Combina identidad, contenido y contacto en
 <div class="profile-grid">
 
 <article class="profile negocio">
-<div class="profile-cover"></div>
-<div class="avatar">LM</div>
+<div class="profile-cover"><img class="cover-photo" src="/assets/examples/chef.jpg" alt="Imagen ilustrativa de un propietario de restaurante"></div>
 <div class="profile-content">
 
 <small>Negocio local</small>
@@ -586,7 +595,7 @@ Menú, reservaciones, ubicación, promociones y pedidos por WhatsApp en un mismo
 
 <article class="profile creadora">
 <div class="profile-cover"></div>
-<div class="avatar">VL</div>
+<div class="avatar"><img class="profile-photo" src="/assets/examples/creator.jpg" alt="Imagen ilustrativa de una creadora de contenido"></div>
 <div class="profile-content">
 
 <small>Creadora de contenido</small>
@@ -605,13 +614,8 @@ Videos, redes, colaboraciones, comunidad y productos con una estética completam
 
 
 <article class="profile profesional">
-<div class="profile-cover"></div>
-<div class="avatar">DR</div>
+<div class="professional-head"><img class="professional-photo" src="/assets/examples/architect.jpg" alt="Imagen ilustrativa de un profesionista"><div><small>Servicios profesionales</small><h3>Daniel Ríos</h3></div></div>
 <div class="profile-content">
-
-<small>Servicios profesionales</small>
-
-<h3>Daniel Ríos</h3>
 
 <p>
 Presentación, servicios, agenda, testimonios y contacto directo con una imagen sobria y confiable.
@@ -625,8 +629,7 @@ Presentación, servicios, agenda, testimonios y contacto directo con una imagen 
 
 
 <article class="profile artista">
-<div class="profile-cover"></div>
-<div class="avatar">NS</div>
+<div class="profile-cover"><img class="cover-photo" src="/assets/examples/artist.jpg" alt="Imagen ilustrativa de un artista independiente"></div>
 <div class="profile-content">
 
 <small>Artista independiente</small>
