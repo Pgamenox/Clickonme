@@ -366,6 +366,7 @@ select:focus{
 .header .com-brandbar{width:auto}
 #publishButton{background:var(--com-gradient)!important;box-shadow:0 10px 30px rgba(0,119,255,.25)}
 .account-tools{display:none;gap:10px;margin-top:12px}.account-tools button,.account-tools a{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#151a2d;color:#fff;text-decoration:none;text-align:center;cursor:pointer;font-size:12px}
+.payment-box{display:none;margin-top:14px;padding:14px;border-radius:14px;background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2)}.payment-box strong{display:block;font-size:14px}.payment-box p{margin:4px 0 10px}.payment-box button{width:100%;padding:12px;border:0;border-radius:11px;background:var(--com-gradient);color:#fff;font-weight:800;cursor:pointer}.payment-box button:disabled{opacity:.65;cursor:wait}
 .slug-prefix{display:flex;align-items:center;background:#111525;border:1px solid rgba(255,255,255,.10);border-radius:12px;overflow:hidden}.slug-prefix span{padding-left:10px;color:#7f8aa8;font-size:10px;white-space:nowrap}.slug-prefix input{border:0;border-radius:0;padding-left:2px;min-width:0}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -866,6 +867,7 @@ select:focus{
   <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" target="_blank" rel="noopener">Ver mi tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
+  <div class="payment-box" id="paymentBox"><strong>Activa tu Plan Pro anual</strong><p>Compra de prueba protegida por Mercado Pago.</p><button type="button" id="payButton">Probar pago de $599 MXN</button></div>
 </div>
 <button
   id="publishButton"
@@ -1639,6 +1641,8 @@ const accountTools = document.getElementById("accountTools");
 const viewProfileLink = document.getElementById("viewProfileLink");
 const slugInput = document.getElementById("slug");
 const publishButton = document.getElementById("publishButton");
+const paymentBox = document.getElementById("paymentBox");
+const payButton = document.getElementById("payButton");
 let currentUser = null;
 let currentProfileId = null;
 let currentProfileSlug = null;
@@ -1675,6 +1679,7 @@ function populateProfile(row){
   (d.extraCustomButtons||[]).slice(0,2).forEach(item=>{ addCustomButton.click(); const fields=extraCustomButtons.querySelectorAll(".field"); const field=fields[fields.length-1]; const text=field.querySelector(".extraButtonText"); const url=field.querySelector(".extraButtonUrl"); text.value=item.text||""; url.value=item.url||""; text.dispatchEvent(new Event("input")); url.dispatchEvent(new Event("input")); });
   updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); updateCustomButton(); updateProfileLink(row.slug);
   publishButton.textContent="Guardar cambios";
+  paymentBox.style.display="block";
 }
 
 async function loadOwnProfile(){
@@ -1718,6 +1723,18 @@ document.getElementById("signinBtn").addEventListener("click",async()=>{
 
 document.getElementById("signoutBtn").addEventListener("click",async()=>{ await supabaseClient.auth.signOut(); currentProfileId=null; currentProfileSlug=null; profileLoadedFor=null; await applySession(null); });
 supabaseClient.auth.onAuthStateChange((_event,session)=>{ window.setTimeout(()=>applySession(session),0); });
+
+payButton.addEventListener("click",async()=>{
+  if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
+  payButton.disabled=true; payButton.textContent="Creando orden segura...";
+  const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId)}});
+  if(error || !data?.checkoutUrl){
+    payButton.disabled=false; payButton.textContent="Probar pago de $599 MXN";
+    alert(data?.error||"No fue posible iniciar el pago de prueba.");
+    return;
+  }
+  window.location.href=data.checkoutUrl;
+});
 
 function validWebUrl(value){ if(!value) return true; try{ const u=new URL(value); return u.protocol==="https:" || u.protocol==="http:"; }catch{return false;} }
 
