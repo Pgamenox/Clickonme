@@ -176,9 +176,17 @@ select:focus{
   justify-content:center;
   align-items:flex-start;
 
-  background:
-    radial-gradient(circle at 50% -10%,#353f92 0,#171b42 35%,#0b0d18 75%);
+  background:transparent;
+  position:relative;
+  isolation:isolate;
+  --screen-bg:radial-gradient(circle at 50% -10%,#353f92 0,#171b42 35%,#0b0d18 75%);
+  --screen-overlay:rgba(0,0,0,0);
+  --screen-blur:0px;
+  --screen-position:center;
 }
+
+.screen::before{content:'';position:absolute;inset:-12px;background:var(--screen-bg);background-size:cover;background-position:var(--screen-position);filter:blur(var(--screen-blur));z-index:-2}
+.screen::after{content:'';position:absolute;inset:0;background:var(--screen-overlay);z-index:-1;pointer-events:none}
 
 .card{
   width:100%;
@@ -188,6 +196,8 @@ select:focus{
   border-radius:24px;
   text-align:center;
   box-shadow:0 20px 60px rgba(0,0,0,.35);
+  position:relative;
+  z-index:1;
 }
 
 .avatar{
@@ -199,6 +209,18 @@ select:focus{
   margin-bottom:10px;
   background:#252b47;
 }
+
+.avatar.shape-rounded{border-radius:18px}
+.avatar.shape-square{border-radius:0}
+.avatar.shape-portrait{width:104px;height:132px;border-radius:18px}
+.avatar.shape-wide{width:100%;height:150px;border-radius:18px}
+.btn-icon{width:24px;height:24px;display:inline-grid;place-items:center;flex:0 0 24px;font-size:18px}
+.btn-icon img{width:100%;height:100%;object-fit:contain;display:block}
+.control-help{margin-top:6px;color:#8791aa;font-size:11px;line-height:1.4}
+.icon-upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.icon-upload{padding:10px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(255,255,255,.03)}
+.icon-upload label{font-size:11px}
+.icon-upload input{padding:8px;font-size:11px}
 
 .preview-name{
   font-size:21px;
@@ -393,6 +415,11 @@ select:focus{
 
   </div>
 
+  <div class="row">
+    <div class="field"><label>Forma de la imagen</label><select id="photoShape"><option value="circle">Círculo</option><option value="rounded">Cuadro redondeado</option><option value="square">Cuadro</option><option value="portrait">Retrato</option><option value="wide">Portada horizontal</option></select></div>
+    <div class="field"><label>Ajuste de imagen</label><select id="photoFit"><option value="cover">Recortar para llenar</option><option value="contain">Mostrar completa</option></select></div>
+  </div>
+
   <div class="field">
     <label>Dirección de tu tarjeta</label>
     <div class="slug-prefix"><span>clickonme.pro/crear/perfil.html?u=</span><input type="text" id="slug" maxlength="40" placeholder="tu-nombre"></div>
@@ -474,6 +501,15 @@ select:focus{
 </div> <div class="section-title">Personaliza tarjeta y botones</div>
 
 <div class="row">
+  <div class="field"><label>Oscurecer fondo</label><input type="range" id="backgroundOverlay" min="0" max="85" value="22"><div class="control-help">Mejora la lectura de textos y botones.</div></div>
+  <div class="field"><label>Desenfoque del fondo</label><input type="range" id="backgroundBlur" min="0" max="14" value="0"></div>
+</div>
+<div class="row">
+  <div class="field"><label>Color de la capa</label><input type="color" id="backgroundOverlayColor" value="#000000"></div>
+  <div class="field"><label>Posición de la imagen</label><select id="backgroundPosition"><option value="center">Centro</option><option value="top">Arriba</option><option value="bottom">Abajo</option><option value="left">Izquierda</option><option value="right">Derecha</option></select></div>
+</div>
+
+<div class="row">
 
   <div class="field">
     <label>Color de tarjeta</label>
@@ -540,6 +576,17 @@ select:focus{
   </select>
 </div>
   <div class="section-title">Contacto</div>
+
+  <div class="section-title">Iconos personalizados</div>
+  <p class="control-help" style="margin-bottom:12px">Opcional: sube PNG, JPG o WebP. Cada icono se ajusta automáticamente sin deformar el botón.</p>
+  <div class="icon-upload-grid">
+    <div class="icon-upload"><label>WhatsApp</label><input type="file" class="customIconInput" data-icon="whatsapp" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="icon-upload"><label>Teléfono</label><input type="file" class="customIconInput" data-icon="phone" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="icon-upload"><label>Facebook</label><input type="file" class="customIconInput" data-icon="facebook" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="icon-upload"><label>Instagram</label><input type="file" class="customIconInput" data-icon="instagram" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="icon-upload"><label>YouTube</label><input type="file" class="customIconInput" data-icon="youtube" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="icon-upload"><label>Sitio web</label><input type="file" class="customIconInput" data-icon="website" accept="image/png,image/jpeg,image/webp"></div>
+  </div>
 
 
   <div class="row">
@@ -741,7 +788,7 @@ select:focus{
             class="preview-btn"
             href="#"
           >
-            💬 WhatsApp
+            <span class="btn-icon" data-icon-slot="whatsapp">💬</span><span>WhatsApp</span>
           </a>
 
 
@@ -750,7 +797,7 @@ select:focus{
             class="preview-btn"
             href="#"
           >
-            📞 Llamar
+            <span class="btn-icon" data-icon-slot="phone">📞</span><span>Llamar</span>
           </a>
 
 
@@ -760,7 +807,7 @@ select:focus{
             href="#"
             style="display:none"
           >
-            Facebook
+            <span class="btn-icon" data-icon-slot="facebook">f</span><span>Facebook</span>
           </a>
 
 
@@ -770,7 +817,7 @@ select:focus{
             href="#"
             style="display:none"
           >
-            Instagram
+            <span class="btn-icon" data-icon-slot="instagram">◎</span><span>Instagram</span>
           </a>
 
 
@@ -780,7 +827,7 @@ select:focus{
             href="#"
             style="display:none"
           >
-            ▶ YouTube
+            <span class="btn-icon" data-icon-slot="youtube">▶</span><span>YouTube</span>
           </a>
 
 
@@ -790,7 +837,7 @@ select:focus{
             href="#"
             style="display:none"
           >
-            🌐 Sitio web
+            <span class="btn-icon" data-icon-slot="website">🌐</span><span>Sitio web</span>
           </a>
 
         </div>
@@ -1007,6 +1054,30 @@ document.getElementById("photo").addEventListener("change",async function(event)
   const file=event.target.files[0]; if(!file)return;
   try{document.getElementById("previewPhoto").src=await optimizeImage(file,900,.84);}catch(error){alert(error.message);event.target.value="";}
 });
+const photoShape=document.getElementById("photoShape");
+const photoFit=document.getElementById("photoFit");
+const previewPhoto=document.getElementById("previewPhoto");
+const shapeClasses=["shape-rounded","shape-square","shape-portrait","shape-wide"];
+function updatePhotoStyle(){
+  shapeClasses.forEach(c=>previewPhoto.classList.remove(c));
+  if(photoShape.value!=="circle") previewPhoto.classList.add("shape-"+photoShape.value);
+  previewPhoto.style.objectFit=photoFit.value;
+}
+photoShape.addEventListener("change",updatePhotoStyle);
+photoFit.addEventListener("change",updatePhotoStyle);
+
+const defaultIcons={whatsapp:"💬",phone:"📞",facebook:"f",instagram:"◎",youtube:"▶",website:"🌐"};
+let customIcons={};
+function renderIcon(key){
+  const slot=document.querySelector(`[data-icon-slot="${key}"]`); if(!slot)return;
+  slot.innerHTML=customIcons[key]?`<img src="${customIcons[key]}" alt="">`:defaultIcons[key];
+}
+async function optimizeIcon(file){
+  if(!/^image\/(jpeg|png|webp)$/i.test(file.type)) throw new Error("Usa un icono PNG, JPG o WebP.");
+  if(file.size>2*1024*1024) throw new Error("El icono no debe superar 2 MB.");
+  return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error("No se pudo leer el icono."));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error("El icono no es válido."));img.onload=()=>{const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128;const ctx=canvas.getContext("2d");ctx.clearRect(0,0,128,128);const scale=Math.min(108/img.width,108/img.height);const w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(128-w)/2,(128-h)/2,w,h);resolve(canvas.toDataURL("image/png"));};img.src=reader.result;};reader.readAsDataURL(file);});
+}
+document.querySelectorAll(".customIconInput").forEach(input=>input.addEventListener("change",async event=>{const file=event.target.files[0];if(!file)return;try{customIcons[input.dataset.icon]=await optimizeIcon(file);renderIcon(input.dataset.icon);}catch(error){alert(error.message);input.value="";}}));
 const backgroundType =
 document.getElementById("backgroundType");
 
@@ -1021,6 +1092,12 @@ document.getElementById("backgroundImage");
 
 const previewScreen =
 document.querySelector(".screen");
+const backgroundOverlay=document.getElementById("backgroundOverlay");
+const backgroundBlur=document.getElementById("backgroundBlur");
+const backgroundOverlayColor=document.getElementById("backgroundOverlayColor");
+const backgroundPosition=document.getElementById("backgroundPosition");
+
+function rgbaFromHex(hex,alpha){const value=hex.replace("#","");const n=parseInt(value,16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${alpha})`;}
 
 
 function updateBackground(){
@@ -1029,21 +1106,20 @@ function updateBackground(){
   backgroundType.value;
 
   if(type === "gradient"){
-
-    previewScreen.style.background =
-    `linear-gradient(160deg, ${color1.value}, ${color2.value})`;
-
-    previewScreen.style.backgroundSize = "cover";
-    previewScreen.style.backgroundPosition = "center";
+    previewScreen.style.setProperty("--screen-bg",`linear-gradient(160deg, ${color1.value}, ${color2.value})`);
 
   }
 
   if(type === "color"){
 
-    previewScreen.style.background =
-    color1.value;
+    previewScreen.style.setProperty("--screen-bg",color1.value);
 
   }
+
+  if(type === "image" && previewScreen.dataset.backgroundImage) previewScreen.style.setProperty("--screen-bg",`url("${previewScreen.dataset.backgroundImage}")`);
+  previewScreen.style.setProperty("--screen-overlay",rgbaFromHex(backgroundOverlayColor.value,backgroundOverlay.value/100));
+  previewScreen.style.setProperty("--screen-blur",backgroundBlur.value+"px");
+  previewScreen.style.setProperty("--screen-position",backgroundPosition.value);
 
 }
 
@@ -1062,6 +1138,8 @@ color2.addEventListener(
   "input",
   updateBackground
 );
+[backgroundOverlay,backgroundBlur,backgroundOverlayColor].forEach(el=>el.addEventListener("input",updateBackground));
+backgroundPosition.addEventListener("change",updateBackground);
 
 
 backgroundImage.addEventListener(
@@ -1077,8 +1155,7 @@ backgroundImage.addEventListener(
       const imageData=await optimizeImage(file,1600,.82);
       backgroundType.value = "image";
       previewScreen.dataset.backgroundImage = imageData;
-      previewScreen.style.background =
-      `url("${imageData}") center/cover no-repeat`;
+      updateBackground();
     }catch(error){alert(error.message);event.target.value="";}
 
   }
@@ -1591,11 +1668,12 @@ function populateProfile(row){
   const d=row.data||{}; currentProfileId=row.id; currentProfileSlug=row.slug;
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
   setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1";
-  ["backgroundType","color1","color2","cardColor","buttonColor","textColor","secondaryTextColor","cardOpacity","buttonRadius","fontFamily","buttonStyle","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"].forEach(id=>setField(id,d[id]));
+  ["backgroundType","color1","color2","backgroundOverlay","backgroundBlur","backgroundOverlayColor","backgroundPosition","photoShape","photoFit","cardColor","buttonColor","textColor","secondaryTextColor","cardOpacity","buttonRadius","fontFamily","buttonStyle","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"].forEach(id=>setField(id,d[id]));
   if(d.photo) document.getElementById("previewPhoto").src=d.photo;
-  if(d.backgroundImage){ previewScreen.dataset.backgroundImage=d.backgroundImage; if((d.backgroundType||"")==="image") previewScreen.style.background=`url("${d.backgroundImage}") center/cover no-repeat`; }
+  if(d.backgroundImage) previewScreen.dataset.backgroundImage=d.backgroundImage;
+  customIcons=d.customIcons&&typeof d.customIcons==="object"?d.customIcons:{}; Object.keys(defaultIcons).forEach(renderIcon);
   (d.extraCustomButtons||[]).slice(0,2).forEach(item=>{ addCustomButton.click(); const fields=extraCustomButtons.querySelectorAll(".field"); const field=fields[fields.length-1]; const text=field.querySelector(".extraButtonText"); const url=field.querySelector(".extraButtonUrl"); text.value=item.text||""; url.value=item.url||""; text.dispatchEvent(new Event("input")); url.dispatchEvent(new Event("input")); });
-  updateBackground(); updateCardStyle(); updateButtonStyle(); updateCustomButton(); updateProfileLink(row.slug);
+  updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); updateCustomButton(); updateProfileLink(row.slug);
   publishButton.textContent="Guardar cambios";
 }
 
@@ -1651,7 +1729,7 @@ publishButton.addEventListener("click",async()=>{
   if(slug.length<3){ alert("La dirección debe tener al menos 3 caracteres."); return; }
   const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ alert("Los enlaces deben comenzar con http:// o https://"); return; }
-  const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
+  const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   const payload={user_id:currentUser.id,slug,name,role,description:profileData.description,photo_url:profileData.photo,data:profileData,updated_at:new Date().toISOString()};
   if(!currentProfileId) payload.created_by=currentUser.id;
@@ -1665,6 +1743,7 @@ publishButton.addEventListener("click",async()=>{
   window.location.href="/crear/perfil.html?u="+encodeURIComponent(currentProfileSlug);
 });
 
+updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
 (async()=>{ const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); })();
 </script>
 
