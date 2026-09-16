@@ -193,6 +193,7 @@ create table if not exists public.payments (
   user_id uuid not null references auth.users(id) on delete cascade,
   profile_id bigint not null references public.profiles(id) on delete cascade,
   provider text not null default 'mercado_pago',
+  provider_payment_id text unique,
   provider_order_id text unique,
   external_reference text not null unique,
   amount_mxn integer not null check (amount_mxn > 0),
