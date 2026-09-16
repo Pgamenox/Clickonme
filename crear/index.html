@@ -335,7 +335,15 @@ select:focus{
 
 }
 
+
+.auth-box{margin-top:24px;padding:18px;border-radius:18px;background:rgba(10,12,25,.85);border:1px solid rgba(0,229,255,.20)}
+.auth-box h3{margin-bottom:6px}.auth-box p{font-size:12px;color:#aeb5ca;margin-bottom:12px;line-height:1.45}
+.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-actions button{padding:12px;border:0;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(90deg,#d900ff,#075cff,#00e5ff)}
+.auth-status{font-size:12px;margin-top:10px;color:#bdefff}.brand-logo{height:48px;max-width:210px;object-fit:contain}
+#publishButton{background:linear-gradient(90deg,#d900ff,#075cff,#00e5ff)!important;box-shadow:0 10px 30px rgba(0,119,255,.25)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../supabase-config.js"></script>
 </head>
 
 
@@ -345,9 +353,7 @@ select:focus{
 
   <div class="header-inner">
 
-    <div class="logo">
-      Click<span>OnMe</span>
-    </div>
+    <img class="brand-logo" src="../logo-clickonme.png" alt="ClickOnMe">
 
     <p>Crea tu tarjeta digital</p>
 
@@ -798,6 +804,14 @@ select:focus{
     </div>
 
   </div>
+<div class="auth-box">
+  <h3>Tu cuenta ClickOnMe</h3>
+  <p>Regístrate o inicia sesión para guardar tu tarjeta en la nube y verla desde cualquier dispositivo.</p>
+  <div class="field"><label>Correo</label><input id="authEmail" type="email" placeholder="tu@correo.com"></div>
+  <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="6" placeholder="Mínimo 6 caracteres"></div>
+  <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
+  <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
+</div>
 <button
   id="publishButton"
   type="button"
@@ -1550,63 +1564,71 @@ if (extraButtonCount >= 2) {
 
   }
 ); 
+const supabaseClient = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY);
+const authStatus = document.getElementById("authStatus");
+let currentUser = null;
+
+async function refreshAuth(){
+  const {data:{session}} = await supabaseClient.auth.getSession();
+  currentUser = session?.user || null;
+  authStatus.textContent = currentUser ? `Sesión activa: ${currentUser.email}` : "Aún no has iniciado sesión.";
+}
+refreshAuth();
+supabaseClient.auth.onAuthStateChange((_event, session)=>{ currentUser=session?.user||null; refreshAuth(); });
+
+document.getElementById("signupBtn").addEventListener("click", async ()=>{
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  if(!email || password.length<6){ alert("Escribe un correo válido y una contraseña de al menos 6 caracteres."); return; }
+  authStatus.textContent="Creando cuenta...";
+  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:'https://clickonme.pro/crear/'}});
+  if(error){ authStatus.textContent="Error: "+error.message; return; }
+  currentUser=data.user;
+  authStatus.textContent=data.session ? "Cuenta creada. Ya puedes publicar." : "Cuenta creada. Revisa tu correo para confirmar y después inicia sesión.";
+});
+
+document.getElementById("signinBtn").addEventListener("click", async ()=>{
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  authStatus.textContent="Entrando...";
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){ authStatus.textContent="Error: "+error.message; return; }
+  currentUser=data.user; authStatus.textContent=`Sesión activa: ${data.user.email}`;
+});
+
 const publishButton = document.getElementById("publishButton");
-
-publishButton.addEventListener("click", function () {
-
+publishButton.addEventListener("click", async function () {
+  await refreshAuth();
+  if(!currentUser){ alert("Primero crea tu cuenta o inicia sesión."); return; }
   const name = document.getElementById("name").value.trim();
   const role = document.getElementById("role").value.trim();
-
-  if (!name) {
-    alert("Por favor escribe tu nombre.");
-    return;
-  }
-
-  if (!role) {
-    alert("Por favor escribe tu actividad o profesión.");
-    return;
-  }
-
-const slug = name
-  .toLowerCase()
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .replace(/[^a-z0-9]+/g, "")
-  .trim();
-
-const profileData = {
-  name: name,
-  role: role,
-  description: document.getElementById("description")?.value.trim() || "",
-  photo: document.getElementById("previewPhoto")?.src || "",
-  slug: slug,
-  color1: document.getElementById("color1")?.value || "#353f92",
-color2: document.getElementById("color2")?.value || "#0b0d18",
-  whatsapp: document.getElementById("whatsapp")?.value.trim() || "",
-  phone: document.getElementById("phone")?.value.trim() || "",
-  facebook: document.getElementById("facebook")?.value.trim() || "",
-  instagram: document.getElementById("instagram")?.value.trim() || "",
-  youtube: document.getElementById("youtube")?.value.trim() || "",
-  website: document.getElementById("website")?.value.trim() || "",
-  customButtonText: document.getElementById("customButtonText")?.value.trim() || "",
-customButtonUrl: document.getElementById("customButtonUrl")?.value.trim() || "",
-  cardColor: cardColor?.value || "#0b0d18",
-buttonColor: buttonColor?.value || "#222533",
-textColor: textColor?.value || "#ffffff",
-secondaryTextColor: secondaryTextColor?.value || "#bbc2d6",
-cardOpacity: cardOpacity?.value || "90",
-buttonRadius: buttonRadius?.value || "18",
-  extraCustomButtons: Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(function(field) {
-  return {
-    text: field.querySelector(".extraButtonText")?.value.trim() || "",
-    url: field.querySelector(".extraButtonUrl")?.value.trim() || ""
+  if (!name) { alert("Por favor escribe tu nombre."); return; }
+  if (!role) { alert("Por favor escribe tu actividad o profesión."); return; }
+  const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "").trim();
+  const profileData = {
+    name, role, description: document.getElementById("description")?.value.trim() || "",
+    photo: document.getElementById("previewPhoto")?.src || "", slug,
+    color1: document.getElementById("color1")?.value || "#075cff", color2: document.getElementById("color2")?.value || "#090b18",
+    whatsapp: document.getElementById("whatsapp")?.value.trim() || "", phone: document.getElementById("phone")?.value.trim() || "",
+    facebook: document.getElementById("facebook")?.value.trim() || "", instagram: document.getElementById("instagram")?.value.trim() || "",
+    youtube: document.getElementById("youtube")?.value.trim() || "", website: document.getElementById("website")?.value.trim() || "",
+    customButtonText: document.getElementById("customButtonText")?.value.trim() || "", customButtonUrl: document.getElementById("customButtonUrl")?.value.trim() || "",
+    cardColor: cardColor?.value || "#0b0d18", buttonColor: buttonColor?.value || "#075cff", textColor: textColor?.value || "#ffffff",
+    secondaryTextColor: secondaryTextColor?.value || "#bbc2d6", cardOpacity: cardOpacity?.value || "90", buttonRadius: buttonRadius?.value || "18",
+    extraCustomButtons: Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""}))
   };
-})
-};
-
-  localStorage.setItem("clickonme_" + slug, JSON.stringify(profileData));
-window.location.href = "/crear/perfil.html?u=" + encodeURIComponent(slug);
-  });
+  publishButton.disabled=true; publishButton.textContent="Publicando...";
+  const {data:existing}=await supabaseClient.from('profiles').select('id,user_id').eq('slug',slug).maybeSingle();
+  let result;
+  if(existing){
+    if(existing.user_id!==currentUser.id){ alert("Ese nombre de enlace ya está ocupado. Prueba agregando apellido o una palabra."); publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; return; }
+    result=await supabaseClient.from('profiles').update({data:profileData,updated_at:new Date().toISOString()}).eq('id',existing.id);
+  }else{
+    result=await supabaseClient.from('profiles').insert({user_id:currentUser.id,slug,data:profileData});
+  }
+  if(result.error){ alert("No se pudo publicar: "+result.error.message); publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; return; }
+  window.location.href = "/crear/perfil.html?u=" + encodeURIComponent(slug);
+});
 </script>
 
 

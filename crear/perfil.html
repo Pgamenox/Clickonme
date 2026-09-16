@@ -146,6 +146,8 @@ h1{
   }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../supabase-config.js"></script>
 </head>
 
 <body>
@@ -202,140 +204,32 @@ h1{
 </div>
 
 <script>
-
+const client = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY);
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("u");
-
-if(!slug){
-
-  document.getElementById("profileName").textContent =
-    "Perfil no encontrado";
-
-}else{
-
-  const saved =
-    localStorage.getItem("clickonme_" + slug);
-
-  if(!saved){
-
-    document.getElementById("profileName").textContent =
-      "Perfil no encontrado";
-
-    document.getElementById("profileRole").textContent =
-      "Esta tarjeta no existe en este dispositivo.";
-
-  }else{
-
-    const data = JSON.parse(saved);
-    if(data.cardColor){
-  const opacity = (parseInt(data.cardOpacity || "90", 10) / 100);
-  const hex = data.cardColor.replace("#", "");
-  const r = parseInt(hex.substring(0,2), 16);
-  const g = parseInt(hex.substring(2,4), 16);
-  const b = parseInt(hex.substring(4,6), 16);
-
-  document.querySelector(".card").style.background =
-    `rgba(${r}, ${g}, ${b}, ${opacity})`;
+function setBtn(id, url, text){ const el=document.getElementById(id); if(url){el.href=url; if(text)el.textContent=text; el.style.display="flex";} }
+async function loadProfile(){
+ if(!slug){document.getElementById("profileName").textContent="Perfil no encontrado";return;}
+ const {data:row,error}=await client.from('profiles').select('data').eq('slug',slug).maybeSingle();
+ if(error || !row){document.getElementById("profileName").textContent="Perfil no encontrado";return;}
+ const d=row.data||{};
+ document.getElementById("profileName").textContent=d.name||"Mi ClickOnMe";
+ document.getElementById("profileRole").textContent=d.role||"";
+ document.getElementById("profileDescription").textContent=d.description||"";
+ if(d.photo){const a=document.getElementById('avatar');a.innerHTML='';const img=document.createElement('img');img.src=d.photo;img.alt=d.name||'';img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';a.appendChild(img);}
+ document.body.style.background=`radial-gradient(circle at 50% -10%,${d.color1||'#075cff'} 0,${d.color2||'#090b18'} 75%)`;
+ const card=document.querySelector('.card'); if(d.cardColor) card.style.background=d.cardColor;
+ if(d.textColor) document.getElementById('profileName').style.color=d.textColor;
+ if(d.secondaryTextColor){document.getElementById('profileRole').style.color=d.secondaryTextColor;document.getElementById('profileDescription').style.color=d.secondaryTextColor;}
+ setBtn('whatsappBtn',d.whatsapp ? 'https://wa.me/'+d.whatsapp.replace(/\D/g,'') : '', '💬  WhatsApp');
+ setBtn('phoneBtn',d.phone ? 'tel:'+d.phone : '', '📞  Llamar');
+ setBtn('facebookBtn',d.facebook,'Facebook'); setBtn('instagramBtn',d.instagram,'Instagram'); setBtn('youtubeBtn',d.youtube,'▶ YouTube'); setBtn('websiteBtn',d.website,'🌐 Sitio web');
+ setBtn('customButtonBtn',d.customButtonUrl,d.customButtonText||'Enlace');
+ const links=document.querySelector('.links');
+ (d.extraCustomButtons||[]).filter(x=>x.text&&x.url).forEach(x=>{const a=document.createElement('a');a.className='btn';a.href=x.url;a.textContent=x.text;a.target='_blank';links.appendChild(a);});
+ document.querySelectorAll('.btn').forEach(b=>{if(d.buttonColor)b.style.background=d.buttonColor;if(d.buttonRadius)b.style.borderRadius=d.buttonRadius+'px';});
 }
-
-if(data.buttonColor){
-  document.querySelectorAll(".btn").forEach(function(btn){
-    btn.style.background = data.buttonColor;
-  });
-}
-
-if(data.textColor){
-  document.querySelector(".card").style.color = data.textColor;
-}
-
-if(data.secondaryTextColor){
-  document.getElementById("profileRole").style.color = data.secondaryTextColor;
-  document.getElementById("profileDescription").style.color = data.secondaryTextColor;
-}
-
-if(data.buttonRadius){
-  document.querySelectorAll(".btn").forEach(function(btn){
-    btn.style.borderRadius = data.buttonRadius + "px";
-  });
-}
-if(data.photo){
-  const avatar = document.getElementById("avatar");
-  avatar.innerHTML = '<img src="' + data.photo + '" alt="Foto de perfil">';
-}
-    document.getElementById("profileName").textContent =
-      data.name || "Mi ClickOnMe";
-document.getElementById("profileRole").textContent =
-  data.role || "";
-   document.getElementById("profileDescription").textContent =
-  data.description || "Todo lo que necesitas para contactarme, en un solo lugar.";
-
-    if(data.whatsapp){
-
-      const btn =
-        document.getElementById("whatsappBtn");
-
-      btn.href =
-        "https://wa.me/" +
-        data.whatsapp.replace(/\D/g,"");
-
-      btn.style.display="flex";
-    }
-
-    if(data.phone){
-
-      const btn =
-        document.getElementById("phoneBtn");
-
-      btn.href =
-        "tel:" + data.phone;
-
-      btn.style.display="flex";
-    }
-if(data.facebook){
-  const btn = document.getElementById("facebookBtn");
-  btn.href = data.facebook;
-  btn.style.display = "flex";
-}
-
-if(data.instagram){
-  const btn = document.getElementById("instagramBtn");
-  btn.href = data.instagram;
-  btn.style.display = "flex";
-}
-
-if(data.youtube){
-  const btn = document.getElementById("youtubeBtn");
-  btn.href = data.youtube;
-  btn.style.display = "flex";
-}
-
-if(data.website){
-  const btn = document.getElementById("websiteBtn");
-  btn.href = data.website;
-  btn.style.display = "flex";
-} if(data.customButtonText && data.customButtonUrl){
-  const btn = document.getElementById("customButtonBtn");
-  btn.textContent = "🔗 " + data.customButtonText;
-  btn.href = data.customButtonUrl;
-  btn.style.display = "flex";
-}
-  }
-if(data.extraCustomButtons && Array.isArray(data.extraCustomButtons)){
-  data.extraCustomButtons.slice(0, 2).forEach(function(item){
-    if(item.text && item.url){
-      const btn = document.createElement("a");
-      btn.href = item.url;
-      btn.target = "_blank";
-      btn.className = "btn";
-      btn.textContent = "🔗 " + item.text;
-
-      const customBtn = document.getElementById("customButtonBtn");
-      customBtn.parentNode.insertBefore(btn, customBtn.nextSibling);
-    }
-  });
-}
-}
-
+loadProfile();
 </script>
 
 </body>
