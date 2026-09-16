@@ -815,7 +815,7 @@ select:focus{
   <h3>Tu cuenta ClickOnMe</h3>
   <p>Regístrate o inicia sesión para guardar tu tarjeta en la nube y verla desde cualquier dispositivo.</p>
   <div class="field"><label>Correo</label><input id="authEmail" type="email" placeholder="tu@correo.com"></div>
-  <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="6" placeholder="Mínimo 6 caracteres"></div>
+  <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="8" placeholder="Mínimo 8 caracteres"></div>
   <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" target="_blank" rel="noopener">Ver mi tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
@@ -1622,7 +1622,7 @@ async function applySession(session){
 
 document.getElementById("signupBtn").addEventListener("click",async()=>{
   const email=document.getElementById("authEmail").value.trim(); const password=document.getElementById("authPassword").value;
-  if(!email || password.length<6){ alert("Escribe un correo válido y una contraseña de al menos 6 caracteres."); return; }
+  if(!email || password.length<8){ alert("Escribe un correo válido y una contraseña de al menos 8 caracteres."); return; }
   authStatus.textContent="Creando cuenta...";
   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://clickonme.pro/crear/"}});
   if(error){ authStatus.textContent="No se pudo crear la cuenta: "+error.message; return; }
