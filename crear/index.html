@@ -317,6 +317,8 @@ select:focus{
 
 @media(max-width:600px){
 
+  body{padding-bottom:76px}
+
   .header{
     padding:16px;
   }
@@ -356,7 +358,15 @@ select:focus{
     padding:14px 10px;
   }
 
+  .slug-prefix span{font-size:0;padding-left:10px}
+  .slug-prefix span::after{content:"clickonme.pro/";font-size:11px}
+  .mobile-actionbar{display:grid!important}
+  .account-tools{flex-direction:column}
+  .account-tools button,.account-tools a{width:100%}
+
 }
+
+@media(max-width:420px){.auth-actions{grid-template-columns:1fr}.icon-upload-grid{grid-template-columns:1fr}}
 
 
 .auth-box{margin-top:24px;padding:18px;border-radius:18px;background:rgba(10,12,25,.85);border:1px solid rgba(0,229,255,.20)}
@@ -368,6 +378,7 @@ select:focus{
 .account-tools{display:none;gap:10px;margin-top:12px}.account-tools button,.account-tools a{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#151a2d;color:#fff;text-decoration:none;text-align:center;cursor:pointer;font-size:12px}.account-tools a[aria-disabled="true"]{opacity:.55;pointer-events:none}
 .payment-box{display:none;margin-top:14px;padding:14px;border-radius:14px;background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2)}.payment-box strong{display:block;font-size:14px}.payment-box p{margin:4px 0 10px}.payment-box button{width:100%;padding:12px;border:0;border-radius:11px;background:var(--com-gradient);color:#fff;font-weight:800;cursor:pointer}.payment-box button:disabled{opacity:.65;cursor:wait}
 .slug-prefix{display:flex;align-items:center;background:#111525;border:1px solid rgba(255,255,255,.10);border-radius:12px;overflow:hidden}.slug-prefix span{padding-left:10px;color:#7f8aa8;font-size:10px;white-space:nowrap}.slug-prefix input{border:0;border-radius:0;padding-left:2px;min-width:0}
+.mobile-actionbar{display:none;position:fixed;z-index:50;left:10px;right:10px;bottom:10px;grid-template-columns:1fr 1.35fr;gap:8px;padding:8px;border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(5,7,19,.94);backdrop-filter:blur(16px);box-shadow:0 12px 40px rgba(0,0,0,.45)}.mobile-actionbar button{min-height:48px;border:0;border-radius:11px;color:#fff;font-weight:800;background:#202a49}.mobile-actionbar .primary{background:var(--com-gradient)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
@@ -391,7 +402,7 @@ select:focus{
 
 <main class="layout">
 
-<section class="panel">
+<section class="panel" id="editorPanel">
 
   <h1>Crea tu ClickOnMe</h1>
 
@@ -725,7 +736,7 @@ select:focus{
 
 
 
-<section class="preview-area">
+<section class="preview-area" id="previewArea">
 
   <div class="preview-label">
     Vista previa de tu tarjeta
@@ -859,7 +870,7 @@ select:focus{
     </div>
 
   </div>
-<div class="auth-box">
+<div class="auth-box" id="accountArea">
   <h3>Tu cuenta ClickOnMe</h3>
   <p>Regístrate o inicia sesión para guardar tu tarjeta en la nube y verla desde cualquier dispositivo.</p>
   <div id="authCredentials">
@@ -899,6 +910,8 @@ select:focus{
 </section>
 
 </main>
+
+<nav class="mobile-actionbar" aria-label="Acciones rápidas"><button type="button" id="mobilePreviewBtn">Vista previa</button><button type="button" class="primary" id="mobileSaveBtn">Guardar tarjeta</button></nav>
 
 
 
@@ -1655,6 +1668,7 @@ const slugInput = document.getElementById("slug");
 const publishButton = document.getElementById("publishButton");
 const paymentBox = document.getElementById("paymentBox");
 const payButton = document.getElementById("payButton");
+const mobileSaveButton = document.getElementById("mobileSaveBtn");
 let currentUser = null;
 let currentProfileId = null;
 let currentProfileSlug = null;
@@ -1936,6 +1950,12 @@ publishButton.addEventListener("click",async()=>{
   window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
   window.setTimeout(()=>{publishButton.textContent="Guardar cambios";},1400);
   viewProfileLink.focus();
+});
+
+document.getElementById("mobilePreviewBtn").addEventListener("click",()=>document.getElementById("previewArea").scrollIntoView({behavior:"smooth",block:"start"}));
+mobileSaveButton.addEventListener("click",()=>{
+  if(!currentUser){ document.getElementById("accountArea").scrollIntoView({behavior:"smooth",block:"center"}); authStatus.textContent="Inicia sesión o crea tu cuenta para guardar."; return; }
+  publishButton.click();
 });
 
 updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
