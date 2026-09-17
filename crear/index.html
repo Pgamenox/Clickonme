@@ -866,6 +866,11 @@ select:focus{
     <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
     <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="10" autocomplete="current-password" placeholder="Escribe tu contraseña"></div>
     <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
+    <button type="button" id="forgotPasswordBtn" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#151a2d;color:#fff;cursor:pointer">Olvidé mi contraseña</button>
+  </div>
+  <div id="resetPasswordBox" style="display:none">
+    <div class="field"><label>Nueva contraseña</label><input id="newPassword" type="password" minlength="10" autocomplete="new-password" placeholder="10+ caracteres con mayúscula, número y símbolo"></div>
+    <button type="button" id="saveNewPasswordBtn" style="width:100%;padding:12px;border:0;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;background:var(--com-gradient)">Guardar nueva contraseña</button>
   </div>
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
@@ -1643,6 +1648,7 @@ const supabaseClient = window.supabase.createClient(window.CLICKONME_SUPABASE_UR
 });
 const authStatus = document.getElementById("authStatus");
 const authCredentials = document.getElementById("authCredentials");
+const resetPasswordBox = document.getElementById("resetPasswordBox");
 const accountTools = document.getElementById("accountTools");
 const viewProfileLink = document.getElementById("viewProfileLink");
 const slugInput = document.getElementById("slug");
@@ -1814,8 +1820,36 @@ document.getElementById("signinBtn").addEventListener("click",async()=>{
   profileLoadedFor=null; await applySession(data.session);
 });
 
+document.getElementById("forgotPasswordBtn").addEventListener("click",async()=>{
+  const email=document.getElementById("authEmail").value.trim();
+  if(!email){ alert("Escribe primero el correo de tu cuenta."); return; }
+  authStatus.textContent="Enviando enlace seguro...";
+  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:"https://clickonme.pro/crear/?reset=1"});
+  authStatus.textContent=error?"No se pudo enviar el enlace. Intenta nuevamente.":"Revisa tu correo. Te enviamos un enlace para crear una contraseña nueva.";
+});
+
+document.getElementById("saveNewPasswordBtn").addEventListener("click",async()=>{
+  const password=document.getElementById("newPassword").value;
+  const strongPassword=password.length>=10 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /\d/.test(password) && /[^A-Za-z0-9]/.test(password);
+  if(!strongPassword){ alert("Usa 10 o más caracteres con mayúscula, minúscula, número y símbolo."); return; }
+  authStatus.textContent="Actualizando contraseña...";
+  const {error}=await supabaseClient.auth.updateUser({password});
+  document.getElementById("newPassword").value="";
+  if(error){ authStatus.textContent="No se pudo actualizar la contraseña. Solicita otro enlace."; return; }
+  resetPasswordBox.style.display="none";
+  authStatus.textContent="Contraseña actualizada. Tu sesión está activa.";
+  window.history.replaceState({},"","/crear/");
+});
+
 document.getElementById("signoutBtn").addEventListener("click",async()=>{ await supabaseClient.auth.signOut(); currentProfileId=null; currentProfileSlug=null; profileLoadedFor=null; await applySession(null); });
-supabaseClient.auth.onAuthStateChange((_event,session)=>{ window.setTimeout(()=>applySession(session),0); });
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+  if(event==="PASSWORD_RECOVERY"){
+    authCredentials.style.display="none";
+    resetPasswordBox.style.display="block";
+    authStatus.textContent="Escribe una contraseña nueva para recuperar tu cuenta.";
+  }
+  window.setTimeout(()=>applySession(session),0);
+});
 
 payButton.addEventListener("click",async()=>{
   if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
