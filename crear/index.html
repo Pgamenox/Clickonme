@@ -867,7 +867,7 @@ select:focus{
   <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
-  <div class="payment-box" id="paymentBox"><strong>Activa tu Plan Pro anual</strong><p>Compra de prueba protegida por Mercado Pago.</p><button type="button" id="payButton">Probar pago de $599 MXN</button></div>
+  <div class="payment-box" id="paymentBox"><strong>Activa tu Plan Pro anual</strong><p>Pago protegido por Mercado Pago.</p><button type="button" id="payButton">Consultar precio vigente</button></div>
   <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
 </div>
 <button
@@ -1654,6 +1654,27 @@ const createNewProfile = editorParams.get("new") === "1";
 const returnedPaymentId = editorParams.get("payment_id") || editorParams.get("collection_id");
 const returnedPaymentStatus = editorParams.get("collection_status") || editorParams.get("status");
 let paymentConfirmationAttempted = false;
+let planPriceMxn = null;
+let planOfferLabel = "Plan Pro anual";
+
+function moneyMxn(value){
+  return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(value);
+}
+
+function setPayButton(label){
+  payButton.textContent=planPriceMxn?`${label} · ${moneyMxn(planPriceMxn)}`:label;
+}
+
+async function loadPricing(){
+  const {data,error}=await supabaseClient.from("business_settings").select("annual_price_mxn,launch_price_mxn,launch_promo_active,launch_promo_label").eq("id","main").maybeSingle();
+  if(error||!data){setPayButton("Activar Plan Pro");return;}
+  const promo=data.launch_promo_active===true&&Number.isInteger(Number(data.launch_price_mxn));
+  planPriceMxn=Number(promo?data.launch_price_mxn:data.annual_price_mxn);
+  planOfferLabel=promo?(data.launch_promo_label||"Promoción de inauguración"):"Plan Pro anual";
+  paymentBox.querySelector("strong").textContent=promo?planOfferLabel:"Activa tu Plan Pro anual";
+  paymentBox.querySelector("p").textContent=promo?"Precio especial por tiempo limitado. Pago protegido por Mercado Pago.":"Pago protegido por Mercado Pago.";
+  setPayButton("Activar");
+}
 
 function makeSlug(value){
   return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0,40);
@@ -1686,23 +1707,23 @@ function renderPlanStatus(row){
   if(status==="active"&&validEnd&&days>7){
     paymentBox.querySelector("strong").textContent="Plan Pro activo";
     paymentBox.querySelector("p").textContent=`Vigente hasta el ${dateText}.`;
-    payButton.textContent="Renovar anticipadamente";
+    setPayButton("Renovar anticipadamente");
   }else if(status==="active"&&validEnd&&days>3){
     paymentBox.querySelector("strong").textContent=`Tu Plan Pro vence en ${days} día${days===1?"":"s"}`;
     paymentBox.querySelector("p").textContent=`Renueva antes del ${dateText} para mantener tu tarjeta publicada.`;
-    payButton.textContent="Renovar Plan Pro";
+    setPayButton("Renovar Plan Pro");
   }else if(status==="active"&&validEnd&&days>0){
     paymentBox.querySelector("strong").textContent=`Aviso urgente: vence en ${days} día${days===1?"":"s"}`;
     paymentBox.querySelector("p").textContent=`Tu tarjeta se suspenderá el ${dateText} si no renuevas.`;
-    payButton.textContent="Renovar ahora";
+    setPayButton("Renovar ahora");
   }else if(status==="trial"&&validEnd&&days>0){
     paymentBox.querySelector("strong").textContent=`Prueba gratuita: ${days} día${days===1?"":"s"} restante${days===1?"":"s"}`;
     paymentBox.querySelector("p").textContent=`Activa Plan Pro antes del ${dateText} para evitar que tu tarjeta se suspenda.`;
-    payButton.textContent="Activar Plan Pro";
+    setPayButton("Activar Plan Pro");
   }else{
     paymentBox.querySelector("strong").textContent="Tu tarjeta necesita renovación";
     paymentBox.querySelector("p").textContent="El periodo terminó. Renueva Plan Pro para volver a publicar tu tarjeta.";
-    payButton.textContent="Renovar y reactivar";
+    setPayButton("Renovar y reactivar");
   }
 }
 
@@ -1793,7 +1814,7 @@ payButton.addEventListener("click",async()=>{
   payButton.disabled=true; payButton.textContent="Creando orden segura...";
   const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId)}});
   if(error || !data?.checkoutUrl){
-    payButton.disabled=false; payButton.textContent="Probar pago de $599 MXN";
+    payButton.disabled=false; setPayButton("Activar Plan Pro");
     alert(data?.error||"No fue posible iniciar el pago de prueba.");
     return;
   }
@@ -1876,7 +1897,7 @@ publishButton.addEventListener("click",async()=>{
 });
 
 updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
-(async()=>{ const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); })();
+(async()=>{ await loadPricing(); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); })();
 </script>
 
 
