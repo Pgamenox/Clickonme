@@ -34,9 +34,13 @@ Deno.serve(async (req: Request) => {
     const profiles = await profileResponse.json();
     if (!profileResponse.ok || !profiles?.[0]) return json(req, { error: "Esta tarjeta no pertenece a tu cuenta" }, 403);
     const profile = profiles[0];
-    const settingsResponse = await fetch(`${supabaseUrl}/rest/v1/business_settings?id=eq.main&select=annual_price_mxn`, { headers: adminHeaders });
+    const settingsResponse = await fetch(`${supabaseUrl}/rest/v1/business_settings?id=eq.main&select=annual_price_mxn,launch_price_mxn,launch_promo_active,launch_promo_label`, { headers: adminHeaders });
     const settings = await settingsResponse.json();
-    const amount = Number(settings?.[0]?.annual_price_mxn ?? 599);
+    if (!settingsResponse.ok) return json(req, { error: "No se pudo consultar el precio vigente" }, 503);
+    const pricing = settings?.[0] ?? {};
+    const promoActive = pricing.launch_promo_active === true && Number.isInteger(Number(pricing.launch_price_mxn));
+    const amount = Number(promoActive ? pricing.launch_price_mxn : (pricing.annual_price_mxn ?? 599));
+    const offerLabel = promoActive ? String(pricing.launch_promo_label || "Promoción de inauguración") : "Plan Pro anual";
     if (!Number.isInteger(amount) || amount < 1) return json(req, { error: "Precio anual inválido" }, 500);
 
     const attemptId = crypto.randomUUID();
@@ -45,7 +49,7 @@ Deno.serve(async (req: Request) => {
       method: "POST",
       headers: { Authorization: `Bearer ${mpToken}`, "Content-Type": "application/json", "X-Idempotency-Key": attemptId },
       body: JSON.stringify({
-        items: [{ id: "clickonme-pro-anual", title: "Plan Pro anual ClickOnMe", currency_id: "MXN", quantity: 1, unit_price: amount }],
+        items: [{ id: "clickonme-pro-anual", title: `${offerLabel} ClickOnMe`, currency_id: "MXN", quantity: 1, unit_price: amount }],
         payer: { email: String(user.email ?? "") },
         external_reference: externalReference,
         notification_url: `${supabaseUrl}/functions/v1/mercadopago-webhook?source_news=webhooks`,
@@ -69,7 +73,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({ user_id: user.id, profile_id: profile.id, provider_order_id: String(preference.id), external_reference: externalReference, amount_mxn: amount, status: "created", environment, checkout_url: String(checkoutUrl), provider_payload: { api: "preferences", collector_id: preference.collector_id } }),
     });
     if (!saveResponse.ok) throw new Error(await saveResponse.text());
-    return json(req, { checkoutUrl, orderId: String(preference.id), amount, environment });
+    return json(req, { checkoutUrl, orderId: String(preference.id), amount, environment, offerLabel, promoActive });
   } catch (error) {
     console.error("Checkout error", error);
     return json(req, { error: "No se pudo preparar el pago" }, 500);
