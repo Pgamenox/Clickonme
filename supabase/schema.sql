@@ -67,6 +67,27 @@ alter table public.profiles
   add column if not exists current_period_end timestamptz,
   add column if not exists created_by uuid references auth.users(id) on delete set null;
 
+-- Vencimiento automático: conserva las tarjetas para una posible renovación,
+-- pero deja de publicarlas cuando termina la prueba o el periodo pagado.
+create extension if not exists pg_cron with schema extensions;
+select cron.unschedule(jobid)
+from cron.job
+where jobname = 'expire-clickonme-profiles';
+select cron.schedule(
+  'expire-clickonme-profiles',
+  '15 * * * *',
+  $$
+    update public.profiles
+    set status = 'expired', updated_at = now()
+    where status in ('trial', 'active')
+      and (
+        (status = 'trial' and trial_ends_at is not null and trial_ends_at <= now())
+        or
+        (status = 'active' and current_period_end is not null and current_period_end <= now())
+      );
+  $$
+);
+
 create table if not exists public.business_settings (
   id text primary key check (id = 'main'),
   annual_price_mxn integer not null check (annual_price_mxn > 0),

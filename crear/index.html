@@ -1673,6 +1673,38 @@ function updateProfileLink(slug){
   viewProfileLink.removeAttribute("aria-disabled");
 }
 
+function renderPlanStatus(row){
+  const status=row.status||"trial";
+  const endValue=status==="active"?row.current_period_end:row.trial_ends_at;
+  const end=endValue?new Date(endValue):null;
+  const validEnd=end&&!Number.isNaN(end.getTime());
+  const days=validEnd?Math.max(0,Math.ceil((end.getTime()-Date.now())/86400000)):null;
+  const dateText=validEnd?end.toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"}):"";
+  paymentBox.style.display="block";
+  payButton.disabled=false;
+  if(status==="active"&&validEnd&&days>7){
+    paymentBox.querySelector("strong").textContent="Plan Pro activo";
+    paymentBox.querySelector("p").textContent=`Vigente hasta el ${dateText}.`;
+    payButton.textContent="Renovar anticipadamente";
+  }else if(status==="active"&&validEnd&&days>3){
+    paymentBox.querySelector("strong").textContent=`Tu Plan Pro vence en ${days} día${days===1?"":"s"}`;
+    paymentBox.querySelector("p").textContent=`Renueva antes del ${dateText} para mantener tu tarjeta publicada.`;
+    payButton.textContent="Renovar Plan Pro";
+  }else if(status==="active"&&validEnd&&days>0){
+    paymentBox.querySelector("strong").textContent=`Aviso urgente: vence en ${days} día${days===1?"":"s"}`;
+    paymentBox.querySelector("p").textContent=`Tu tarjeta se suspenderá el ${dateText} si no renuevas.`;
+    payButton.textContent="Renovar ahora";
+  }else if(status==="trial"&&validEnd&&days>0){
+    paymentBox.querySelector("strong").textContent=`Prueba gratuita: ${days} día${days===1?"":"s"} restante${days===1?"":"s"}`;
+    paymentBox.querySelector("p").textContent=`Activa Plan Pro antes del ${dateText} para evitar que tu tarjeta se suspenda.`;
+    payButton.textContent="Activar Plan Pro";
+  }else{
+    paymentBox.querySelector("strong").textContent="Tu tarjeta necesita renovación";
+    paymentBox.querySelector("p").textContent="El periodo terminó. Renueva Plan Pro para volver a publicar tu tarjeta.";
+    payButton.textContent="Renovar y reactivar";
+  }
+}
+
 function populateProfile(row){
   const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
@@ -1684,14 +1716,14 @@ function populateProfile(row){
   (d.extraCustomButtons||[]).slice(0,2).forEach(item=>{ addCustomButton.click(); const fields=extraCustomButtons.querySelectorAll(".field"); const field=fields[fields.length-1]; const text=field.querySelector(".extraButtonText"); const url=field.querySelector(".extraButtonUrl"); text.value=item.text||""; url.value=item.url||""; text.dispatchEvent(new Event("input")); url.dispatchEvent(new Event("input")); });
   updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); updateCustomButton(); updateProfileLink(row.slug);
   publishButton.textContent="Guardar cambios";
-  paymentBox.style.display="block";
+  renderPlanStatus(row);
 }
 
 async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
   if(createNewProfile) return;
-  let query=supabaseClient.from("profiles").select("id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data");
+  let query=supabaseClient.from("profiles").select("id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end");
   if(requestedProfileId) query=query.eq("id",requestedProfileId);
   else query=query.eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1);
   const {data:rows,error}=await query;
