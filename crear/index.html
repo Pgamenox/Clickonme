@@ -1756,7 +1756,7 @@ async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
   if(createNewProfile) return;
-  let query=supabaseClient.from("profiles").select("id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end");
+  let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end");
   if(requestedProfileId) query=query.eq("id",requestedProfileId);
   else query=query.eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1);
   const {data:rows,error}=await query;
@@ -1910,13 +1910,13 @@ publishButton.addEventListener("click",async()=>{
     return;
   }
   const payload={
-    user_id:currentUser.id,slug,name,role,description:profileData.description,
+    slug,name,role,description:profileData.description,
     photo_url:profileData.photo,whatsapp:profileData.whatsapp,phone:profileData.phone,
     facebook:profileData.facebook,instagram:profileData.instagram,
     youtube:profileData.youtube,website:profileData.website,
     data:profileData,updated_at:new Date().toISOString()
   };
-  if(!currentProfileId) payload.created_by=currentUser.id;
+  if(!currentProfileId){ payload.user_id=currentUser.id; payload.created_by=currentUser.id; }
   let result;
   if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
   else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
