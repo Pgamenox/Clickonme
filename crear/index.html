@@ -862,9 +862,11 @@ select:focus{
 <div class="auth-box">
   <h3>Tu cuenta ClickOnMe</h3>
   <p>Regístrate o inicia sesión para guardar tu tarjeta en la nube y verla desde cualquier dispositivo.</p>
-  <div class="field"><label>Correo</label><input id="authEmail" type="email" placeholder="tu@correo.com"></div>
-  <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="10" autocomplete="new-password" placeholder="10+ caracteres: mayúscula, minúscula, número y símbolo"></div>
-  <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
+  <div id="authCredentials">
+    <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
+    <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="10" autocomplete="current-password" placeholder="Escribe tu contraseña"></div>
+    <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
+  </div>
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
   <div class="payment-box" id="paymentBox"><strong>Activa tu Plan Pro anual</strong><p>Pago protegido por Mercado Pago.</p><button type="button" id="payButton">Consultar precio vigente</button></div>
@@ -1636,8 +1638,11 @@ if (extraButtonCount >= 2) {
 
   }
 ); 
-const supabaseClient = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY,{
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}
+});
 const authStatus = document.getElementById("authStatus");
+const authCredentials = document.getElementById("authCredentials");
 const accountTools = document.getElementById("accountTools");
 const viewProfileLink = document.getElementById("viewProfileLink");
 const slugInput = document.getElementById("slug");
@@ -1757,6 +1762,7 @@ async function loadOwnProfile(){
 
 async function applySession(session){
   currentUser=session?.user||null;
+  authCredentials.style.display=currentUser?"none":"block";
   accountTools.style.display=currentUser?"flex":"none";
   authStatus.textContent=currentUser?`Sesión activa: ${currentUser.email}`:"Aún no has iniciado sesión.";
   if(currentUser){
@@ -1793,6 +1799,7 @@ document.getElementById("signupBtn").addEventListener("click",async()=>{
   if(!email || !strongPassword){ alert("Usa un correo válido y una contraseña de 10 o más caracteres con mayúscula, minúscula, número y símbolo."); return; }
   authStatus.textContent="Creando cuenta...";
   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://clickonme.pro/crear/"}});
+  document.getElementById("authPassword").value="";
   if(error){ authStatus.textContent="No se pudo crear la cuenta: "+error.message; return; }
   if(data.session) await applySession(data.session); else authStatus.textContent="Cuenta creada. Revisa tu correo para confirmarla y después inicia sesión.";
 });
@@ -1802,6 +1809,7 @@ document.getElementById("signinBtn").addEventListener("click",async()=>{
   if(!email || !password){ alert("Escribe tu correo y contraseña."); return; }
   authStatus.textContent="Entrando...";
   const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  document.getElementById("authPassword").value="";
   if(error){ authStatus.textContent="No fue posible entrar. Revisa tu correo y contraseña."; return; }
   profileLoadedFor=null; await applySession(data.session);
 });
