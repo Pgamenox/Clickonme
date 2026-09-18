@@ -369,7 +369,7 @@ select:focus{
 @media(max-width:420px){.auth-actions{grid-template-columns:1fr}.icon-upload-grid{grid-template-columns:1fr}}
 
 
-.mobile-auth-gate{display:block;margin:0 0 18px;padding:18px;border-radius:16px;background:linear-gradient(135deg,rgba(189,25,255,.14),rgba(0,229,255,.10));border:1px solid rgba(0,229,255,.30)}.mobile-auth-gate strong{display:block;font-size:19px;margin-bottom:7px}.mobile-auth-gate p{font-size:13px;color:#c7d4ef;line-height:1.5;margin:0 0 12px}.mobile-auth-gate button{width:100%;padding:13px;border:0;border-radius:11px;background:var(--com-gradient);color:#fff;font-weight:800;cursor:pointer}.auth-box{margin-top:24px;padding:18px;border-radius:18px;background:rgba(10,12,25,.85);border:1px solid rgba(0,229,255,.20)}
+.auth-first-title{display:grid;gap:5px;margin-bottom:14px}.auth-first-title strong{font-size:22px}.auth-first-title span{color:#bfcceb;font-size:13px}.auth-locked #editorPanel,.auth-locked .preview-area,.auth-locked .mobile-actionbar{display:none!important}.mobile-auth-gate{display:none!important;margin:0 0 18px;padding:18px;border-radius:16px;background:linear-gradient(135deg,rgba(189,25,255,.14),rgba(0,229,255,.10));border:1px solid rgba(0,229,255,.30)}.mobile-auth-gate strong{display:block;font-size:19px;margin-bottom:7px}.mobile-auth-gate p{font-size:13px;color:#c7d4ef;line-height:1.5;margin:0 0 12px}.mobile-auth-gate button{width:100%;padding:13px;border:0;border-radius:11px;background:var(--com-gradient);color:#fff;font-weight:800;cursor:pointer}.auth-box{margin-top:24px;padding:18px;border-radius:18px;background:rgba(10,12,25,.85);border:1px solid rgba(0,229,255,.20)}
 .auth-box h3{margin-bottom:6px}.auth-box p{font-size:12px;color:#aeb5ca;margin-bottom:12px;line-height:1.45}
 .auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-actions button{padding:12px;border:0;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;background:var(--com-gradient)}
 .auth-status{font-size:12px;margin-top:10px;color:#bdefff}.brand-logo{height:62px;max-width:280px;object-fit:contain}
@@ -400,7 +400,28 @@ select:focus{
 </header>
 
 
-<main class="layout">
+<main class="layout auth-locked" id="mainLayout">
+
+<section class="panel" id="authFirstPanel"><div class="auth-first-title"><strong>Primero crea tu cuenta o inicia sesión</strong><span>Necesitas una cuenta ClickOnMe antes de comenzar tu tarjeta.</span></div><div class="auth-box" id="accountArea">
+  <h3>Tu cuenta ClickOnMe</h3>
+  <p>Regístrate o inicia sesión para guardar tu tarjeta en la nube y verla desde cualquier dispositivo.</p>
+  <div id="authCredentials">
+    <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
+    <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="10" autocomplete="current-password" placeholder="Escribe tu contraseña"></div>
+    <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
+    <button type="button" id="forgotPasswordBtn" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#151a2d;color:#fff;cursor:pointer">Olvidé mi contraseña</button>
+<button type="button" id="resendConfirmationBtn" style="grid-column:1/-1;padding:11px;border-radius:12px;border:1px solid rgba(0,229,255,.25);background:#10182b;color:#bdefff;font-weight:700;cursor:pointer">Reenviar correo de confirmación</button>
+  </div>
+  <div id="resetPasswordBox" style="display:none">
+    <div class="field"><label>Nueva contraseña</label><input id="newPassword" type="password" minlength="10" autocomplete="new-password" placeholder="10+ caracteres con mayúscula, número y símbolo"></div>
+    <button type="button" id="saveNewPasswordBtn" style="width:100%;padding:12px;border:0;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;background:var(--com-gradient)">Guardar nueva contraseña</button>
+  </div>
+  <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
+  <div id="myCardsBox" style="display:none;margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>Mis tarjetas</strong><a class="button" href="/crear/?new=1" style="font-size:12px">+ Crear otra</a></div><div id="myCardsList" style="display:grid;gap:8px;margin-top:10px"></div></div>
+  <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
+  <div class="payment-box" id="paymentBox"><strong>Activa tu Plan Pro anual</strong><p>El Plan Pro corresponde a esta tarjeta. Cada tarjeta adicional requiere su propia activación.</p><button type="button" id="payButton">Consultar precio vigente</button></div>
+  <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
+</div></section>
 
 <section class="panel" id="editorPanel">
 
@@ -870,26 +891,7 @@ select:focus{
     </div>
 
   </div>
-<div class="auth-box" id="accountArea">
-  <h3>Tu cuenta ClickOnMe</h3>
-  <p>Regístrate o inicia sesión para guardar tu tarjeta en la nube y verla desde cualquier dispositivo.</p>
-  <div id="authCredentials">
-    <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
-    <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="10" autocomplete="current-password" placeholder="Escribe tu contraseña"></div>
-    <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
-    <button type="button" id="forgotPasswordBtn" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#151a2d;color:#fff;cursor:pointer">Olvidé mi contraseña</button>
-<button type="button" id="resendConfirmationBtn" style="grid-column:1/-1;padding:11px;border-radius:12px;border:1px solid rgba(0,229,255,.25);background:#10182b;color:#bdefff;font-weight:700;cursor:pointer">Reenviar correo de confirmación</button>
-  </div>
-  <div id="resetPasswordBox" style="display:none">
-    <div class="field"><label>Nueva contraseña</label><input id="newPassword" type="password" minlength="10" autocomplete="new-password" placeholder="10+ caracteres con mayúscula, número y símbolo"></div>
-    <button type="button" id="saveNewPasswordBtn" style="width:100%;padding:12px;border:0;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;background:var(--com-gradient)">Guardar nueva contraseña</button>
-  </div>
-  <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
-  <div id="myCardsBox" style="display:none;margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>Mis tarjetas</strong><a class="button" href="/crear/?new=1" style="font-size:12px">+ Crear otra</a></div><div id="myCardsList" style="display:grid;gap:8px;margin-top:10px"></div></div>
-  <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
-  <div class="payment-box" id="paymentBox"><strong>Activa tu Plan Pro anual</strong><p>El Plan Pro corresponde a esta tarjeta. Cada tarjeta adicional requiere su propia activación.</p><button type="button" id="payButton">Consultar precio vigente</button></div>
-  <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
-</div>
+
 <button
   id="publishButton"
   type="button"
@@ -1785,7 +1787,9 @@ async function loadOwnProfile(){
 
 async function applySession(session){
   currentUser=session?.user||null;
-  authCredentials.style.display=currentUser?"none":"block"; if(mobileAuthGate) mobileAuthGate.style.display=currentUser?"none":"";
+  const mainLayout=document.getElementById("mainLayout"); const authFirstPanel=document.getElementById("authFirstPanel");
+  mainLayout?.classList.toggle("auth-locked",!currentUser); if(authFirstPanel) authFirstPanel.style.display=currentUser?"none":"block";
+  authCredentials.style.display=currentUser?"none":"block"; if(mobileAuthGate) mobileAuthGate.style.display="none";
   accountTools.style.display=currentUser?"flex":"none";
   authStatus.textContent=currentUser?`Sesión activa: ${currentUser.email}`:"Aún no has iniciado sesión.";
   if(currentUser){
