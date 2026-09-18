@@ -54,13 +54,16 @@ Deno.serve(async (req: Request) => {
     const allowed = new Set(["pending", "approved", "rejected", "cancelled", "refunded"]);
     const nextStatus = allowed.has(String(mp.status)) ? String(mp.status) : "pending";
     const alreadyApproved = payment.status === "approved";
-    const update = await fetch(`${supabaseUrl}/rest/v1/payments?id=eq.${payment.id}`, {
-      method: "PATCH", headers: { ...headers, Prefer: "return=minimal" },
+    const paymentFilter = `id=eq.${payment.id}&status=neq.approved`;
+    const update = await fetch(`${supabaseUrl}/rest/v1/payments?${paymentFilter}`, {
+      method: "PATCH", headers: { ...headers, Prefer: "return=representation" },
       body: JSON.stringify({ provider_payment_id: dataId, status: nextStatus, provider_payload: { payment_id: dataId, status: mp.status, status_detail: mp.status_detail, payment_type_id: mp.payment_type_id, date_approved: mp.date_approved }, updated_at: new Date().toISOString() }),
     });
     if (!update.ok) throw new Error(await update.text());
+    const updatedRows = await update.json().catch(() => []);
+    const claimedApproval = nextStatus === "approved" && updatedRows.length === 1;
 
-    if (nextStatus === "approved" && !alreadyApproved) {
+    if (nextStatus === "approved" && !alreadyApproved && claimedApproval) {
       const profileResponse = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${payment.profile_id}&user_id=eq.${payment.user_id}&select=current_period_end`, { headers });
       const profiles = await profileResponse.json();
       if (!profiles?.[0]) return response({ error: "Tarjeta desconocida" }, 404);
