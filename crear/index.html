@@ -408,7 +408,7 @@ select:focus{
   <div id="authCredentials">
     <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
     <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="10" autocomplete="current-password" placeholder="Escribe tu contraseña"></div>
-    <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div>
+    <div class="auth-actions"><button type="button" id="signupBtn">Crear cuenta</button><button type="button" id="signinBtn">Entrar</button></div><button type="button" id="googleAuthBtn" style="width:100%;margin-top:10px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#fff;color:#202124;font-weight:800;cursor:pointer">Continuar con Google</button><div style="text-align:center;color:#8791aa;font-size:12px;margin-top:8px">o usa tu correo y contraseña</div>
     <button type="button" id="forgotPasswordBtn" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#151a2d;color:#fff;cursor:pointer">Olvidé mi contraseña</button>
 <button type="button" id="resendConfirmationBtn" style="grid-column:1/-1;padding:11px;border-radius:12px;border:1px solid rgba(0,229,255,.25);background:#10182b;color:#bdefff;font-weight:700;cursor:pointer">Reenviar correo de confirmación</button>
   </div>
@@ -1831,6 +1831,12 @@ async function confirmReturnedPayment(){
   payButton.textContent="Volver a comprobar el pago";
   paymentBox.querySelector("p").textContent=returnedPaymentStatus==="approved"?"Mercado Pago aprobó el pago; estamos esperando la confirmación segura.":(data?.error||"No fue posible confirmar el pago todavía.");
 }
+
+document.getElementById("googleAuthBtn").addEventListener("click",async()=>{
+  authStatus.textContent="Abriendo Google…";
+  const {error}=await supabaseClient.auth.signInWithOAuth({provider:"google",options:{redirectTo:"https://clickonme.pro/crear/?google=1"}});
+  if(error) authStatus.textContent="No fue posible iniciar con Google. Intenta nuevamente o usa correo y contraseña.";
+});
 
 document.getElementById("signupBtn").addEventListener("click",async()=>{
   const email=document.getElementById("authEmail").value.trim(); const password=document.getElementById("authPassword").value;
