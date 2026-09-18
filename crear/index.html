@@ -1843,7 +1843,7 @@ document.getElementById("signupBtn").addEventListener("click",async()=>{
   const strongPassword=password.length>=10 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /\d/.test(password) && /[^A-Za-z0-9]/.test(password);
   if(!email || !strongPassword){ alert("Usa un correo válido y una contraseña de 10 o más caracteres con mayúscula, minúscula, número y símbolo."); return; }
   authStatus.textContent="Creando cuenta...";
-  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://clickonme.pro/crear/"}});
+  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://clickonme.pro/crear/?confirmed=1"}});
   document.getElementById("authPassword").value="";
   if(error){
     // No exponemos detalles internos de Supabase al cliente.
@@ -2020,7 +2020,7 @@ mobileSaveButton.addEventListener("click",()=>{
 });
 
 updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
-(async()=>{ await loadPricing(); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); })();
+(async()=>{ await loadPricing(); const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
 </script>
 
 
