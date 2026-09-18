@@ -250,7 +250,7 @@ function hexToRgba(hex,opacity){
 }
 const fallbackIcons={whatsapp:"💬",phone:"📞",facebook:"f",instagram:"◎",youtube:"▶",website:"🌐",custom:"🔗"};
 function iconHtml(d,key){const value=d.customIcons&&d.customIcons[key];return value?`<span class="btn-icon"><img src="${safeImage(value)}" alt=""></span>`:`<span class="btn-icon">${fallbackIcons[key]||"🔗"}</span>`;}
-function setButtonContent(el,d,key,text){el.innerHTML=iconHtml(d,key)+`<span>${text}</span>`;}
+function setButtonContent(el,d,key,text){el.replaceChildren();const icon=document.createElement("span");icon.className="button-icon";const raw=String(d?.iconOverrides?.[key]||"").trim();if(raw && /^[A-Za-z0-9 _+\-★☆♥♡✓✔☎✉@#]{1,12}$/.test(raw)) icon.textContent=raw;const label=document.createElement("span");label.textContent=String(text||"");if(icon.textContent)el.appendChild(icon);el.appendChild(label);}
 function setBtn(id,url,text,d,key){
   const el=document.getElementById(id); const safe=safeWebUrl(url);
   if(!safe) return; el.href=safe; if(text)setButtonContent(el,d,key,text); el.target="_blank"; el.rel="noopener noreferrer"; el.style.display="flex";
