@@ -1835,7 +1835,7 @@ document.getElementById("signupBtn").addEventListener("click",async()=>{
     }
     return;
   }
-  if(data.session) await applySession(data.session);
+  if(data.session){ await applySession(data.session); await trackBusinessEvent("signup_confirmed",null,{source:"signup"}); }
   else authStatus.textContent="Cuenta creada correctamente. Revisa tu correo (también Spam) para confirmarla y después pulsa Entrar.";
 });
 
@@ -1907,9 +1907,10 @@ payButton.addEventListener("click",async()=>{
     alert(data?.error||"No fue posible iniciar el pago de prueba.");
     return;
   }
-  window.location.href=data.checkoutUrl;
+  await trackBusinessEvent("checkout_started",currentProfileId,{source:"editor"});window.location.href=data.checkoutUrl;
 });
 
+async function trackBusinessEvent(eventType,profileId=null,metadata={}){if(!currentUser)return;try{await supabaseClient.from("business_events").insert({user_id:currentUser.id,profile_id:profileId?Number(profileId):null,event_type:eventType,metadata})}catch{}}
 function validWebUrl(value){ if(!value) return true; try{ const u=new URL(value); return u.protocol==="https:" || u.protocol==="http:"; }catch{return false;} }
 
 function dataUrlToBlob(dataUrl){
@@ -1971,6 +1972,7 @@ publishButton.addEventListener("click",async()=>{
   else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
   publishButton.disabled=false;
   if(result.error){ publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe"; alert(result.error.code==="23505"?"Esa dirección ya está ocupada. Elige otra.":"No se pudo guardar: "+result.error.message); return; }
+  await trackBusinessEvent(currentProfileId?"profile_updated":"profile_created",result.data.id,{slug:result.data.slug});
   const saved=result.data.data||{};
   const verifyKeys=["whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"];
   const missing=verifyKeys.filter(key=>String(saved[key]||"")!==String(profileData[key]||""));
