@@ -423,6 +423,8 @@ select:focus{
   <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
 </div></section>
 
+<section class="panel" id="sessionBanner" style="display:none;padding:14px 18px;margin-bottom:-18px"><div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap"><div><strong>Cuenta activa</strong><div id="sessionBannerEmail" style="font-size:12px;color:#bfcceb;margin-top:3px"></div></div><button type="button" id="sessionBannerLogout" style="padding:9px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:#151a2d;color:#fff;cursor:pointer">Cambiar de cuenta</button></div></section>
+
 <section class="panel" id="editorPanel">
 
   <div class="mobile-auth-gate" id="mobileAuthGate"><strong>Antes de crear tu tarjeta</strong><p><b>Regístrate o inicia sesión primero.</b> Necesitas una cuenta para crear, guardar y publicar tu tarjeta ClickOnMe.</p><button type="button" id="mobileAuthButton">Crear cuenta o iniciar sesión</button></div><h1>Crea tu ClickOnMe</h1>
@@ -1785,10 +1787,12 @@ async function loadOwnProfile(){
   if(data) populateProfile(data);
 }
 
+document.getElementById("sessionBannerLogout")?.addEventListener("click",async()=>{ await supabaseClient.auth.signOut(); location.href="/crear/?new=1"; });
+
 async function applySession(session){
   currentUser=session?.user||null;
-  const mainLayout=document.getElementById("mainLayout"); const authFirstPanel=document.getElementById("authFirstPanel");
-  mainLayout?.classList.toggle("auth-locked",!currentUser); if(authFirstPanel) authFirstPanel.style.display=currentUser?"none":"block";
+  const mainLayout=document.getElementById("mainLayout"); const authFirstPanel=document.getElementById("authFirstPanel"); const sessionBanner=document.getElementById("sessionBanner"); const sessionBannerEmail=document.getElementById("sessionBannerEmail");
+  mainLayout?.classList.toggle("auth-locked",!currentUser); if(authFirstPanel) authFirstPanel.style.display=currentUser?"none":"block"; if(sessionBanner) sessionBanner.style.display=currentUser?"block":"none"; if(sessionBannerEmail) sessionBannerEmail.textContent=currentUser?.email||"";
   authCredentials.style.display=currentUser?"none":"block"; if(mobileAuthGate) mobileAuthGate.style.display="none";
   accountTools.style.display=currentUser?"flex":"none";
   authStatus.textContent=currentUser?`Sesión activa: ${currentUser.email}`:"Aún no has iniciado sesión.";
