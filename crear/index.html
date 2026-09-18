@@ -1820,8 +1820,22 @@ document.getElementById("signupBtn").addEventListener("click",async()=>{
   authStatus.textContent="Creando cuenta...";
   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://clickonme.pro/crear/"}});
   document.getElementById("authPassword").value="";
-  if(error){ authStatus.textContent="No se pudo crear la cuenta: "+error.message; return; }
-  if(data.session) await applySession(data.session); else authStatus.textContent="Cuenta creada. Revisa tu correo para confirmarla y después inicia sesión.";
+  if(error){
+    // Supabase puede devolver un error genérico aunque Auth haya alcanzado a crear el usuario.
+    // No mostramos detalles internos de base de datos al cliente y comprobamos el caso
+    // de correo ya registrado mediante un intento de inicio de sesión controlado.
+    const msg=String(error.message||"").toLowerCase();
+    if(msg.includes("database error") || msg.includes("already registered") || msg.includes("already been registered") || msg.includes("user already registered")){
+      authStatus.textContent="La cuenta ya fue registrada o está pendiente de confirmación. Revisa tu correo (también Spam) y después pulsa Entrar. Si no recuerdas la contraseña, usa “Olvidé mi contraseña”.";
+    }else if(msg.includes("rate limit") || msg.includes("too many")){
+      authStatus.textContent="Se hicieron varios intentos seguidos. Espera unos minutos y vuelve a intentarlo.";
+    }else{
+      authStatus.textContent="No pudimos completar el registro. Revisa el correo y la contraseña e inténtalo nuevamente.";
+    }
+    return;
+  }
+  if(data.session) await applySession(data.session);
+  else authStatus.textContent="Cuenta creada correctamente. Revisa tu correo (también Spam) para confirmarla y después pulsa Entrar.";
 });
 
 document.getElementById("signinBtn").addEventListener("click",async()=>{
