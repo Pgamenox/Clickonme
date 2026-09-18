@@ -65,9 +65,13 @@ Deno.serve(async (req: Request) => {
     const allowed = new Set(["pending", "approved", "rejected", "cancelled", "refunded"]);
     const nextStatus = allowed.has(String(mp.status)) ? String(mp.status) : "pending";
     const alreadyApproved = payment.status === "approved";
-    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/payments?id=eq.${payment.id}`, {
+    let claimedApproval = false;
+    const paymentFilter = nextStatus === "approved"
+      ? `id=eq.${payment.id}&status=neq.approved`
+      : `id=eq.${payment.id}&status=neq.approved`;
+    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/payments?${paymentFilter}`, {
       method: "PATCH",
-      headers: { ...adminHeaders, Prefer: "return=minimal" },
+      headers: { ...adminHeaders, Prefer: "return=representation" },
       body: JSON.stringify({
         provider_payment_id: paymentId,
         status: nextStatus,
@@ -82,13 +86,15 @@ Deno.serve(async (req: Request) => {
       }),
     });
     if (!updateResponse.ok) throw new Error(await updateResponse.text());
+    const updatedRows = await updateResponse.json().catch(() => []);
+    claimedApproval = nextStatus === "approved" && updatedRows.length === 1;
 
     let periodEnd: string | null = null;
     if (nextStatus === "approved") {
       const profileResponse = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${profileId}&user_id=eq.${user.id}&select=current_period_end`, { headers: adminHeaders });
       const profiles = await profileResponse.json();
       if (!profiles?.[0]) return json(req, { error: "No se encontró la tarjeta" }, 404);
-      if (!alreadyApproved) {
+      if (!alreadyApproved && claimedApproval) {
         const currentEnd = profiles[0].current_period_end ? new Date(profiles[0].current_period_end) : new Date();
         const base = currentEnd.getTime() > Date.now() ? currentEnd : new Date();
         base.setUTCFullYear(base.getUTCFullYear() + 1);
