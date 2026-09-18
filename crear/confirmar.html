@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Confirmando tu cuenta | ClickOnMe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../brand.css">
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#050713;color:#fff;font-family:Poppins,Arial,sans-serif}
+.card{width:min(520px,100%);padding:34px 28px;border:1px solid rgba(255,255,255,.1);border-radius:24px;background:#0d1222;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.logo{max-width:210px;height:auto;margin:0 auto 24px}.spinner{width:44px;height:44px;margin:0 auto 20px;border:4px solid rgba(255,255,255,.12);border-top-color:#18c8ef;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+h1{font-size:24px;margin:0 0 10px}p{color:#aeb8d2;line-height:1.6;margin:0}.action{display:none;margin-top:22px;padding:13px 18px;border-radius:12px;background:#18c8ef;color:#07101a;text-decoration:none;font-weight:800}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../supabase-config.js"></script>
+</head>
+<body>
+<main class="card">
+<img class="logo" src="../logo-clickonme.png" alt="ClickOnMe — Un clic y listo">
+<div class="spinner" id="spinner"></div>
+<h1 id="title">Confirmando tu correo…</h1>
+<p id="message">Espera un momento. Estamos activando tu cuenta de ClickOnMe.</p>
+<a class="action" id="action" href="/crear/">Ir a ClickOnMe</a>
+</main>
+<script>
+(async function(){
+  const title=document.getElementById("title");
+  const message=document.getElementById("message");
+  const spinner=document.getElementById("spinner");
+  const action=document.getElementById("action");
+  const params=new URLSearchParams(location.search);
+  const tokenHash=params.get("token_hash");
+  const type=params.get("type") || "email";
+  const allowed=new Set(["email","signup"]);
+  function fail(text){
+    spinner.style.display="none";
+    title.textContent="No pudimos confirmar el correo";
+    message.textContent=text;
+    action.style.display="inline-block";
+  }
+  if(!tokenHash || !allowed.has(type)){
+    fail("El enlace no es válido o está incompleto. Puedes volver a ClickOnMe y solicitar un nuevo correo de confirmación.");
+    return;
+  }
+  if(!window.supabase || !window.CLICKONME_SUPABASE_URL || !window.CLICKONME_SUPABASE_KEY){
+    fail("No pudimos conectar con el servicio de autenticación. Intenta nuevamente en unos momentos.");
+    return;
+  }
+  const client=window.supabase.createClient(window.CLICKONME_SUPABASE_URL,window.CLICKONME_SUPABASE_KEY,{
+    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storage:window.localStorage}
+  });
+  const {error}=await client.auth.verifyOtp({token_hash:tokenHash,type:type});
+  if(error){
+    fail("Este enlace pudo haber expirado o ya haber sido utilizado. Vuelve a ClickOnMe para iniciar sesión o solicitar un nuevo correo.");
+    return;
+  }
+  spinner.style.display="none";
+  title.textContent="¡Correo confirmado!";
+  message.textContent="Tu cuenta de ClickOnMe ya está activa. Te llevaremos al creador de tu tarjeta.";
+  setTimeout(function(){location.replace("/crear/?confirmed=1");},900);
+})();
+</script>
+</body>
+</html>
