@@ -64,52 +64,26 @@ Deno.serve(async (req: Request) => {
 
     const allowed = new Set(["pending", "approved", "rejected", "cancelled", "refunded"]);
     const nextStatus = allowed.has(String(mp.status)) ? String(mp.status) : "pending";
-    const alreadyApproved = payment.status === "approved";
-    let claimedApproval = false;
-    const paymentFilter = nextStatus === "approved"
-      ? `id=eq.${payment.id}&status=neq.approved`
-      : `id=eq.${payment.id}&status=neq.approved`;
-    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/payments?${paymentFilter}`, {
-      method: "PATCH",
-      headers: { ...adminHeaders, Prefer: "return=representation" },
+    const rpcResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/apply_verified_payment_gateway`, {
+      method: "POST",
+      headers: adminHeaders,
       body: JSON.stringify({
-        provider_payment_id: paymentId,
-        status: nextStatus,
-        provider_payload: {
+        p_payment_id: payment.id,
+        p_provider_payment_id: paymentId,
+        p_status: nextStatus,
+        p_provider_payload: {
           payment_id: paymentId,
           status: mp.status,
           status_detail: mp.status_detail,
           payment_type_id: mp.payment_type_id,
           date_approved: mp.date_approved,
         },
-        updated_at: new Date().toISOString(),
       }),
     });
-    if (!updateResponse.ok) throw new Error(await updateResponse.text());
-    const updatedRows = await updateResponse.json().catch(() => []);
-    claimedApproval = nextStatus === "approved" && updatedRows.length === 1;
-
-    let periodEnd: string | null = null;
-    if (nextStatus === "approved") {
-      const profileResponse = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${profileId}&user_id=eq.${user.id}&select=current_period_end`, { headers: adminHeaders });
-      const profiles = await profileResponse.json();
-      if (!profiles?.[0]) return json(req, { error: "No se encontró la tarjeta" }, 404);
-      if (!alreadyApproved && claimedApproval) {
-        const currentEnd = profiles[0].current_period_end ? new Date(profiles[0].current_period_end) : new Date();
-        const base = currentEnd.getTime() > Date.now() ? currentEnd : new Date();
-        base.setUTCFullYear(base.getUTCFullYear() + 1);
-        periodEnd = base.toISOString();
-        const activationResponse = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${profileId}&user_id=eq.${user.id}`, {
-          method: "PATCH",
-          headers: { ...adminHeaders, Prefer: "return=minimal" },
-          body: JSON.stringify({ status: "active", current_period_end: periodEnd, updated_at: new Date().toISOString() }),
-        });
-        if (!activationResponse.ok) throw new Error(await activationResponse.text());
-      } else {
-        periodEnd = profiles[0].current_period_end;
-      }
-    }
-
+    if (!rpcResponse.ok) throw new Error(await rpcResponse.text());
+    const applied = await rpcResponse.json();
+    const result = applied?.[0] ?? {};
+    const periodEnd = result.current_period_end ?? null;
     return json(req, { status: nextStatus, active: nextStatus === "approved", currentPeriodEnd: periodEnd });
   } catch (error) {
     console.error("Payment confirmation error", error);
