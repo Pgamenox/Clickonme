@@ -53,28 +53,23 @@ Deno.serve(async (req: Request) => {
 
     const allowed = new Set(["pending", "approved", "rejected", "cancelled", "refunded"]);
     const nextStatus = allowed.has(String(mp.status)) ? String(mp.status) : "pending";
-    const alreadyApproved = payment.status === "approved";
-    const paymentFilter = `id=eq.${payment.id}&status=neq.approved`;
-    const update = await fetch(`${supabaseUrl}/rest/v1/payments?${paymentFilter}`, {
-      method: "PATCH", headers: { ...headers, Prefer: "return=representation" },
-      body: JSON.stringify({ provider_payment_id: dataId, status: nextStatus, provider_payload: { payment_id: dataId, status: mp.status, status_detail: mp.status_detail, payment_type_id: mp.payment_type_id, date_approved: mp.date_approved }, updated_at: new Date().toISOString() }),
+    const rpc = await fetch(`${supabaseUrl}/rest/v1/rpc/apply_verified_payment_gateway`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        p_payment_id: payment.id,
+        p_provider_payment_id: dataId,
+        p_status: nextStatus,
+        p_provider_payload: {
+          payment_id: dataId,
+          status: mp.status,
+          status_detail: mp.status_detail,
+          payment_type_id: mp.payment_type_id,
+          date_approved: mp.date_approved,
+        },
+      }),
     });
-    if (!update.ok) throw new Error(await update.text());
-    const updatedRows = await update.json().catch(() => []);
-    const claimedApproval = nextStatus === "approved" && updatedRows.length === 1;
-
-    if (nextStatus === "approved" && !alreadyApproved && claimedApproval) {
-      const profileResponse = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${payment.profile_id}&user_id=eq.${payment.user_id}&select=current_period_end`, { headers });
-      const profiles = await profileResponse.json();
-      if (!profiles?.[0]) return response({ error: "Tarjeta desconocida" }, 404);
-      const base = profiles[0].current_period_end && new Date(profiles[0].current_period_end).getTime() > Date.now() ? new Date(profiles[0].current_period_end) : new Date();
-      base.setUTCFullYear(base.getUTCFullYear() + 1);
-      const activation = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${payment.profile_id}&user_id=eq.${payment.user_id}`, {
-        method: "PATCH", headers: { ...headers, Prefer: "return=minimal" },
-        body: JSON.stringify({ status: "active", current_period_end: base.toISOString(), updated_at: new Date().toISOString() }),
-      });
-      if (!activation.ok) throw new Error(await activation.text());
-    }
+    if (!rpc.ok) throw new Error(await rpc.text());
     return response({ ok: true });
   } catch (error) {
     console.error("Webhook error", error);
