@@ -885,6 +885,7 @@ select:focus{
     <button type="button" id="saveNewPasswordBtn" style="width:100%;padding:12px;border:0;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;background:var(--com-gradient)">Guardar nueva contraseña</button>
   </div>
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
+  <div id="myCardsBox" style="display:none;margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>Mis tarjetas</strong><a class="button" href="/crear/?new=1" style="font-size:12px">+ Crear otra</a></div><div id="myCardsList" style="display:grid;gap:8px;margin-top:10px"></div></div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
   <div class="payment-box" id="paymentBox"><strong>Activa tu Plan Pro anual</strong><p>El Plan Pro corresponde a esta tarjeta. Cada tarjeta adicional requiere su propia activación.</p><button type="button" id="payButton">Consultar precio vigente</button></div>
   <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
@@ -1767,6 +1768,7 @@ function populateProfile(row){
   renderPlanStatus(row);
 }
 
+async function loadMyCards(){if(!currentUser)return;const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end").eq("user_id",currentUser.id).order("updated_at",{ascending:false});const box=document.getElementById("myCardsBox"),list=document.getElementById("myCardsList");if(error){box.style.display="none";return}box.style.display="block";list.replaceChildren();for(const c of data||[]){const row=document.createElement("div");row.style.cssText="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:#0e1427";const info=document.createElement("div");const name=document.createElement("strong");name.textContent=c.name||c.slug;const meta=document.createElement("div");meta.className="muted";const end=c.current_period_end||c.trial_ends_at;meta.textContent=(c.status||"").toUpperCase()+(end?" · vence "+new Date(end).toLocaleDateString("es-MX"):"");info.append(name,meta);const edit=document.createElement("a");edit.href="/crear/?id="+encodeURIComponent(c.id);edit.textContent="Editar";edit.style.cssText="color:#bdefff;font-weight:700;text-decoration:none";row.append(info,edit);list.append(row)}if(!(data||[]).length){list.textContent="Todavía no tienes tarjetas."}}
 async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
@@ -1787,6 +1789,7 @@ async function applySession(session){
   accountTools.style.display=currentUser?"flex":"none";
   authStatus.textContent=currentUser?`Sesión activa: ${currentUser.email}`:"Aún no has iniciado sesión.";
   if(currentUser){
+    await loadMyCards();
     await loadOwnProfile();
     await confirmReturnedPayment();
   }
