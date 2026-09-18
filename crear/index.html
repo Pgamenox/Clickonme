@@ -1822,12 +1822,12 @@ document.getElementById("signupBtn").addEventListener("click",async()=>{
   const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:"https://clickonme.pro/crear/"}});
   document.getElementById("authPassword").value="";
   if(error){
-    // Supabase puede devolver un error genérico aunque Auth haya alcanzado a crear el usuario.
-    // No mostramos detalles internos de base de datos al cliente y comprobamos el caso
-    // de correo ya registrado mediante un intento de inicio de sesión controlado.
+    // No exponemos detalles internos de Supabase al cliente.
     const msg=String(error.message||"").toLowerCase();
-    if(msg.includes("database error") || msg.includes("already registered") || msg.includes("already been registered") || msg.includes("user already registered")){
-      authStatus.textContent="La cuenta ya fue registrada o está pendiente de confirmación. Revisa tu correo (también Spam) y después pulsa Entrar. Si no recuerdas la contraseña, usa “Olvidé mi contraseña”.";
+    if(msg.includes("already registered") || msg.includes("already been registered") || msg.includes("user already registered")){
+      authStatus.textContent="Este correo ya tiene una cuenta o está pendiente de confirmación. Revisa tu correo (también Spam) y después pulsa Entrar.";
+    }else if(msg.includes("database error")){
+      authStatus.textContent="No pudimos completar el registro. Si recibiste un correo de confirmación, úsalo; si no, pulsa “Reenviar correo de confirmación” o inténtalo de nuevo en unos minutos.";
     }else if(msg.includes("rate limit") || msg.includes("too many")){
       authStatus.textContent="Se hicieron varios intentos seguidos. Espera unos minutos y vuelve a intentarlo.";
     }else{
@@ -1898,6 +1898,7 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
 });
 
 payButton.addEventListener("click",async()=>{
+  if(payButton.disabled) return;
   if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
   payButton.disabled=true; payButton.textContent="Creando orden segura...";
   const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId)}});
@@ -1932,13 +1933,15 @@ async function uploadProfileAsset(value,folder,key){
 }
 
 publishButton.addEventListener("click",async()=>{
+  if(publishButton.disabled) return;
+  publishButton.disabled=true;
   const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session);
-  if(!currentUser){ alert("Primero crea tu cuenta o inicia sesión."); return; }
+  if(!currentUser){ publishButton.disabled=false; alert("Primero crea tu cuenta o inicia sesión."); return; }
   const name=nameInput.value.trim(); const role=roleInput.value.trim(); const slug=makeSlug(slugInput.value||name);
-  if(!name || !role){ alert("Completa tu nombre y actividad o profesión."); return; }
-  if(slug.length<3){ alert("La dirección debe tener al menos 3 caracteres."); return; }
+  if(!name || !role){ publishButton.disabled=false; alert("Completa tu nombre y actividad o profesión."); return; }
+  if(slug.length<3){ publishButton.disabled=false; alert("La dirección debe tener al menos 3 caracteres."); return; }
   const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
-  if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ alert("Los enlaces deben comenzar con http:// o https://"); return; }
+  if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   try{
