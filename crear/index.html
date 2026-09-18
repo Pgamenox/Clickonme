@@ -1758,7 +1758,28 @@ function populateProfile(row){
   renderPlanStatus(row);
 }
 
-async function loadMyCards(){if(!currentUser)return;const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end").eq("user_id",currentUser.id).order("updated_at",{ascending:false});const box=document.getElementById("myCardsBox"),list=document.getElementById("myCardsList");if(error){box.style.display="none";return}box.style.display="block";list.replaceChildren();for(const c of data||[]){const row=document.createElement("div");row.style.cssText="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:#0e1427";const info=document.createElement("div");const name=document.createElement("strong");name.textContent=c.name||c.slug;const meta=document.createElement("div");meta.className="muted";const end=c.current_period_end||c.trial_ends_at;meta.textContent=(c.status||"").toUpperCase()+(end?" · vence "+new Date(end).toLocaleDateString("es-MX"):"");info.append(name,meta);const edit=document.createElement("a");edit.href="/crear/?id="+encodeURIComponent(c.id);edit.textContent="Editar";edit.style.cssText="color:#bdefff;font-weight:700;text-decoration:none";row.append(info,edit);list.append(row)}if(!(data||[]).length){list.textContent="Todavía no tienes tarjetas."}}
+async function loadMyCards(){
+  if(!currentUser)return;
+  const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end,updated_at").eq("user_id",currentUser.id).order("updated_at",{ascending:false});
+  const box=document.getElementById("myCardsBox"),list=document.getElementById("myCardsList"); if(error){box.style.display="none";return}
+  box.style.display="block"; list.replaceChildren(); const now=Date.now();
+  for(const c of data||[]){
+    const trialEnd=c.trial_ends_at?new Date(c.trial_ends_at).getTime():0, periodEnd=c.current_period_end?new Date(c.current_period_end).getTime():0;
+    const active=c.status==="active"&&(!periodEnd||periodEnd>now), trial=c.status==="trial"&&trialEnd>now;
+    const label=active?"Plan Pro activo":trial?"Prueba activa":"Requiere activación"; const end=active?c.current_period_end:(trial?c.trial_ends_at:null);
+    const row=document.createElement("div"); row.style.cssText="padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:#0e1427";
+    const top=document.createElement("div"); top.style.cssText="display:flex;justify-content:space-between;align-items:flex-start;gap:10px";
+    const info=document.createElement("div"),name=document.createElement("strong"),meta=document.createElement("div"); name.textContent=c.name||c.slug; meta.className="muted"; meta.textContent=label+(end?" · vence "+new Date(end).toLocaleDateString("es-MX"):""); info.append(name,meta);
+    const actions=document.createElement("div"); actions.style.cssText="display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end";
+    const view=document.createElement("a"); view.href="/crear/perfil.html?u="+encodeURIComponent(c.slug); view.target="_blank"; view.rel="noopener"; view.textContent="Ver";
+    const edit=document.createElement("a"); edit.href="/crear/?id="+encodeURIComponent(c.id); edit.textContent="Editar";
+    [view,edit].forEach(x=>x.style.cssText="color:#bdefff;font-weight:700;text-decoration:none;font-size:12px;padding:6px 8px;border:1px solid rgba(0,229,255,.2);border-radius:8px");
+    actions.append(view,edit);
+    if(!active&&!trial){const activate=document.createElement("a");activate.href="/crear/?id="+encodeURIComponent(c.id)+"&activate=1";activate.textContent="Activar";activate.style.cssText="color:#fff;font-weight:800;text-decoration:none;font-size:12px;padding:6px 9px;border-radius:8px;background:var(--com-gradient)";actions.append(activate)}
+    top.append(info,actions); row.append(top); list.append(row);
+  }
+  if(!(data||[]).length)list.textContent="Todavía no tienes tarjetas.";
+}
 async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
