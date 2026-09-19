@@ -364,14 +364,14 @@ function syncInstallState(){
  installPanel.style.display="block";
 }
 function guideSteps(){
- const steps=isiOS?["1. Abre esta tarjeta en Safari.","2. Toca Compartir (cuadro con flecha).","3. Elige Añadir a pantalla de inicio.","4. Pulsa Añadir."]:isSamsung?["1. Abre la tarjeta en el navegador completo.","2. Elige Instalar aplicación si aparece.","3. Evita Crear acceso directo si muestra el logo del navegador.","4. Confirma Instalar."]:isAndroid?["1. Abre esta tarjeta en Chrome completo.","2. Elige Instalar aplicación.","3. No elijas Crear acceso directo: ese acceso puede mostrar el logo de Chrome.","4. Confirma Instalar y abre la tarjeta desde el nuevo icono."]:["1. Abre el menú del navegador.","2. Elige Instalar aplicación.","3. Evita Crear acceso directo si el navegador ofrece ambas opciones."];
+ const steps=isiOS?["1. Abre esta tarjeta en Safari.","2. Toca Compartir.","3. Elige Añadir a pantalla de inicio.","4. Pulsa Añadir."]:isSamsung?["1. Abre el menú del navegador.","2. Busca Instalar aplicación o Instalar y crear acceso directo.","3. Elige Instalar aplicación, no Crear acceso directo.","4. Confirma Instalar."]:isAndroid?["1. Toca los tres puntos ⋮ de Chrome.","2. Desliza el menú hasta Instalar y crear acceso directo.","3. Tócalo y elige Instalar aplicación.","4. No elijas Crear acceso directo: ese acceso puede mostrar el distintivo de Chrome."]:["1. Abre el menú del navegador.","2. Busca Instalar aplicación.","3. Evita Crear acceso directo si el navegador ofrece ambas opciones."];
  installSteps.replaceChildren(...steps.map(t=>{const d=document.createElement("div");d.className="install-step";d.textContent=t;return d;}));
  installGuide.showModal();
 }
 syncInstallState();
 if(installPanel&&!runningAsApp()){installHelp.textContent="Instala la tarjeta como app. Si el navegador ofrece “Crear acceso directo”, no elijas esa opción: puede añadir el logo de Chrome.";installBtn.textContent="📲 Instalar mi ClickOnMe";}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();if(runningAsApp())return;deferredInstallPrompt=e;if(installPanel){installPanel.style.display="block";installBtn.textContent="📲 Instalar mi ClickOnMe";}});
-installBtn?.addEventListener("click",async()=>{if(deferredInstallPrompt){deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;if(choice.outcome==="accepted"&&installPanel)installPanel.style.display="none";deferredInstallPrompt=null;return;}guideSteps();});
+installBtn?.addEventListener("click",async()=>{if(runningAsApp()){syncInstallState();return;}if(deferredInstallPrompt){try{deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;if(choice.outcome==="accepted"&&installPanel)installPanel.style.display="none";}finally{deferredInstallPrompt=null;}return;}guideSteps();});
 document.getElementById("installGuideClose")?.addEventListener("click",()=>installGuide.close());
 installGuide?.addEventListener("click",e=>{if(e.target===installGuide)installGuide.close();});
 window.addEventListener("appinstalled",()=>{if(installPanel){installPanel.style.display="none";installPanel.setAttribute("aria-hidden","true");}deferredInstallPrompt=null;});
