@@ -557,7 +557,9 @@ select:focus{
  <div class="field"><label>Dossier / PressKit PDF</label><input class="photo-input" type="file" id="presskitPdf" accept="application/pdf"><div class="control-help">PDF, máximo 10 MB.</div></div>
  <div id="presskitPdfStatus" class="control-help"></div>
 </div>
-<div class="section-title">Diseña tu tarjeta</div>
+<div class="section-title">Compartir mi ClickOnMe</div><div class="plus-box">
+<div class="field"><label>Mensaje al compartir</label><input id="shareMessage" maxlength="140" placeholder="Conoce mi perfil en ClickOnMe"><div class="control-help">Este texto acompañará tu enlace cuando uses Compartir.</div></div>
+</div><div class="section-title">Diseña tu tarjeta</div>
 
 <div class="field">
   <label>Tipo de fondo</label>
@@ -967,6 +969,8 @@ select:focus{
 
 
 <script>
+
+const shareMessage=document.getElementById("shareMessage");
 
 const nameInput =
 document.getElementById("name");
@@ -1850,7 +1854,7 @@ function populateProfile(row){
   const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];
   audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};
-  profileType.value=d.profileType||"professional";
+  profileType.value=d.profileType||"professional"; shareMessage.value=d.shareMessage||"Conoce mi perfil en ClickOnMe";
   presskitBio.value=d.presskit?.bio||"";presskitEvents.value=(d.presskit?.events||[]).join("\n");bookingEmail.value=d.presskit?.bookingEmail||"";bookingWhatsapp.value=d.presskit?.bookingWhatsapp||"";presskitPdfItem=d.presskit?.pdfUrl?{url:d.presskit.pdfUrl,name:d.presskit.pdfName||"PressKit PDF"}:{url:"",name:""};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
   videoEnabled.checked=Boolean(d.modules?.video?.enabled); applyProfileType(); videoTitle.value=d.modules?.video?.title||""; videoUrl.value=d.modules?.video?.url||""; profileMode.value=d.profileMode==="presskit"?"presskit":"standard"; presskitLabel.value=d.presskitLabel||""; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
@@ -2085,7 +2089,7 @@ publishButton.addEventListener("click",async()=>{
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
   if(!validYouTubeUrl(videoUrl.value.trim())){publishButton.disabled=false;alert("El video destacado debe ser un enlace válido de YouTube.");return;}
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
-  profileData.profileType=profileType.value;
+  profileData.profileType=profileType.value; profileData.shareMessage=(shareMessage.value.trim()||"Conoce mi perfil en ClickOnMe").slice(0,140);
   profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
   profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim();
   publishButton.disabled=true; publishButton.textContent="Guardando...";
