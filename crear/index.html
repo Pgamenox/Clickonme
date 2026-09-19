@@ -1794,6 +1794,7 @@ let profileLoadedFor = null;
 const editorParams = new URLSearchParams(window.location.search);
 const requestedProfileId = editorParams.get("id");
 const createNewProfile = editorParams.get("new") === "1";
+const activationRequested = editorParams.get("activate") === "1";
 const returnedPaymentId = editorParams.get("payment_id") || editorParams.get("collection_id");
 const returnedPaymentStatus = editorParams.get("collection_status") || editorParams.get("status");
 let paymentConfirmationAttempted = false;
@@ -1887,6 +1888,7 @@ function populateProfile(row){
   updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); updateCustomButton(); updateProfileLink(row.slug);
   publishButton.textContent="Guardar cambios";
   renderPlanStatus(row);
+  if(activationRequested){window.setTimeout(()=>{paymentBox.style.display="block";paymentBox.scrollIntoView({behavior:"smooth",block:"center"});paymentBox.style.boxShadow="0 0 0 2px rgba(0,229,255,.45),0 14px 40px rgba(0,0,0,.35)";payButton.focus({preventScroll:true});authStatus.textContent="Tarjeta seleccionada. Revisa el plan y pulsa Activar para continuar.";},250);}
 }
 
 async function loadMyCards(){
