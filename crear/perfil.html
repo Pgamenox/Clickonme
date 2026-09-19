@@ -338,5 +338,23 @@ loadProfile();
 <script>
 (()=>{const url=location.href.split("#")[0],share=document.getElementById("shareBtn"),copy=document.getElementById("copyBtn"),qr=document.getElementById("qrBtn"),toast=document.getElementById("shareToast"),dlg=document.getElementById("qrDialog"),img=document.getElementById("qrImage");const say=t=>{toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)};async function copyUrl(){try{await navigator.clipboard.writeText(url);say("Enlace copiado");}catch{const ta=document.createElement("textarea");ta.value=url;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();say("Enlace copiado");}}share.addEventListener("click",async()=>{if(navigator.share){try{await navigator.share({title:document.title,text:(window.clickOnMeShareMessage||"Conoce mi perfil en ClickOnMe"),url});}catch(e){if(e?.name!=="AbortError")copyUrl();}}else copyUrl();});copy.addEventListener("click",copyUrl);qr.addEventListener("click",()=>{img.src="https://quickchart.io/qr?size=440&text="+encodeURIComponent(url);dlg.showModal();});document.getElementById("qrClose").addEventListener("click",()=>dlg.close());dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});})();
 </script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}
+let deferredInstallPrompt=null;
+const installPanel=document.getElementById("installPanel"),installBtn=document.getElementById("installBtn"),installHelp=document.getElementById("installHelp");
+const isStandalone=window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+const isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+if(installPanel && !isStandalone){
+  installPanel.style.display="block";
+  if(isiOS){installBtn.textContent="Cómo añadir a inicio";installHelp.textContent="En iPhone: toca Compartir y elige Añadir a pantalla de inicio. Tu tarjeta quedará como un icono.";}
+}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;if(installPanel){installPanel.style.display="block";installBtn.textContent="Instalar mi ClickOnMe";}});
+installBtn?.addEventListener("click",async()=>{
+  if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;return;}
+  if(isiOS){alert("En Safari: toca Compartir y después Añadir a pantalla de inicio.");return;}
+  alert("Abre el menú de tu navegador y elige Instalar app o Añadir a pantalla de inicio.");
+});
+window.addEventListener("appinstalled",()=>{if(installPanel)installPanel.style.display="none";deferredInstallPrompt=null;});
+</script>
 </body>
 </html>
