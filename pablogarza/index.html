@@ -282,6 +282,9 @@ text-decoration:none;
 
 }
 
+
+.install-card-btn{margin-top:14px;width:100%;cursor:pointer;font-family:inherit}
+.install-note{display:none;margin-top:9px;font-size:11px;color:#cfcfe7;line-height:1.4}
 </style>
 </head>
 
@@ -339,6 +342,11 @@ Con Todo, Menos con Miedo
 
 </div>
 
+<button id="installCard" class="btn install-card-btn" type="button" hidden>
+<span class="icon">📲</span> Instalar mi tarjeta
+</button>
+<div id="installNote" class="install-note"></div>
+
 <div class="footer">
 Tu tarjeta digital inteligente.<br>
 <strong>TU CONTACTO, EN UN SOLO CLIC.</strong>
@@ -348,6 +356,35 @@ Tu tarjeta digital inteligente.<br>
 
 <script>
 if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js")); }
+
+let deferredInstallPrompt=null;
+const installBtn=document.getElementById("installCard");
+const installNote=document.getElementById("installNote");
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone=window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+
+if(!isStandalone){
+  if(isIOS){
+    installBtn.hidden=false;
+    installBtn.addEventListener("click",()=>{
+      installNote.style.display="block";
+      installNote.textContent="En iPhone: toca Compartir y después “Añadir a pantalla de inicio”.";
+    });
+  }
+  window.addEventListener("beforeinstallprompt",(e)=>{
+    e.preventDefault();
+    deferredInstallPrompt=e;
+    installBtn.hidden=false;
+  });
+  installBtn.addEventListener("click",async()=>{
+    if(!deferredInstallPrompt || isIOS) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt=null;
+    installBtn.hidden=true;
+  });
+}
+window.addEventListener("appinstalled",()=>{ installBtn.hidden=true; });
 </script>
 </body>
 </html>
