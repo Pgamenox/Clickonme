@@ -993,7 +993,7 @@ const whatsappInput =
 document.getElementById("whatsapp");
 const moduleProgressBar=document.getElementById("moduleProgressBar"),moduleProgressText=document.getElementById("moduleProgressText");
 function hasPhoto(){const src=document.getElementById("previewPhoto")?.getAttribute("src")||"";return !!src&&!src.endsWith("placeholder-profile.svg");}
-function hasPlusContent(){return !!(galleryItems?.length||audioItem?.url||videoUrl?.value.trim());}
+function hasPlusContent(){return !!((window.__galleryCount||0)||(window.__audioReady||false)||videoUrl?.value.trim());}
 function updateProfileProgress(){let score=0,total=6;if(nameInput?.value.trim())score++;if(roleInput?.value.trim())score++;if(descriptionInput?.value.trim())score++;if(hasPhoto())score++;if(document.querySelector(".extraButtonUrl")?.value?.trim()||whatsappInput?.value.trim()||document.getElementById("website")?.value.trim())score++;if(hasPlusContent())score++;const pct=Math.round(score/total*100);moduleProgressBar.style.width=pct+"%";moduleProgressText.textContent=pct===100?"Tu ClickOnMe ya tiene los elementos principales. Puedes guardar y publicarlo.":pct+"% listo · sigue personalizando tu tarjeta."}
 
 const quickStartSteps=document.getElementById("quickStartSteps");
@@ -1191,7 +1191,7 @@ function validYouTubeUrl(value){if(!value)return true;try{const u=new URL(value)
 
 const audioEnabled=document.getElementById("audioEnabled"),audioTitle=document.getElementById("audioTitle"),audioFileInput=document.getElementById("audioFile"),audioEditorPreview=document.getElementById("audioEditorPreview");
 let audioItem={url:"",name:""};
-audioFileInput.addEventListener("change",e=>{const file=e.target.files?.[0];if(!file)return;if(file.type!=="audio/mpeg"||file.size>12*1024*1024){alert("Usa un archivo MP3 de máximo 12 MB.");e.target.value="";return;}if(audioItem.url?.startsWith("blob:"))URL.revokeObjectURL(audioItem.url);audioItem={url:URL.createObjectURL(file),name:file.name,file};audioEditorPreview.src=audioItem.url;audioEditorPreview.style.display="block";});
+audioFileInput.addEventListener("change",e=>{const file=e.target.files?.[0];if(!file)return;if(file.type!=="audio/mpeg"||file.size>12*1024*1024){alert("Usa un archivo MP3 de máximo 12 MB.");e.target.value="";return;}if(audioItem.url?.startsWith("blob:"))URL.revokeObjectURL(audioItem.url);audioItem={url:URL.createObjectURL(file),name:file.name,file};window.__audioReady=true;audioEditorPreview.src=audioItem.url;audioEditorPreview.style.display="block";});
 function renderAudioEditor(){if(audioItem.url){audioEditorPreview.src=audioItem.url;audioEditorPreview.style.display="block";}}
 
 const galleryEnabled=document.getElementById("galleryEnabled");
@@ -1199,14 +1199,14 @@ const galleryTitle=document.getElementById("galleryTitle");
 const galleryImagesInput=document.getElementById("galleryImages");
 const galleryEditorPreview=document.getElementById("galleryEditorPreview");
 const previewGallery=document.getElementById("previewGallery");
-let galleryItems=[];
+let galleryItems=[];window.__galleryCount=0;
 function renderGalleryEditor(){
   [galleryEditorPreview,previewGallery].forEach(box=>{box.replaceChildren();box.style.display=galleryEnabled.checked&&galleryItems.length?"grid":"none";galleryItems.slice(0,6).forEach(item=>{const img=document.createElement("img");img.src=item.url;img.alt=item.alt||"Imagen de galería";box.appendChild(img);});});
 }
 galleryEnabled.addEventListener("change",renderGalleryEditor);
 galleryImagesInput.addEventListener("change",async e=>{
   const files=Array.from(e.target.files||[]).slice(0,6);
-  try{galleryItems=[];for(const file of files){galleryItems.push({url:await optimizeImage(file,1400,.82),alt:""});}renderGalleryEditor();}catch(error){alert(error.message);galleryItems=[];renderGalleryEditor();}
+  try{galleryItems=[];for(const file of files){galleryItems.push({url:await optimizeImage(file,1400,.82),alt:""});window.__galleryCount=galleryItems.length;}renderGalleryEditor();}catch(error){alert(error.message);galleryItems=[];renderGalleryEditor();}
 });
 
 const defaultIcons={whatsapp:"💬",phone:"📞",facebook:"f",instagram:"◎",youtube:"▶",website:"🌐"};
@@ -1875,8 +1875,8 @@ function renderPlanStatus(row){
 
 function populateProfile(row){
   const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
-  galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];
-  audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};
+  galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];window.__galleryCount=galleryItems.length;
+  audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};window.__audioReady=!!audioItem.url;
   profileType.value=d.profileType||"professional"; shareMessage.value=d.shareMessage||"Conoce mi perfil en ClickOnMe";
   presskitBio.value=d.presskit?.bio||"";presskitEvents.value=(d.presskit?.events||[]).join("\n");bookingEmail.value=d.presskit?.bookingEmail||"";bookingWhatsapp.value=d.presskit?.bookingWhatsapp||"";presskitPdfItem=d.presskit?.pdfUrl?{url:d.presskit.pdfUrl,name:d.presskit.pdfName||"PressKit PDF"}:{url:"",name:""};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
   videoEnabled.checked=Boolean(d.modules?.video?.enabled); applyProfileType(); videoTitle.value=d.modules?.video?.title||""; videoUrl.value=d.modules?.video?.url||""; profileMode.value=d.profileMode==="presskit"?"presskit":"standard"; presskitLabel.value=d.presskitLabel||""; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
