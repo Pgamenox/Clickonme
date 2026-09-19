@@ -246,6 +246,10 @@ h1{
 const client = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY);
 const params = new URLSearchParams(window.location.search);
 const slug = (params.get("u")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
+const manifestLink=document.getElementById("dynamicManifest");
+if(slug&&manifestLink){
+  manifestLink.href="https://jjiiuvfshzdgjalmsaay.supabase.co/functions/v1/profile-manifest?u="+encodeURIComponent(slug);
+}
 
 function safeWebUrl(value){
   if(!value) return "";
