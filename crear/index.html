@@ -379,6 +379,8 @@ select:focus{
 .payment-box{display:none;margin-top:14px;padding:14px;border-radius:14px;background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2)}.payment-box strong{display:block;font-size:14px}.payment-box p{margin:4px 0 10px}.payment-box button{width:100%;padding:12px;border:0;border-radius:11px;background:var(--com-gradient);color:#fff;font-weight:800;cursor:pointer}.payment-box button:disabled{opacity:.65;cursor:wait}
 .slug-prefix{display:flex;align-items:center;background:#111525;border:1px solid rgba(255,255,255,.10);border-radius:12px;overflow:hidden}.slug-prefix span{padding-left:10px;color:#7f8aa8;font-size:10px;white-space:nowrap}.slug-prefix input{border:0;border-radius:0;padding-left:2px;min-width:0}
 .mobile-actionbar{display:none;position:fixed;z-index:50;left:10px;right:10px;bottom:10px;grid-template-columns:1fr 1.35fr;gap:8px;padding:8px;border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(5,7,19,.94);backdrop-filter:blur(16px);box-shadow:0 12px 40px rgba(0,0,0,.45)}.mobile-actionbar button{min-height:48px;border:0;border-radius:11px;color:#fff;font-weight:800;background:#202a49}.mobile-actionbar .primary{background:var(--com-gradient)}
+
+.plus-box{margin:14px 0 18px;padding:14px;border:1px solid rgba(0,229,255,.18);border-radius:16px;background:rgba(0,229,255,.045)}.plus-box strong{display:block;margin-bottom:4px}.gallery-preview{display:none;margin:14px 0 4px;gap:8px;grid-template-columns:repeat(3,1fr)}.gallery-preview img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.12)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
@@ -500,6 +502,16 @@ select:focus{
 
   </div>
 
+
+<div class="section-title">ClickOnMe Plus · Galería / Slideshow <span style="font-size:10px;color:#00e5ff">BETA</span></div>
+<div class="plus-box">
+  <strong>Convierte tu tarjeta en un portafolio visual</strong>
+  <div class="control-help">Ideal para artistas, fotógrafos, músicos, productos y PressKit. Hasta 6 imágenes en esta primera beta.</div>
+  <div class="field" style="margin-top:12px"><label><input type="checkbox" id="galleryEnabled" style="width:auto;margin-right:7px"> Activar galería en mi perfil</label></div>
+  <div class="field"><label>Título de la galería</label><input type="text" id="galleryTitle" maxlength="60" placeholder="Ej. Mis obras • PressKit • Galería"></div>
+  <div class="field"><label>Imágenes</label><input class="photo-input" type="file" id="galleryImages" accept="image/jpeg,image/png,image/webp" multiple><div class="control-help">JPG, PNG o WebP. Puedes elegir varias imágenes.</div></div>
+  <div id="galleryEditorPreview" class="gallery-preview"></div>
+</div>
 <div class="section-title">Diseña tu tarjeta</div>
 
 <div class="field">
@@ -804,6 +816,8 @@ select:focus{
         </div>
 
 
+
+        <div id="previewGallery" class="gallery-preview"></div>
         <div
           class="links"
           id="previewLinks"
@@ -1080,6 +1094,22 @@ function updatePhotoStyle(){
 }
 photoShape.addEventListener("change",updatePhotoStyle);
 photoFit.addEventListener("change",updatePhotoStyle);
+
+
+const galleryEnabled=document.getElementById("galleryEnabled");
+const galleryTitle=document.getElementById("galleryTitle");
+const galleryImagesInput=document.getElementById("galleryImages");
+const galleryEditorPreview=document.getElementById("galleryEditorPreview");
+const previewGallery=document.getElementById("previewGallery");
+let galleryItems=[];
+function renderGalleryEditor(){
+  [galleryEditorPreview,previewGallery].forEach(box=>{box.replaceChildren();box.style.display=galleryEnabled.checked&&galleryItems.length?"grid":"none";galleryItems.slice(0,6).forEach(item=>{const img=document.createElement("img");img.src=item.url;img.alt=item.alt||"Imagen de galería";box.appendChild(img);});});
+}
+galleryEnabled.addEventListener("change",renderGalleryEditor);
+galleryImagesInput.addEventListener("change",async e=>{
+  const files=Array.from(e.target.files||[]).slice(0,6);
+  try{galleryItems=[];for(const file of files){galleryItems.push({url:await optimizeImage(file,1400,.82),alt:""});}renderGalleryEditor();}catch(error){alert(error.message);galleryItems=[];renderGalleryEditor();}
+});
 
 const defaultIcons={whatsapp:"💬",phone:"📞",facebook:"f",instagram:"◎",youtube:"▶",website:"🌐"};
 let customIcons={};
@@ -1746,6 +1776,7 @@ function renderPlanStatus(row){
 
 function populateProfile(row){
   const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
+  galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[]; galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
   setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1";
   ["backgroundType","color1","color2","backgroundOverlay","backgroundBlur","backgroundOverlayColor","backgroundPosition","photoShape","photoFit","cardColor","buttonColor","textColor","secondaryTextColor","cardOpacity","buttonRadius","fontFamily","buttonStyle","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"].forEach(id=>setField(id,d[id]));
@@ -1968,6 +1999,7 @@ publishButton.addEventListener("click",async()=>{
   const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
+  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)}};
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   try{
     const assetFolder="profile-"+slug;
@@ -1977,6 +2009,12 @@ publishButton.addEventListener("click",async()=>{
     for(const [key,value] of Object.entries(profileData.customIcons||{})) uploadedIcons[key]=await uploadProfileAsset(value,assetFolder,"icon-"+key);
     profileData.customIcons=uploadedIcons;
     customIcons=uploadedIcons;
+    const uploadedGallery=[];
+    for(let i=0;i<(profileData.modules?.gallery?.items||[]).length;i++){
+      const item=profileData.modules.gallery.items[i];
+      uploadedGallery.push({url:await uploadProfileAsset(item.url,assetFolder,"gallery-"+i),alt:String(item.alt||"").slice(0,120)});
+    }
+    profileData.modules.gallery.items=uploadedGallery; galleryItems=uploadedGallery; renderGalleryEditor();
   }catch(error){
     publishButton.disabled=false;
     publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
