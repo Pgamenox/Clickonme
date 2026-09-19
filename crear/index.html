@@ -1942,6 +1942,21 @@ function populateProfile(row){
   if(activationRequested){window.setTimeout(()=>{paymentBox.style.display="block";paymentBox.scrollIntoView({behavior:"smooth",block:"center"});paymentBox.style.boxShadow="0 0 0 2px rgba(0,229,255,.45),0 14px 40px rgba(0,0,0,.35)";payButton.focus({preventScroll:true});authStatus.textContent="Tarjeta seleccionada. Revisa el plan y pulsa Activar para continuar.";},250);}
 }
 
+async function showProfileAnalytics(slug,name,button){
+ const original=button.textContent;button.disabled=true;button.textContent="Cargando…";
+ try{
+  const since=new Date(Date.now()-30*86400000).toISOString();
+  const {data,error}=await supabaseClient.from("profile_analytics_events").select("event_type,session_id,created_at").eq("profile_slug",slug).gte("created_at",since);
+  if(error)throw error;
+  const rows=data||[],views=rows.filter(x=>x.event_type==="profile_view"),sessions=new Set(views.map(x=>x.session_id).filter(Boolean)).size;
+  const clicks=rows.filter(x=>x.event_type!=="profile_view").reduce((a,x)=>(a[x.event_type]=(a[x.event_type]||0)+1,a),{});
+  const labels={whatsapp_click:"WhatsApp",phone_click:"Teléfono",facebook_click:"Facebook",instagram_click:"Instagram",youtube_click:"YouTube",website_click:"Sitio web",custom_click:"Botón personalizado",share_click:"Compartir",copy_click:"Copiar enlace",qr_open:"QR",audio_play:"Audio",gallery_nav:"Galería",video_open:"Video",presskit_email:"PressKit email",presskit_whatsapp:"PressKit WhatsApp",presskit_pdf:"PressKit PDF"};
+  const top=Object.entries(clicks).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>`${labels[k]||k}: ${v}`).join("\n")||"Aún sin interacciones.";
+  alert(`${name} · últimos 30 días\n\nVisitas: ${views.length}\nSesiones aproximadas: ${sessions}\nInteracciones: ${rows.length-views.length}\n\n${top}`);
+ }catch(e){alert("Todavía no fue posible consultar las métricas de esta tarjeta.");}
+ finally{button.disabled=false;button.textContent=original;}
+}
+
 async function loadMyCards(){
   if(!currentUser)return;
   const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end,updated_at").eq("user_id",currentUser.id).order("updated_at",{ascending:false});
@@ -1957,8 +1972,9 @@ async function loadMyCards(){
     const actions=document.createElement("div"); actions.style.cssText="display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end";
     const view=document.createElement("a"); view.href="/crear/perfil.html?u="+encodeURIComponent(c.slug); view.target="_blank"; view.rel="noopener"; view.textContent="Ver";
     const edit=document.createElement("a"); edit.href="/crear/?id="+encodeURIComponent(c.id); edit.textContent="Editar";
-    [view,edit].forEach(x=>x.style.cssText="color:#bdefff;font-weight:700;text-decoration:none;font-size:12px;padding:6px 8px;border:1px solid rgba(0,229,255,.2);border-radius:8px");
-    actions.append(view,edit);
+    const stats=document.createElement("button"); stats.type="button"; stats.textContent="Métricas"; stats.style.cursor="pointer"; stats.addEventListener("click",()=>showProfileAnalytics(c.slug,c.name||c.slug,stats));
+    [view,edit,stats].forEach(x=>x.style.cssText="color:#bdefff;font-weight:700;text-decoration:none;font-size:12px;padding:6px 8px;border:1px solid rgba(0,229,255,.2);border-radius:8px;background:#0e1427");
+    actions.append(view,edit,stats);
     if(!active&&!trial){const activate=document.createElement("a");activate.href="/crear/?id="+encodeURIComponent(c.id)+"&activate=1";activate.textContent="Activar";activate.style.cssText="color:#fff;font-weight:800;text-decoration:none;font-size:12px;padding:6px 9px;border-radius:8px;background:var(--com-gradient)";actions.append(activate)}
     top.append(info,actions); row.append(top); list.append(row);
   }
