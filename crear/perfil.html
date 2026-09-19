@@ -164,6 +164,8 @@ h1{
     font-size:14px;
   }
 }
+
+.module-gallery{display:none;margin:18px 0 20px;text-align:left}.module-gallery h2{font-size:15px;margin:0 0 10px;text-align:center}.gallery-stage{position:relative;width:100%;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}.gallery-stage img{width:100%;height:100%;object-fit:cover;display:block}.gallery-dots{display:flex;justify-content:center;gap:6px;margin-top:9px}.gallery-dot{width:7px;height:7px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.28)}.gallery-dot.active{background:#fff}.gallery-nav{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.gallery-nav button{pointer-events:auto;width:34px;height:34px;margin:8px;border:0;border-radius:50%;background:rgba(0,0,0,.48);color:#fff;font-size:20px;cursor:pointer}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
@@ -194,6 +196,12 @@ h1{
     Todo lo que necesitas para contactarme, en un solo lugar.
   </div>
 
+
+  <section class="module-gallery" id="galleryModule" aria-label="Galería">
+    <h2 id="galleryModuleTitle">Galería</h2>
+    <div class="gallery-stage"><img id="galleryStageImage" alt=""><div class="gallery-nav"><button type="button" id="galleryPrev" aria-label="Anterior">‹</button><button type="button" id="galleryNext" aria-label="Siguiente">›</button></div></div>
+    <div class="gallery-dots" id="galleryDots"></div>
+  </section>
   <div class="links">
     <a class="btn" id="whatsappBtn" href="#" style="display:none;">
       💬 &nbsp; WhatsApp
@@ -253,6 +261,20 @@ function styleButton(button,d){
   else if(d.buttonStyle==="glass"){button.style.background="rgba(255,255,255,.10)";button.style.border="1px solid rgba(255,255,255,.22)";button.style.backdropFilter="blur(10px)";}
   else{button.style.background=d.buttonColor||"#222533";button.style.border="1px solid rgba(255,255,255,.12)";if(d.buttonStyle==="shadow")button.style.boxShadow="0 8px 20px rgba(0,0,0,.35)";}
 }
+
+function renderGalleryModule(d){
+  const mod=d?.modules?.gallery; const items=Array.isArray(mod?.items)?mod.items.slice(0,6):[];
+  const safeItems=items.map(x=>({url:safeImage(x?.url),alt:String(x?.alt||"").slice(0,120)})).filter(x=>x.url);
+  if(!mod?.enabled||!safeItems.length)return;
+  const root=document.getElementById("galleryModule"),image=document.getElementById("galleryStageImage"),dots=document.getElementById("galleryDots");
+  document.getElementById("galleryModuleTitle").textContent=String(mod.title||"Galería").slice(0,60); let index=0,timer=null;
+  function show(i){index=(i+safeItems.length)%safeItems.length;image.src=safeItems[index].url;image.alt=safeItems[index].alt||"Imagen "+(index+1);Array.from(dots.children).forEach((dot,n)=>dot.classList.toggle("active",n===index));}
+  safeItems.forEach((_,i)=>{const dot=document.createElement("button");dot.type="button";dot.className="gallery-dot";dot.setAttribute("aria-label","Ver imagen "+(i+1));dot.addEventListener("click",()=>{show(i);restart();});dots.appendChild(dot);});
+  const restart=()=>{if(timer)clearInterval(timer);if(safeItems.length>1)timer=setInterval(()=>show(index+1),4500);};
+  document.getElementById("galleryPrev").addEventListener("click",()=>{show(index-1);restart();});document.getElementById("galleryNext").addEventListener("click",()=>{show(index+1);restart();});
+  if(safeItems.length===1)document.querySelector(".gallery-nav").style.display="none";root.style.display="block";show(0);restart();
+}
+
 async function loadProfile(){
  if(!slug){document.getElementById("profileName").textContent="Perfil no encontrado";document.getElementById("profileRole").textContent="La dirección está incompleta.";return;}
  const {data:row,error}=await client.from('profiles').select('name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end').eq('slug',slug).maybeSingle();
@@ -284,6 +306,7 @@ async function loadProfile(){
  const phone=(d.phone||"").replace(/[^\d+]/g,""); if(phone){const el=document.getElementById('phoneBtn');el.href='tel:'+phone;setButtonContent(el,d,'phone','Llamar');el.style.display='flex';}
  setBtn('facebookBtn',d.facebook,'Facebook',d,'facebook'); setBtn('instagramBtn',d.instagram,'Instagram',d,'instagram'); setBtn('youtubeBtn',d.youtube,'YouTube',d,'youtube'); setBtn('websiteBtn',d.website,'Sitio web',d,'website');
  setBtn('customButtonBtn',d.customButtonUrl,d.customButtonText||'Enlace',d,'custom');
+ renderGalleryModule(d);
  const links=document.querySelector('.links');
  (Array.isArray(d.extraCustomButtons)?d.extraCustomButtons:[]).slice(0,2).forEach(x=>{const url=safeWebUrl(x.url);if(!x.text||!url)return;const a=document.createElement('a');a.className='btn';a.href=url;setButtonContent(a,d,'custom',x.text);a.target='_blank';a.rel='noopener noreferrer';links.appendChild(a);});
  document.querySelectorAll('.btn').forEach(button=>styleButton(button,d));
