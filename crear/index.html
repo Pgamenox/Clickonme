@@ -1915,8 +1915,22 @@ function renderPlanStatus(row){
   }
 }
 
+let currentSubscriptionPlan="free";
+const PLAN_LEVEL={free:0,personal:1,business:2,artist:3,creator:4};
+function applyPlanAccess(){
+ const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
+ [[galleryEnabled,2,"Business"],[audioEnabled,3,"Artista"],[videoEnabled,3,"Artista"]].forEach(([el,min,label])=>{const box=el?.closest(".plus-box");if(!box)return;const locked=level<min;box.dataset.planLocked=locked?"1":"0";box.style.opacity=locked?".58":"1";box.title=locked?"Disponible desde ClickOnMe "+label:"";});
+ const pressLocked=level<3;[presskitBio,presskitEvents,bookingEmail,bookingWhatsapp,presskitPdf,profileMode,presskitLabel].forEach(el=>{if(el)el.disabled=pressLocked;});
+}
+function enforcePlanBeforeSave(profileData){
+ const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
+ if(level<2){profileData.modules.gallery.enabled=false;profileData.modules.gallery.items=[];}
+ if(level<3){profileData.modules.audio={enabled:false,title:"",url:"",name:""};profileData.modules.video={enabled:false,title:"",url:""};profileData.profileMode="standard";profileData.presskit={bio:"",events:[],bookingEmail:"",bookingWhatsapp:"",pdfUrl:"",pdfName:""};}
+ if(level===0)profileData.extraCustomButtons=(profileData.extraCustomButtons||[]).slice(0,3);
+ return profileData;
+}
 function populateProfile(row){
-  const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
+  const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug; currentSubscriptionPlan=row.subscription_plan||"free";
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];window.__galleryCount=galleryItems.length;
   audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};window.__audioReady=!!audioItem.url;
   profileType.value=({professional:"personal",musician:"artist",visual_artist:"artist",presskit:"artist"}[d.profileType]||d.profileType||"personal"); shareMessage.value=d.shareMessage||"Conoce mi perfil en ClickOnMe";
@@ -1934,7 +1948,7 @@ function populateProfile(row){
   (d.extraCustomButtons||[]).slice(0,2).forEach(item=>{ addCustomButton.click(); const fields=extraCustomButtons.querySelectorAll(".field"); const field=fields[fields.length-1]; const text=field.querySelector(".extraButtonText"); const url=field.querySelector(".extraButtonUrl"); text.value=item.text||""; url.value=item.url||""; text.dispatchEvent(new Event("input")); url.dispatchEvent(new Event("input")); });
   updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); updateCustomButton(); updateProfileLink(row.slug);
   publishButton.textContent="Guardar cambios";
-  renderPlanStatus(row);
+  renderPlanStatus(row); applyPlanAccess();
   if(activationRequested){window.setTimeout(()=>{paymentBox.style.display="block";paymentBox.scrollIntoView({behavior:"smooth",block:"center"});paymentBox.style.boxShadow="0 0 0 2px rgba(0,229,255,.45),0 14px 40px rgba(0,0,0,.35)";payButton.focus({preventScroll:true});authStatus.textContent="Tarjeta seleccionada. Revisa el plan y pulsa Activar para continuar.";},250);}
 }
 
@@ -1993,7 +2007,7 @@ async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
   if(createNewProfile) return;
-  let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end");
+  let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan");
   if(requestedProfileId) query=query.eq("id",requestedProfileId);
   else query=query.eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1);
   const {data:rows,error}=await query;
@@ -2189,7 +2203,7 @@ publishButton.addEventListener("click",async()=>{
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",appIconMode:appIconMode.value,appIcon:appIconMode.value==="custom"?customAppIconData:"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
   profileData.profileType=profileType.value; profileData.shareMessage=(shareMessage.value.trim()||"Conoce mi perfil en ClickOnMe").slice(0,140);
   profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
-  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim();
+  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim(); enforcePlanBeforeSave(profileData);
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   try{
     const assetFolder="profile-"+slug;
