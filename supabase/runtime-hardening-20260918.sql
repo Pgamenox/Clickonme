@@ -104,3 +104,12 @@ language sql security invoker set search_path='' as $$
 $$;
 revoke all on function public.apply_verified_payment_gateway(uuid,text,text,jsonb) from public,anon,authenticated;
 grant execute on function public.apply_verified_payment_gateway(uuid,text,text,jsonb) to service_role;
+
+
+-- 2026-09-19: admin direct-sale card RPC (runtime sync)
+create or replace function public.admin_create_card(p_slug text,p_name text,p_role text default '',p_description text default '') returns public.profiles language plpgsql security invoker set search_path='' as $$ declare v_uid uuid:=auth.uid(); v_row public.profiles; begin if v_uid is null or not exists(select 1 from public.admin_users where user_id=v_uid) then raise exception 'admin required' using errcode='42501'; end if; if p_slug is null or p_slug !~ '^[a-z0-9][a-z0-9-]{2,39}$' then raise exception 'invalid slug'; end if; insert into public.profiles(slug,name,role,description,status,trial_ends_at,current_period_end,created_by,user_id) values(p_slug,coalesce(nullif(trim(p_name),''),p_slug),coalesce(p_role,''),coalesce(p_description,''),'trial',now()+make_interval(days=>coalesce((select trial_days from public.business_settings where id='main'),30)),null,v_uid,null) returning * into v_row; return v_row; end; $$;
+revoke all on function public.admin_create_card(text,text,text,text) from public,anon;
+grant execute on function public.admin_create_card(text,text,text,text) to authenticated;
+
+-- 2026-09-19: dedupe_rejected_payment_events
+-- Runtime function updated so repeated provider notifications for an already-rejected payment do not create duplicate payment_rejected business events. The live migration is recorded in Supabase migration history. Keep private.apply_verified_payment EXECUTE restricted to service_role.
