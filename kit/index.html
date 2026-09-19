@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../brand.css">
+<link rel="stylesheet" href="/brand.css">
 
 <style>
 *{
@@ -193,7 +193,7 @@ h1{
 <body>
 
 <a class="com-brandbar" href="/" aria-label="ClickOnMe, inicio">
-  <img class="com-brand-logo" src="../logo-clickonme.png" alt="ClickOnMe — Un clic y listo">
+  <img class="com-brand-logo" src="/logo-clickonme.png" alt="ClickOnMe — Un clic y listo">
 </a>
 
 <div class="card">
@@ -372,7 +372,7 @@ loadProfile();
 (()=>{const url=location.href.split("#")[0],share=document.getElementById("shareBtn"),copy=document.getElementById("copyBtn"),qr=document.getElementById("qrBtn"),toast=document.getElementById("shareToast"),dlg=document.getElementById("qrDialog"),img=document.getElementById("qrImage");const say=t=>{toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)};async function copyUrl(){try{await navigator.clipboard.writeText(url);say("Enlace copiado");}catch{const ta=document.createElement("textarea");ta.value=url;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();say("Enlace copiado");}}share.addEventListener("click",async()=>{trackInteraction("share_click");if(navigator.share){try{await navigator.share({title:document.title,text:(window.clickOnMeShareMessage||"Conoce mi perfil en ClickOnMe"),url});}catch(e){if(e?.name!=="AbortError")copyUrl();}}else copyUrl();});copy.addEventListener("click",()=>{trackInteraction("copy_click");copyUrl();});qr.addEventListener("click",()=>{trackInteraction("qr_open");img.src="https://quickchart.io/qr?size=440&text="+encodeURIComponent(url);dlg.showModal();});document.getElementById("qrClose").addEventListener("click",()=>dlg.close());dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});})();
 </script>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/kit-sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));}
 let deferredInstallPrompt=null;
 const installPanel=document.getElementById("installPanel"),installBtn=document.getElementById("installBtn"),installHelp=document.getElementById("installHelp"),installGuide=document.getElementById("installGuide"),installSteps=document.getElementById("installSteps");
 const ua=navigator.userAgent.toLowerCase(),displayMode=window.matchMedia("(display-mode: standalone)"),isiOS=/iphone|ipad|ipod/.test(ua),isSamsung=ua.includes("samsungbrowser"),isAndroid=ua.includes("android");
