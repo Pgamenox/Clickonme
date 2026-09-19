@@ -372,11 +372,25 @@ function guideSteps(){
  installSteps.replaceChildren(...steps.map(t=>{const d=document.createElement("div");d.className="install-step";d.textContent=t;return d;}));
  if(typeof installGuide.showModal==="function"){installGuide.showModal();}else{installGuide.setAttribute("open","");installGuide.style.display="block";}
 }
+window.clickOnMeInstall=async function(){
+ if(runningAsApp()){syncInstallState();return;}
+ if(deferredInstallPrompt){
+  try{
+   deferredInstallPrompt.prompt();
+   const choice=await deferredInstallPrompt.userChoice;
+   if(choice.outcome==="accepted"&&installPanel)installPanel.style.display="none";
+  }catch(e){guideSteps();}
+  finally{deferredInstallPrompt=null;}
+  return;
+ }
+ guideSteps();
+};
 syncInstallState();
 if(installPanel&&!runningAsApp()){installHelp.textContent="Instala la tarjeta como app. Si el navegador ofrece “Crear acceso directo”, no elijas esa opción: puede añadir el logo de Chrome.";installBtn.textContent="📲 Instalar mi ClickOnMe";}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();if(runningAsApp())return;deferredInstallPrompt=e;if(installPanel){installPanel.style.display="block";installBtn.textContent="📲 Instalar mi ClickOnMe";}});
-document.getElementById("installGuideClose")?.addEventListener("click",()=>installGuide.close());
-installGuide?.addEventListener("click",e=>{if(e.target===installGuide)installGuide.close();});
+function closeInstallGuide(){if(typeof installGuide?.close==="function")installGuide.close();else if(installGuide){installGuide.removeAttribute("open");installGuide.style.display="none";}}
+document.getElementById("installGuideClose")?.addEventListener("click",closeInstallGuide);
+installGuide?.addEventListener("click",e=>{if(e.target===installGuide)closeInstallGuide();});
 window.addEventListener("appinstalled",()=>{if(installPanel){installPanel.style.display="none";installPanel.setAttribute("aria-hidden","true");}deferredInstallPrompt=null;});
 displayMode.addEventListener?.("change",syncInstallState);
 window.addEventListener("pageshow",syncInstallState);</script>
