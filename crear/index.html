@@ -512,6 +512,15 @@ select:focus{
   <div class="field"><label>Imágenes</label><input class="photo-input" type="file" id="galleryImages" accept="image/jpeg,image/png,image/webp" multiple><div class="control-help">JPG, PNG o WebP. Puedes elegir varias imágenes.</div></div>
   <div id="galleryEditorPreview" class="gallery-preview"></div>
 </div>
+
+<div class="section-title">ClickOnMe Plus · Audio / Música <span style="font-size:10px;color:#00e5ff">BETA</span></div>
+<div class="plus-box">
+ <strong>Audio destacado</strong><div class="control-help">Para músicos, podcasts y PressKit. El visitante decide cuándo reproducir; no forzamos audio automático.</div>
+ <div class="field" style="margin-top:12px"><label><input type="checkbox" id="audioEnabled" style="width:auto;margin-right:7px"> Activar audio en mi perfil</label></div>
+ <div class="field"><label>Título</label><input id="audioTitle" maxlength="80" placeholder="Ej. Nuevo sencillo • Episodio destacado"></div>
+ <div class="field"><label>Archivo MP3</label><input class="photo-input" type="file" id="audioFile" accept="audio/mpeg"><div class="control-help">Beta: MP3, máximo 12 MB.</div></div>
+ <audio id="audioEditorPreview" controls preload="metadata" style="display:none;width:100%"></audio>
+</div>
 <div class="section-title">Diseña tu tarjeta</div>
 
 <div class="field">
@@ -1095,6 +1104,12 @@ function updatePhotoStyle(){
 photoShape.addEventListener("change",updatePhotoStyle);
 photoFit.addEventListener("change",updatePhotoStyle);
 
+
+
+const audioEnabled=document.getElementById("audioEnabled"),audioTitle=document.getElementById("audioTitle"),audioFileInput=document.getElementById("audioFile"),audioEditorPreview=document.getElementById("audioEditorPreview");
+let audioItem={url:"",name:""};
+audioFileInput.addEventListener("change",e=>{const file=e.target.files?.[0];if(!file)return;if(file.type!=="audio/mpeg"||file.size>12*1024*1024){alert("Usa un archivo MP3 de máximo 12 MB.");e.target.value="";return;}if(audioItem.url?.startsWith("blob:"))URL.revokeObjectURL(audioItem.url);audioItem={url:URL.createObjectURL(file),name:file.name,file};audioEditorPreview.src=audioItem.url;audioEditorPreview.style.display="block";});
+function renderAudioEditor(){if(audioItem.url){audioEditorPreview.src=audioItem.url;audioEditorPreview.style.display="block";}}
 
 const galleryEnabled=document.getElementById("galleryEnabled");
 const galleryTitle=document.getElementById("galleryTitle");
@@ -1776,7 +1791,8 @@ function renderPlanStatus(row){
 
 function populateProfile(row){
   const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
-  galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[]; galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
+  galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];
+  audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""}; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
   setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1";
   ["backgroundType","color1","color2","backgroundOverlay","backgroundBlur","backgroundOverlayColor","backgroundPosition","photoShape","photoFit","cardColor","buttonColor","textColor","secondaryTextColor","cardOpacity","buttonRadius","fontFamily","buttonStyle","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"].forEach(id=>setField(id,d[id]));
@@ -1977,6 +1993,15 @@ function dataUrlToBlob(dataUrl){
   return new Blob([bytes],{type:match[1]});
 }
 
+async function uploadAudioAsset(item,folder){
+  if(!item?.file) return item?.url||"";
+  if(item.file.type!=="audio/mpeg"||item.file.size>12*1024*1024) throw new Error("El audio debe ser MP3 y pesar máximo 12 MB.");
+  const path=`${currentUser.id}/${folder}/audio-featured.mp3`;
+  const {error}=await supabaseClient.storage.from("profile-assets").upload(path,item.file,{contentType:"audio/mpeg",cacheControl:"3600",upsert:true});
+  if(error) throw new Error("No se pudo subir el audio: "+error.message);
+  const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path); return data.publicUrl+"?v="+Date.now();
+}
+
 async function uploadProfileAsset(value,folder,key){
   if(!value || !value.startsWith("data:image/")) return value||"";
   const blob=dataUrlToBlob(value);
@@ -1999,7 +2024,7 @@ publishButton.addEventListener("click",async()=>{
   const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
-  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)}};
+  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""}};
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   try{
     const assetFolder="profile-"+slug;
@@ -2015,6 +2040,7 @@ publishButton.addEventListener("click",async()=>{
       uploadedGallery.push({url:await uploadProfileAsset(item.url,assetFolder,"gallery-"+i),alt:String(item.alt||"").slice(0,120)});
     }
     profileData.modules.gallery.items=uploadedGallery; galleryItems=uploadedGallery; renderGalleryEditor();
+    profileData.modules.audio.url=await uploadAudioAsset(audioItem,assetFolder); audioItem={url:profileData.modules.audio.url,name:profileData.modules.audio.name}; renderAudioEditor();
   }catch(error){
     publishButton.disabled=false;
     publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
