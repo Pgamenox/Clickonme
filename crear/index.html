@@ -1158,6 +1158,21 @@ function optimizeImage(file,maxSize,quality){
   });
 }
 
+function squareIconFromSource(src,size=512){
+ return new Promise((resolve,reject)=>{
+  if(!src){resolve("");return;}
+  const image=new Image(); image.crossOrigin="anonymous";
+  image.onerror=()=>reject(new Error("No se pudo preparar el icono."));
+  image.onload=()=>{
+   const canvas=document.createElement("canvas");canvas.width=size;canvas.height=size;
+   const ctx=canvas.getContext("2d");ctx.fillStyle="#090b18";ctx.fillRect(0,0,size,size);
+   const scale=Math.max(size/image.width,size/image.height),w=image.width*scale,h=image.height*scale;
+   ctx.drawImage(image,(size-w)/2,(size-h)/2,w,h);
+   resolve(canvas.toDataURL("image/png"));
+  }; image.src=src;
+ });
+}
+
 document.getElementById("photo").addEventListener("change",async function(event){
   const file=event.target.files[0]; if(!file)return;
   try{document.getElementById("previewPhoto").src=await optimizeImage(file,900,.84);}catch(error){alert(error.message);event.target.value="";}
@@ -1177,7 +1192,7 @@ function refreshAppIconPreview(){
   }else appIconPreview.src="../logo-clickonme.png";
 }
 appIconMode.addEventListener("change",refreshAppIconPreview);
-appIconFile.addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{customAppIconData=await optimizeImage(file,512,.9);refreshAppIconPreview();}catch(error){alert(error.message);e.target.value="";}});
+appIconFile.addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{const raw=await optimizeImage(file,1200,.92);customAppIconData=await squareIconFromSource(raw,512);refreshAppIconPreview();}catch(error){alert(error.message);e.target.value="";}});
 document.getElementById("photo").addEventListener("change",()=>setTimeout(refreshAppIconPreview,150));
 setTimeout(refreshAppIconPreview,0);
 
@@ -2154,7 +2169,11 @@ publishButton.addEventListener("click",async()=>{
   try{
     const assetFolder="profile-"+slug;
     profileData.photo=await uploadProfileAsset(profileData.photo,assetFolder,"photo");
-    profileData.appIcon=await uploadProfileAsset(profileData.appIcon,assetFolder,"app-icon");
+    if(profileData.appIconMode==="profile" && profileData.photo){
+      try{ profileData.appIcon=await squareIconFromSource(profileData.photo,512); }
+      catch{ profileData.appIcon=""; }
+    }
+    profileData.appIcon=await uploadProfileAsset(profileData.appIcon,assetFolder,"app-icon.png");
     customAppIconData=profileData.appIcon||customAppIconData;
     profileData.backgroundImage=await uploadProfileAsset(profileData.backgroundImage,assetFolder,"background");
     const uploadedIcons={};
