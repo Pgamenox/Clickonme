@@ -1,0 +1,19 @@
+{
+  "id": "/crear/perfil.html",
+  "name": "Mi ClickOnMe",
+  "short_name": "ClickOnMe",
+  "description": "Tu tarjeta digital ClickOnMe siempre a la mano.",
+  "start_url": "/crear/perfil.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090b18",
+  "theme_color": "#090b18",
+  "icons": [
+    {"src":"/logo-clickonme.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"/logo-clickonme.png","sizes":"512x512","type":"image/png","purpose":"any"}
+  ],
+  "shortcuts": [
+    {"name":"Abrir mi tarjeta","short_name":"Mi tarjeta","url":"/crear/perfil.html"},
+    {"name":"Editar mi tarjeta","short_name":"Editar","url":"/crear/"}
+  ]
+}
