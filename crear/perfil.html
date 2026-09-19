@@ -249,6 +249,11 @@ h1{
 <script>
 const client = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY);
 const params = new URLSearchParams(window.location.search);
+const analyticsEndpoint="https://jjiiuvfshzdgjalmsaay.supabase.co/functions/v1/profile-analytics";
+let analyticsSession=sessionStorage.getItem("com_analytics_sid");if(!analyticsSession){analyticsSession=crypto.randomUUID();sessionStorage.setItem("com_analytics_sid",analyticsSession);}
+function trackInteraction(type,label=""){if(!slug)return;fetch(analyticsEndpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug,type,label,session_id:analyticsSession}),keepalive:true}).catch(()=>{});}
+document.addEventListener("clickonme:interaction",e=>trackInteraction(e.detail?.type,e.detail?.label));
+
 const slug = (params.get("u")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
 const manifestLink=document.getElementById("dynamicManifest");
 if(slug&&manifestLink){
@@ -345,7 +350,8 @@ async function loadProfile(){
  window.clickOnMeShareMessage=String(d.shareMessage||"Conoce mi perfil en ClickOnMe").slice(0,140); renderProfileMode(d); renderPresskitDetails(d); renderGalleryModule(d); renderAudioModule(d); renderVideoModule(d);
  const links=document.querySelector('.links');
  (Array.isArray(d.extraCustomButtons)?d.extraCustomButtons:[]).slice(0,2).forEach(x=>{const url=safeWebUrl(x.url);if(!x.text||!url)return;const a=document.createElement('a');a.className='btn';a.href=url;setButtonContent(a,d,'custom',x.text);a.target='_blank';a.rel='noopener noreferrer';links.appendChild(a);});
- document.querySelectorAll('.btn').forEach(button=>styleButton(button,d));
+ document.querySelectorAll('.btn').forEach(button=>{styleButton(button,d);button.addEventListener('click',()=>{const id=button.id||'';const map={whatsappBtn:'whatsapp_click',phoneBtn:'phone_click',facebookBtn:'facebook_click',instagramBtn:'instagram_click',youtubeBtn:'youtube_click',websiteBtn:'website_click',customButtonBtn:'custom_click'};if(map[id])trackInteraction(map[id]);});});
+ trackInteraction("profile_view");
  revealProfile();
 }
 window.setTimeout(revealProfile,5000);
@@ -354,7 +360,7 @@ loadProfile();
 
 <dialog class="install-guide" id="installGuide"><h3>📲 Pon tu ClickOnMe en la pantalla de inicio</h3><p id="installGuideIntro">No se guarda en Descargas. Se crea un icono en tu teléfono.</p><div class="install-steps" id="installSteps"></div><button type="button" id="installGuideClose">Entendido</button></dialog><div class="share-toast" id="shareToast" role="status" aria-live="polite">Enlace copiado</div><dialog class="qr-dialog" id="qrDialog"><strong>Comparte este ClickOnMe</strong><img id="qrImage" alt="Código QR de esta tarjeta"><button type="button" id="qrClose">Cerrar</button></dialog>
 <script>
-(()=>{const url=location.href.split("#")[0],share=document.getElementById("shareBtn"),copy=document.getElementById("copyBtn"),qr=document.getElementById("qrBtn"),toast=document.getElementById("shareToast"),dlg=document.getElementById("qrDialog"),img=document.getElementById("qrImage");const say=t=>{toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)};async function copyUrl(){try{await navigator.clipboard.writeText(url);say("Enlace copiado");}catch{const ta=document.createElement("textarea");ta.value=url;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();say("Enlace copiado");}}share.addEventListener("click",async()=>{if(navigator.share){try{await navigator.share({title:document.title,text:(window.clickOnMeShareMessage||"Conoce mi perfil en ClickOnMe"),url});}catch(e){if(e?.name!=="AbortError")copyUrl();}}else copyUrl();});copy.addEventListener("click",copyUrl);qr.addEventListener("click",()=>{img.src="https://quickchart.io/qr?size=440&text="+encodeURIComponent(url);dlg.showModal();});document.getElementById("qrClose").addEventListener("click",()=>dlg.close());dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});})();
+(()=>{const url=location.href.split("#")[0],share=document.getElementById("shareBtn"),copy=document.getElementById("copyBtn"),qr=document.getElementById("qrBtn"),toast=document.getElementById("shareToast"),dlg=document.getElementById("qrDialog"),img=document.getElementById("qrImage");const say=t=>{toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)};async function copyUrl(){try{await navigator.clipboard.writeText(url);say("Enlace copiado");}catch{const ta=document.createElement("textarea");ta.value=url;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();say("Enlace copiado");}}share.addEventListener("click",async()=>{trackInteraction("share_click");if(navigator.share){try{await navigator.share({title:document.title,text:(window.clickOnMeShareMessage||"Conoce mi perfil en ClickOnMe"),url});}catch(e){if(e?.name!=="AbortError")copyUrl();}}else copyUrl();});copy.addEventListener("click",()=>{trackInteraction("copy_click");copyUrl();});qr.addEventListener("click",()=>{trackInteraction("qr_open");img.src="https://quickchart.io/qr?size=440&text="+encodeURIComponent(url);dlg.showModal();});document.getElementById("qrClose").addEventListener("click",()=>dlg.close());dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});})();
 </script>
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));}
