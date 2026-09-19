@@ -521,6 +521,19 @@ select:focus{
  <div class="field"><label>Archivo MP3</label><input class="photo-input" type="file" id="audioFile" accept="audio/mpeg"><div class="control-help">Beta: MP3, máximo 12 MB.</div></div>
  <audio id="audioEditorPreview" controls preload="metadata" style="display:none;width:100%"></audio>
 </div>
+
+<div class="section-title">ClickOnMe Plus · Video <span style="font-size:10px;color:#00e5ff">BETA</span></div>
+<div class="plus-box">
+ <strong>Video destacado</strong><div class="control-help">Agrega un video de YouTube para presentaciones, demos, videoclips o PressKit.</div>
+ <div class="field" style="margin-top:12px"><label><input type="checkbox" id="videoEnabled" style="width:auto;margin-right:7px"> Activar video en mi perfil</label></div>
+ <div class="field"><label>Título</label><input id="videoTitle" maxlength="80" placeholder="Ej. Videoclip oficial • Demo • Presentación"></div>
+ <div class="field"><label>Enlace de YouTube</label><input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..."><div class="control-help">Por seguridad, esta beta acepta YouTube y youtu.be.</div></div>
+</div>
+<div class="section-title">Modo de perfil</div>
+<div class="plus-box">
+ <div class="field"><label>Presentación</label><select id="profileMode"><option value="standard">ClickOnMe estándar</option><option value="presskit">PressKit / EPK</option></select><div class="control-help">PressKit reorganiza el perfil para destacar material profesional y multimedia.</div></div>
+ <div class="field"><label>Encabezado PressKit</label><input id="presskitLabel" maxlength="60" placeholder="Ej. PressKit Oficial 2026"></div>
+</div>
 <div class="section-title">Diseña tu tarjeta</div>
 
 <div class="field">
@@ -1105,6 +1118,10 @@ photoShape.addEventListener("change",updatePhotoStyle);
 photoFit.addEventListener("change",updatePhotoStyle);
 
 
+
+
+const videoEnabled=document.getElementById("videoEnabled"),videoTitle=document.getElementById("videoTitle"),videoUrl=document.getElementById("videoUrl"),profileMode=document.getElementById("profileMode"),presskitLabel=document.getElementById("presskitLabel");
+function validYouTubeUrl(value){if(!value)return true;try{const u=new URL(value);return ["youtube.com","www.youtube.com","m.youtube.com","youtu.be"].includes(u.hostname);}catch{return false;}}
 
 const audioEnabled=document.getElementById("audioEnabled"),audioTitle=document.getElementById("audioTitle"),audioFileInput=document.getElementById("audioFile"),audioEditorPreview=document.getElementById("audioEditorPreview");
 let audioItem={url:"",name:""};
@@ -1792,7 +1809,8 @@ function renderPlanStatus(row){
 function populateProfile(row){
   const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];
-  audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""}; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
+  audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};
+  videoEnabled.checked=Boolean(d.modules?.video?.enabled); videoTitle.value=d.modules?.video?.title||""; videoUrl.value=d.modules?.video?.url||""; profileMode.value=d.profileMode==="presskit"?"presskit":"standard"; presskitLabel.value=d.presskitLabel||""; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
   setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1";
   ["backgroundType","color1","color2","backgroundOverlay","backgroundBlur","backgroundOverlayColor","backgroundPosition","photoShape","photoFit","cardColor","buttonColor","textColor","secondaryTextColor","cardOpacity","buttonRadius","fontFamily","buttonStyle","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"].forEach(id=>setField(id,d[id]));
@@ -2023,8 +2041,9 @@ publishButton.addEventListener("click",async()=>{
   if(slug.length<3){ publishButton.disabled=false; alert("La dirección debe tener al menos 3 caracteres."); return; }
   const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
+  if(!validYouTubeUrl(videoUrl.value.trim())){publishButton.disabled=false;alert("El video destacado debe ser un enlace válido de YouTube.");return;}
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
-  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""}};
+  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim();
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   try{
     const assetFolder="profile-"+slug;
