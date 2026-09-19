@@ -381,7 +381,7 @@ select:focus{
 .mobile-actionbar{display:none;position:fixed;z-index:50;left:10px;right:10px;bottom:10px;grid-template-columns:1fr 1.35fr;gap:8px;padding:8px;border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(5,7,19,.94);backdrop-filter:blur(16px);box-shadow:0 12px 40px rgba(0,0,0,.45)}.mobile-actionbar button{min-height:48px;border:0;border-radius:11px;color:#fff;font-weight:800;background:#202a49}.mobile-actionbar .primary{background:var(--com-gradient)}
 
 .plus-box{margin:14px 0 18px;padding:14px;border:1px solid rgba(0,229,255,.18);border-radius:16px;background:rgba(0,229,255,.045)}.plus-box strong{display:block;margin-bottom:4px}.gallery-preview{display:none;margin:14px 0 4px;gap:8px;grid-template-columns:repeat(3,1fr)}.gallery-preview img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.12)}
-.mobile-preview-notice{display:none}.mobile-preview-fab{display:none}@media(max-width:600px){.mobile-preview-notice{display:block;margin:0 0 18px;padding:13px 14px;border-radius:14px;background:linear-gradient(135deg,rgba(0,229,255,.11),rgba(189,25,255,.10));border:1px solid rgba(0,229,255,.28);font-size:12px;line-height:1.45;color:#d9f8ff}.mobile-preview-notice strong{display:block;font-size:13px;margin-bottom:3px;color:#fff}.mobile-preview-fab{display:block;position:fixed;right:16px;bottom:84px;z-index:55;border:0;border-radius:999px;padding:11px 14px;background:var(--com-gradient);color:#fff;font-weight:800;font-size:12px;box-shadow:0 10px 28px rgba(0,0,0,.42);cursor:pointer}.auth-locked .mobile-preview-fab{display:none!important}}
+.mobile-preview-notice{display:none}.mobile-preview-fab{display:none}@media(max-width:600px){.mobile-preview-notice{display:block;margin:0 0 18px;padding:13px 14px;border-radius:14px;background:linear-gradient(135deg,rgba(0,229,255,.11),rgba(189,25,255,.10));border:1px solid rgba(0,229,255,.28);font-size:12px;line-height:1.45;color:#d9f8ff}.mobile-preview-notice strong{display:block;font-size:13px;margin-bottom:3px;color:#fff}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
@@ -535,6 +535,16 @@ select:focus{
 <div class="plus-box">
  <div class="field"><label>Presentación</label><select id="profileMode"><option value="standard">ClickOnMe estándar</option><option value="presskit">PressKit / EPK</option></select><div class="control-help">PressKit reorganiza el perfil para destacar material profesional y multimedia.</div></div>
  <div class="field"><label>Encabezado PressKit</label><input id="presskitLabel" maxlength="60" placeholder="Ej. PressKit Oficial 2026"></div>
+</div>
+
+<div class="section-title">PressKit profesional</div>
+<div class="plus-box">
+ <div class="field"><label>Biografía / trayectoria</label><textarea id="presskitBio" maxlength="1800" placeholder="Trayectoria, logros, estilo, experiencia..."></textarea></div>
+ <div class="field"><label>Próximas presentaciones o eventos</label><textarea id="presskitEvents" maxlength="900" placeholder="Ej. 12 Oct · Teatro de la Ciudad · Saltillo\n25 Oct · Festival..."></textarea><div class="control-help">Una presentación por línea.</div></div>
+ <div class="field"><label>Correo de contratación</label><input type="email" id="bookingEmail" maxlength="160" placeholder="booking@ejemplo.com"></div>
+ <div class="field"><label>WhatsApp de contratación</label><input type="tel" id="bookingWhatsapp" maxlength="24" placeholder="528441234567"></div>
+ <div class="field"><label>Dossier / PressKit PDF</label><input class="photo-input" type="file" id="presskitPdf" accept="application/pdf"><div class="control-help">PDF, máximo 10 MB.</div></div>
+ <div id="presskitPdfStatus" class="control-help"></div>
 </div>
 <div class="section-title">Diseña tu tarjeta</div>
 
@@ -941,7 +951,6 @@ select:focus{
 
 </main>
 
-<button type="button" class="mobile-preview-fab" id="mobilePreviewFab" aria-label="Ver vista previa de mi tarjeta">👀 Ver mi tarjeta</button>
 <nav class="mobile-actionbar" aria-label="Acciones rápidas"><button type="button" id="mobilePreviewBtn">Vista previa</button><button type="button" class="primary" id="mobileSaveBtn">Guardar tarjeta</button></nav>
 
 
@@ -1122,6 +1131,11 @@ photoFit.addEventListener("change",updatePhotoStyle);
 
 
 
+
+
+const presskitBio=document.getElementById("presskitBio"),presskitEvents=document.getElementById("presskitEvents"),bookingEmail=document.getElementById("bookingEmail"),bookingWhatsapp=document.getElementById("bookingWhatsapp"),presskitPdf=document.getElementById("presskitPdf"),presskitPdfStatus=document.getElementById("presskitPdfStatus");let presskitPdfItem={url:"",name:""};
+presskitPdf.addEventListener("change",e=>{const file=e.target.files?.[0];if(!file)return;if(file.type!=="application/pdf"||file.size>10*1024*1024){alert("El dossier debe ser PDF y pesar máximo 10 MB.");e.target.value="";return;}presskitPdfItem={url:"",name:file.name,file};presskitPdfStatus.textContent="Listo para guardar: "+file.name;});
+async function uploadPresskitPdf(item,folder){if(!item?.file)return item?.url||"";const path=`${currentUser.id}/${folder}/presskit.pdf`;const {error}=await supabaseClient.storage.from("profile-assets").upload(path,item.file,{contentType:"application/pdf",cacheControl:"3600",upsert:true});if(error)throw new Error("No se pudo subir el PDF: "+error.message);const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path);return data.publicUrl+"?v="+Date.now();}
 
 const videoEnabled=document.getElementById("videoEnabled"),videoTitle=document.getElementById("videoTitle"),videoUrl=document.getElementById("videoUrl"),profileMode=document.getElementById("profileMode"),presskitLabel=document.getElementById("presskitLabel");
 function validYouTubeUrl(value){if(!value)return true;try{const u=new URL(value);return ["youtube.com","www.youtube.com","m.youtube.com","youtu.be"].includes(u.hostname);}catch{return false;}}
@@ -1813,6 +1827,7 @@ function populateProfile(row){
   const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];
   audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};
+  presskitBio.value=d.presskit?.bio||"";presskitEvents.value=(d.presskit?.events||[]).join("\n");bookingEmail.value=d.presskit?.bookingEmail||"";bookingWhatsapp.value=d.presskit?.bookingWhatsapp||"";presskitPdfItem=d.presskit?.pdfUrl?{url:d.presskit.pdfUrl,name:d.presskit.pdfName||"PressKit PDF"}:{url:"",name:""};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
   videoEnabled.checked=Boolean(d.modules?.video?.enabled); videoTitle.value=d.modules?.video?.title||""; videoUrl.value=d.modules?.video?.url||""; profileMode.value=d.profileMode==="presskit"?"presskit":"standard"; presskitLabel.value=d.presskitLabel||""; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
   setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1";
@@ -2046,6 +2061,7 @@ publishButton.addEventListener("click",async()=>{
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
   if(!validYouTubeUrl(videoUrl.value.trim())){publishButton.disabled=false;alert("El video destacado debe ser un enlace válido de YouTube.");return;}
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
+  profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
   profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim();
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   try{
@@ -2062,6 +2078,7 @@ publishButton.addEventListener("click",async()=>{
       uploadedGallery.push({url:await uploadProfileAsset(item.url,assetFolder,"gallery-"+i),alt:String(item.alt||"").slice(0,120)});
     }
     profileData.modules.gallery.items=uploadedGallery; galleryItems=uploadedGallery; renderGalleryEditor();
+    profileData.presskit.pdfUrl=await uploadPresskitPdf(presskitPdfItem,assetFolder);presskitPdfItem={url:profileData.presskit.pdfUrl,name:profileData.presskit.pdfName};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
     profileData.modules.audio.url=await uploadAudioAsset(audioItem,assetFolder); audioItem={url:profileData.modules.audio.url,name:profileData.modules.audio.name}; renderAudioEditor();
   }catch(error){
     publishButton.disabled=false;
@@ -2101,7 +2118,6 @@ publishButton.addEventListener("click",async()=>{
 
 function goToMobilePreview(){document.getElementById("previewArea").scrollIntoView({behavior:"smooth",block:"start"});}
 document.getElementById("mobilePreviewBtn").addEventListener("click",goToMobilePreview);
-document.getElementById("mobilePreviewFab").addEventListener("click",goToMobilePreview);
 mobileSaveButton.addEventListener("click",()=>{
   if(!currentUser){ document.getElementById("accountArea").scrollIntoView({behavior:"smooth",block:"center"}); authStatus.textContent="Inicia sesión o crea tu cuenta para guardar."; return; }
   publishButton.click();
