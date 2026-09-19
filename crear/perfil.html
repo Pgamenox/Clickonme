@@ -166,6 +166,7 @@ h1{
 }
 
 .module-gallery{display:none;margin:18px 0 20px;text-align:left}.module-gallery h2{font-size:15px;margin:0 0 10px;text-align:center}.gallery-stage{position:relative;width:100%;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}.gallery-stage img{width:100%;height:100%;object-fit:cover;display:block}.gallery-dots{display:flex;justify-content:center;gap:6px;margin-top:9px}.gallery-dot{width:7px;height:7px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.28)}.gallery-dot.active{background:#fff}.gallery-nav{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.gallery-nav button{pointer-events:auto;width:34px;height:34px;margin:8px;border:0;border-radius:50%;background:rgba(0,0,0,.48);color:#fff;font-size:20px;cursor:pointer}
+.module-audio{display:none;margin:18px 0;padding:14px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}.module-audio h2{font-size:15px;margin-bottom:10px}.module-audio audio{width:100%;display:block}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
@@ -202,6 +203,7 @@ h1{
     <div class="gallery-stage"><img id="galleryStageImage" alt=""><div class="gallery-nav"><button type="button" id="galleryPrev" aria-label="Anterior">‹</button><button type="button" id="galleryNext" aria-label="Siguiente">›</button></div></div>
     <div class="gallery-dots" id="galleryDots"></div>
   </section>
+  <section class="module-audio" id="audioModule" aria-label="Audio destacado"><h2 id="audioModuleTitle">Audio destacado</h2><audio id="profileAudio" controls preload="metadata"></audio></section>
   <div class="links">
     <a class="btn" id="whatsappBtn" href="#" style="display:none;">
       💬 &nbsp; WhatsApp
@@ -262,6 +264,9 @@ function styleButton(button,d){
   else{button.style.background=d.buttonColor||"#222533";button.style.border="1px solid rgba(255,255,255,.12)";if(d.buttonStyle==="shadow")button.style.boxShadow="0 8px 20px rgba(0,0,0,.35)";}
 }
 
+function renderAudioModule(d){
+ const mod=d?.modules?.audio;if(!mod?.enabled)return;const url=safeWebUrl(mod.url);if(!url)return;const root=document.getElementById("audioModule"),audio=document.getElementById("profileAudio");document.getElementById("audioModuleTitle").textContent=String(mod.title||"Audio destacado").slice(0,80);audio.src=url;root.style.display="block";
+}
 function renderGalleryModule(d){
   const mod=d?.modules?.gallery; const items=Array.isArray(mod?.items)?mod.items.slice(0,6):[];
   const safeItems=items.map(x=>({url:safeImage(x?.url),alt:String(x?.alt||"").slice(0,120)})).filter(x=>x.url);
@@ -306,7 +311,7 @@ async function loadProfile(){
  const phone=(d.phone||"").replace(/[^\d+]/g,""); if(phone){const el=document.getElementById('phoneBtn');el.href='tel:'+phone;setButtonContent(el,d,'phone','Llamar');el.style.display='flex';}
  setBtn('facebookBtn',d.facebook,'Facebook',d,'facebook'); setBtn('instagramBtn',d.instagram,'Instagram',d,'instagram'); setBtn('youtubeBtn',d.youtube,'YouTube',d,'youtube'); setBtn('websiteBtn',d.website,'Sitio web',d,'website');
  setBtn('customButtonBtn',d.customButtonUrl,d.customButtonText||'Enlace',d,'custom');
- renderGalleryModule(d);
+ renderGalleryModule(d); renderAudioModule(d);
  const links=document.querySelector('.links');
  (Array.isArray(d.extraCustomButtons)?d.extraCustomButtons:[]).slice(0,2).forEach(x=>{const url=safeWebUrl(x.url);if(!x.text||!url)return;const a=document.createElement('a');a.className='btn';a.href=url;setButtonContent(a,d,'custom',x.text);a.target='_blank';a.rel='noopener noreferrer';links.appendChild(a);});
  document.querySelectorAll('.btn').forEach(button=>styleButton(button,d));
