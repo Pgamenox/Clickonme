@@ -972,6 +972,10 @@ select:focus{
 <script>
 
 
+
+const advancedSummary=document.getElementById("advancedSummary");function updateAdvancedSummary(){const active=[];if(galleryEnabled.checked)active.push("Galería");if(audioEnabled.checked)active.push("Audio");if(videoEnabled.checked)active.push("Video");if(profileMode.value==="presskit")active.push("PressKit");advancedSummary.textContent=active.length?"Activos: "+active.join(" · "):"No hay módulos Plus activos todavía.";}
+document.addEventListener("change",updateAdvancedSummary);setTimeout(updateAdvancedSummary,0);
+
 const advancedToggle=document.getElementById("advancedToggle"),advancedOptions=document.getElementById("advancedOptions");advancedToggle.addEventListener("click",()=>{const open=advancedOptions.style.display==="none";advancedOptions.style.display=open?"block":"none";advancedToggle.setAttribute("aria-expanded",String(open));advancedToggle.textContent=open?"⚙ Ocultar opciones Plus y avanzadas":"⚙ Mostrar opciones Plus y avanzadas";});
 
 const shareMessage=document.getElementById("shareMessage");
