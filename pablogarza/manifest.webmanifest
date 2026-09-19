@@ -1,14 +1,16 @@
 {
   "id": "/pablogarza/",
   "name": "Pablo Garza | ClickOnMe",
-  "short_name": "Mi ClickOnMe",
+  "short_name": "ClickOnMe",
   "description": "Tarjeta digital de Pablo Garza en ClickOnMe.",
-  "start_url": "/pablogarza/",
+  "start_url": "/pablogarza/?source=pwa",
   "scope": "/pablogarza/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#090b18",
   "theme_color": "#090b18",
   "icons": [
-    {"src":"/logo-clickonme.png","sizes":"any","type":"image/png","purpose":"any maskable"}
+    {"src":"/pwa-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"},
+    {"src":"/pwa-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"maskable"}
   ]
 }
