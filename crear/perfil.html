@@ -352,10 +352,10 @@ loadProfile();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}
 let deferredInstallPrompt=null;
 const installPanel=document.getElementById("installPanel"),installBtn=document.getElementById("installBtn"),installHelp=document.getElementById("installHelp"),installGuide=document.getElementById("installGuide"),installSteps=document.getElementById("installSteps");
-const ua=navigator.userAgent.toLowerCase(),isStandalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true,isiOS=/iphone|ipad|ipod/.test(ua),isSamsung=ua.includes("samsungbrowser"),isAndroid=ua.includes("android");
+const ua=navigator.userAgent.toLowerCase(),displayMode=window.matchMedia("(display-mode: standalone)"),isiOS=/iphone|ipad|ipod/.test(ua),isSamsung=ua.includes("samsungbrowser"),isAndroid=ua.includes("android");\nfunction runningAsApp(){return displayMode.matches||window.navigator.standalone===true||new URLSearchParams(location.search).get("source")==="pwa";}
 function syncInstallState(){
  if(!installPanel)return;
- if(isStandalone){
+ if(runningAsApp()){
    installPanel.style.display="none";
    installPanel.setAttribute("aria-hidden","true");
    return;
@@ -369,12 +369,12 @@ function guideSteps(){
  installGuide.showModal();
 }
 syncInstallState();
-if(installPanel&&!isStandalone){installHelp.textContent="Instala la tarjeta como app. Si el navegador ofrece “Crear acceso directo”, no elijas esa opción: puede añadir el logo de Chrome.";installBtn.textContent="📲 Instalar mi ClickOnMe";}
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;if(installPanel){installPanel.style.display="block";installBtn.textContent="📲 Instalar mi ClickOnMe";}});
+if(installPanel&&!runningAsApp()){installHelp.textContent="Instala la tarjeta como app. Si el navegador ofrece “Crear acceso directo”, no elijas esa opción: puede añadir el logo de Chrome.";installBtn.textContent="📲 Instalar mi ClickOnMe";}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();if(runningAsApp())return;deferredInstallPrompt=e;if(installPanel){installPanel.style.display="block";installBtn.textContent="📲 Instalar mi ClickOnMe";}});
 installBtn?.addEventListener("click",async()=>{if(deferredInstallPrompt){deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;if(choice.outcome==="accepted"&&installPanel)installPanel.style.display="none";deferredInstallPrompt=null;return;}guideSteps();});
 document.getElementById("installGuideClose")?.addEventListener("click",()=>installGuide.close());
 installGuide?.addEventListener("click",e=>{if(e.target===installGuide)installGuide.close();});
 window.addEventListener("appinstalled",()=>{if(installPanel){installPanel.style.display="none";installPanel.setAttribute("aria-hidden","true");}deferredInstallPrompt=null;});
-window.matchMedia("(display-mode: standalone)").addEventListener?.("change",syncInstallState);</script>
+displayMode.addEventListener?.("change",syncInstallState);\nwindow.addEventListener("pageshow",syncInstallState);</script>
 </body>
 </html>
