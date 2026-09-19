@@ -438,7 +438,12 @@ select:focus{
   </p>
 
 
-  <div class="section-title">Foto y datos principales</div>
+  
+<div class="section-title">¿Qué tipo de ClickOnMe estás creando?</div>
+<div class="plus-box">
+ <div class="field"><label>Tipo de perfil</label><select id="profileType"><option value="professional">Profesional / Personal</option><option value="business">Negocio</option><option value="musician">Músico / Artista musical</option><option value="visual_artist">Artista visual / Fotógrafo</option><option value="creator">Creador / Podcaster</option><option value="presskit">PressKit / EPK</option></select><div class="control-help" id="profileTypeHelp">Personalizaremos el constructor según lo que necesites.</div></div>
+</div>
+<div class="section-title">Foto y datos principales</div>
 
 
   <div class="field">
@@ -1132,6 +1137,12 @@ photoFit.addEventListener("change",updatePhotoStyle);
 
 
 
+
+
+const profileType=document.getElementById("profileType"),profileTypeHelp=document.getElementById("profileTypeHelp");
+const profileTypeCopy={professional:"Tarjeta profesional con contacto, redes y enlaces.",business:"Perfil comercial para servicios, promociones y contacto.",musician:"Destaca música, video, galería y contratación.",visual_artist:"Destaca portafolio, obras, galería y contacto.",creator:"Destaca episodios, video, audio y plataformas.",presskit:"Activa una presentación EPK con trayectoria, multimedia y contratación."};
+function applyProfileType(){profileTypeHelp.textContent=profileTypeCopy[profileType.value]||profileTypeCopy.professional;if(profileType.value==="presskit"){profileMode.value="presskit";}if(profileType.value==="musician"||profileType.value==="presskit"){audioEnabled.closest(".plus-box").style.borderColor="rgba(0,229,255,.38)";videoEnabled.closest(".plus-box").style.borderColor="rgba(0,229,255,.38)";}else{audioEnabled.closest(".plus-box").style.borderColor="";videoEnabled.closest(".plus-box").style.borderColor="";}}
+profileType.addEventListener("change",applyProfileType);
 
 const presskitBio=document.getElementById("presskitBio"),presskitEvents=document.getElementById("presskitEvents"),bookingEmail=document.getElementById("bookingEmail"),bookingWhatsapp=document.getElementById("bookingWhatsapp"),presskitPdf=document.getElementById("presskitPdf"),presskitPdfStatus=document.getElementById("presskitPdfStatus");let presskitPdfItem={url:"",name:""};
 presskitPdf.addEventListener("change",e=>{const file=e.target.files?.[0];if(!file)return;if(file.type!=="application/pdf"||file.size>10*1024*1024){alert("El dossier debe ser PDF y pesar máximo 10 MB.");e.target.value="";return;}presskitPdfItem={url:"",name:file.name,file};presskitPdfStatus.textContent="Listo para guardar: "+file.name;});
@@ -1827,8 +1838,9 @@ function populateProfile(row){
   const d={...row,...(row.data||{})}; currentProfileId=row.id; currentProfileSlug=row.slug;
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];
   audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};
+  profileType.value=d.profileType||"professional";
   presskitBio.value=d.presskit?.bio||"";presskitEvents.value=(d.presskit?.events||[]).join("\n");bookingEmail.value=d.presskit?.bookingEmail||"";bookingWhatsapp.value=d.presskit?.bookingWhatsapp||"";presskitPdfItem=d.presskit?.pdfUrl?{url:d.presskit.pdfUrl,name:d.presskit.pdfName||"PressKit PDF"}:{url:"",name:""};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
-  videoEnabled.checked=Boolean(d.modules?.video?.enabled); videoTitle.value=d.modules?.video?.title||""; videoUrl.value=d.modules?.video?.url||""; profileMode.value=d.profileMode==="presskit"?"presskit":"standard"; presskitLabel.value=d.presskitLabel||""; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
+  videoEnabled.checked=Boolean(d.modules?.video?.enabled); applyProfileType(); videoTitle.value=d.modules?.video?.title||""; videoUrl.value=d.modules?.video?.url||""; profileMode.value=d.profileMode==="presskit"?"presskit":"standard"; presskitLabel.value=d.presskitLabel||""; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
   setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1";
   ["backgroundType","color1","color2","backgroundOverlay","backgroundBlur","backgroundOverlayColor","backgroundPosition","photoShape","photoFit","cardColor","buttonColor","textColor","secondaryTextColor","cardOpacity","buttonRadius","fontFamily","buttonStyle","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"].forEach(id=>setField(id,d[id]));
@@ -2061,6 +2073,7 @@ publishButton.addEventListener("click",async()=>{
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
   if(!validYouTubeUrl(videoUrl.value.trim())){publishButton.disabled=false;alert("El video destacado debe ser un enlace válido de YouTube.");return;}
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
+  profileData.profileType=profileType.value;
   profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
   profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim();
   publishButton.disabled=true; publishButton.textContent="Guardando...";
