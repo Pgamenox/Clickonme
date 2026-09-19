@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mi ClickOnMe</title>
+<link id="dynamicManifest" rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#090b18">
+<link id="dynamicAppleIcon" rel="apple-touch-icon" href="/logo-clickonme.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -308,6 +311,24 @@ async function loadProfile(){
    return;
  }
  const d={...row,...(row.data||{})};
+ const selectedInstallIcon=d.appIconMode==="custom"?safeImage(d.appIcon):(d.appIconMode==="profile"?safeImage(d.photo):"/pwa-icon.svg");
+ const installIcon=selectedInstallIcon||"/pwa-icon.svg";
+ const dynamicManifest={
+   id:"/crear/perfil.html?u="+slug,
+   name:(d.name||"Mi ClickOnMe")+" | ClickOnMe",
+   short_name:String(d.name||"ClickOnMe").slice(0,24),
+   start_url:"/crear/perfil.html?u="+encodeURIComponent(slug)+"&source=pwa",
+   scope:"/crear/",
+   display:"standalone",
+   background_color:"#090b18",
+   theme_color:"#090b18",
+   icons:[{src:installIcon,sizes:"any",purpose:"any"},{src:installIcon,sizes:"any",purpose:"maskable"}]
+ };
+ try{
+   const blob=new Blob([JSON.stringify(dynamicManifest)],{type:"application/manifest+json"});
+   document.getElementById("dynamicManifest").href=URL.createObjectURL(blob);
+   document.getElementById("dynamicAppleIcon").href=installIcon;
+ }catch{}
  document.getElementById("profileName").textContent=d.name||"Mi ClickOnMe";
  document.title=(d.name||"Mi ClickOnMe")+" | ClickOnMe";
  document.getElementById("profileRole").textContent=d.role||"";
