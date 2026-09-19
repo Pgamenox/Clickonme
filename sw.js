@@ -1,4 +1,4 @@
-const CACHE="clickonme-pwa-v5";
+const CACHE="clickonme-pwa-v6";
 const OFFLINE="/";
 const CORE=["/","/brand.css","/logo-clickonme.png","/pwa-icon.svg","/crear/perfil.html"];
 self.addEventListener("install",event=>{
