@@ -557,6 +557,7 @@ select:focus{
  <div class="field"><label>Dossier / PressKit PDF</label><input class="photo-input" type="file" id="presskitPdf" accept="application/pdf"><div class="control-help">PDF, máximo 10 MB.</div></div>
  <div id="presskitPdfStatus" class="control-help"></div>
 </div>
+</div>
 <div class="section-title">Compartir mi ClickOnMe</div><div class="plus-box">
 <div class="field"><label>Mensaje al compartir</label><input id="shareMessage" maxlength="140" placeholder="Conoce mi perfil en ClickOnMe"><div class="control-help">Este texto acompañará tu enlace cuando uses Compartir.</div></div>
 </div><div class="section-title">Diseña tu tarjeta</div>
@@ -969,6 +970,9 @@ select:focus{
 
 
 <script>
+
+
+const advancedToggle=document.getElementById("advancedToggle"),advancedOptions=document.getElementById("advancedOptions");advancedToggle.addEventListener("click",()=>{const open=advancedOptions.style.display==="none";advancedOptions.style.display=open?"block":"none";advancedToggle.setAttribute("aria-expanded",String(open));advancedToggle.textContent=open?"⚙ Ocultar opciones Plus y avanzadas":"⚙ Mostrar opciones Plus y avanzadas";});
 
 const shareMessage=document.getElementById("shareMessage");
 
