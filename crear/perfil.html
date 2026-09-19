@@ -215,7 +215,7 @@ h1{
   <section class="module-audio" id="audioModule" aria-label="Audio destacado"><h2 id="audioModuleTitle">Audio destacado</h2><audio id="profileAudio" controls preload="metadata"></audio></section>
   <section class="module-video" id="videoModule" aria-label="Video destacado"><h2 id="videoModuleTitle">Video destacado</h2><div class="video-frame" id="videoFrame"></div></section>
   <section class="presskit-details" id="presskitDetails"><div id="presskitBioBlock" style="display:none"><h2>Biografía / Trayectoria</h2><div class="presskit-bio" id="presskitBioText"></div></div><div id="presskitEventsBlock" style="display:none"><h2>Presentaciones / Eventos</h2><div class="presskit-events" id="presskitEventsList"></div></div><div class="presskit-actions" id="presskitActions"></div></section>
-  <div class="install-panel" id="installPanel"><strong>📲 Lleva tu ClickOnMe contigo</strong><p id="installHelp">Instala esta tarjeta en tu teléfono o computadora y ábrela como una app para compartirla en segundos.</p><button type="button" class="install-btn" id="installBtn">Instalar mi ClickOnMe</button></div>
+  <div class="install-panel" id="installPanel"><strong>📲 Lleva tu ClickOnMe contigo</strong><p id="installHelp">Instala esta tarjeta en tu teléfono o computadora y ábrela como una app para compartirla en segundos.</p><button type="button" class="install-btn" id="installBtn" onclick="window.clickOnMeInstall&&window.clickOnMeInstall()">Instalar mi ClickOnMe</button></div>
   <div class="share-actions" id="shareActions" aria-label="Compartir esta tarjeta"><button type="button" class="share-action" id="shareBtn" title="Compartir esta tarjeta">↗ Compartir</button><button type="button" class="share-action" id="copyBtn" title="Copiar enlace de esta tarjeta">⧉ Copiar enlace</button><button type="button" class="share-action" id="qrBtn" title="Mostrar código QR">▦ QR</button></div>
   <div class="links">
     <a class="btn" id="whatsappBtn" href="#" style="display:none;">
@@ -375,7 +375,6 @@ function guideSteps(){
 syncInstallState();
 if(installPanel&&!runningAsApp()){installHelp.textContent="Instala la tarjeta como app. Si el navegador ofrece “Crear acceso directo”, no elijas esa opción: puede añadir el logo de Chrome.";installBtn.textContent="📲 Instalar mi ClickOnMe";}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();if(runningAsApp())return;deferredInstallPrompt=e;if(installPanel){installPanel.style.display="block";installBtn.textContent="📲 Instalar mi ClickOnMe";}});
-installBtn?.addEventListener("click",async()=>{if(runningAsApp()){syncInstallState();return;}if(deferredInstallPrompt){try{deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;if(choice.outcome==="accepted"&&installPanel)installPanel.style.display="none";}catch(e){guideSteps();}finally{deferredInstallPrompt=null;}return;}guideSteps();});
 document.getElementById("installGuideClose")?.addEventListener("click",()=>installGuide.close());
 installGuide?.addEventListener("click",e=>{if(e.target===installGuide)installGuide.close();});
 window.addEventListener("appinstalled",()=>{if(installPanel){installPanel.style.display="none";installPanel.setAttribute("aria-hidden","true");}deferredInstallPrompt=null;});
