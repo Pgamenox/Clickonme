@@ -449,7 +449,7 @@ select:focus{
  <div class="control-help" id="smartGuideText" style="margin-top:6px"></div>
  <div id="smartGuideChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div><button type="button" id="smartSetupBtn" style="margin-top:12px;width:100%;min-height:42px;border:0;border-radius:12px;font-weight:800;cursor:pointer">Configurar mi tarjeta automáticamente</button><div class="control-help" id="smartSetupStatus" style="margin-top:6px"></div>
 <button type="button" id="autoConfigureBtn" style="margin-top:10px;width:100%;min-height:44px;border:0;border-radius:12px;font-weight:800;cursor:pointer">✨ Configurar mi tarjeta automáticamente</button><div class="control-help" id="autoConfigureStatus" style="margin-top:7px"></div></div>
-<div class="section-title">Foto y datos principales</div>
+<div class="plus-box" id="moduleProgress"><strong>Progreso de tu ClickOnMe</strong><div style="height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin:10px 0 7px"><div id="moduleProgressBar" style="height:100%;width:0;background:var(--com-gradient);transition:.25s"></div></div><div class="control-help" id="moduleProgressText">Completa los datos principales para empezar.</div></div><div class="section-title">Foto y datos principales</div>
 
 
   <div class="field">
@@ -983,6 +983,10 @@ document.getElementById("description");
 
 const whatsappInput =
 document.getElementById("whatsapp");
+const moduleProgressBar=document.getElementById("moduleProgressBar"),moduleProgressText=document.getElementById("moduleProgressText");
+function updateProfileProgress(){let score=0,total=6;if(nameInput?.value.trim())score++;if(roleInput?.value.trim())score++;if(descriptionInput?.value.trim())score++;if(photoData)score++;if(document.querySelector(".extraButtonUrl")?.value?.trim()||whatsappInput?.value.trim()||document.getElementById("website")?.value.trim())score++;if(galleryEnabled.checked||audioEnabled.checked||videoEnabled.checked)score++;const pct=Math.round(score/total*100);moduleProgressBar.style.width=pct+"%";moduleProgressText.textContent=pct===100?"Tu ClickOnMe ya tiene los elementos principales. Puedes guardar y publicarlo.":pct+"% listo · sigue personalizando tu tarjeta."}
+document.addEventListener("input",updateProfileProgress);document.addEventListener("change",updateProfileProgress);setTimeout(updateProfileProgress,0);
+
 
 const phoneInput =
 document.getElementById("phone");
