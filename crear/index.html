@@ -448,7 +448,7 @@ select:focus{
  <strong id="smartGuideTitle">Recomendado para tu perfil</strong>
  <div class="control-help" id="smartGuideText" style="margin-top:6px"></div>
  <div id="smartGuideChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div><button type="button" id="smartSetupBtn" style="margin-top:12px;width:100%;min-height:42px;border:0;border-radius:12px;font-weight:800;cursor:pointer">Configurar mi tarjeta automáticamente</button><div class="control-help" id="smartSetupStatus" style="margin-top:6px"></div>
-</div>
+<button type="button" id="autoConfigureBtn" style="margin-top:10px;width:100%;min-height:44px;border:0;border-radius:12px;font-weight:800;cursor:pointer">✨ Configurar mi tarjeta automáticamente</button><div class="control-help" id="autoConfigureStatus" style="margin-top:7px"></div></div>
 <div class="section-title">Foto y datos principales</div>
 
 
@@ -1148,6 +1148,10 @@ photoFit.addEventListener("change",updatePhotoStyle);
 
 
 
+
+
+const autoConfigureBtn=document.getElementById("autoConfigureBtn"),autoConfigureStatus=document.getElementById("autoConfigureStatus");
+autoConfigureBtn.addEventListener("click",()=>{const t=profileType.value;const preset={professional:{gallery:false,audio:false,video:false,press:false},business:{gallery:true,audio:false,video:false,press:false},musician:{gallery:true,audio:true,video:true,press:true},visual_artist:{gallery:true,audio:false,video:false,press:false},creator:{gallery:true,audio:true,video:true,press:false},presskit:{gallery:true,audio:true,video:true,press:true}}[t]||{};galleryEnabled.checked=!!preset.gallery;audioEnabled.checked=!!preset.audio;videoEnabled.checked=!!preset.video;if(preset.press)profileMode.value="presskit";else if(t!=="presskit")profileMode.value="standard";autoConfigureStatus.textContent="Listo: activamos los módulos recomendados. Puedes cambiar cualquier opción antes de guardar.";[galleryEnabled,audioEnabled,videoEnabled].forEach(el=>el.dispatchEvent(new Event("change")));});
 
 const profileType=document.getElementById("profileType"),profileTypeHelp=document.getElementById("profileTypeHelp");
 const profileTypeCopy={professional:"Tarjeta profesional con contacto, redes y enlaces.",business:"Perfil comercial para servicios, promociones y contacto.",musician:"Destaca música, video, galería y contratación.",visual_artist:"Destaca portafolio, obras, galería y contacto.",creator:"Destaca episodios, video, audio y plataformas.",presskit:"Activa una presentación EPK con trayectoria, multimedia y contratación."};
