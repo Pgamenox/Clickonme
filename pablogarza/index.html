@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ClickOnMe | Lic. Pablo Garza Méndez</title>
+<link rel="manifest" href="/pablogarza/manifest.webmanifest">
+<meta name="theme-color" content="#090b18">
+<link rel="icon" type="image/png" href="/logo-clickonme.png">
+<link rel="apple-touch-icon" href="/logo-clickonme.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -338,5 +342,8 @@ Tu tarjeta digital inteligente.<br>
 
 </div>
 
+<script>
+if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js")); }
+</script>
 </body>
 </html>
