@@ -465,6 +465,18 @@ select:focus{
 
   </div>
 
+  <div class="plus-box" id="appIconBox">
+    <strong>Icono al instalar tu tarjeta</strong>
+    <div class="control-help" style="margin:5px 0 10px">Elige cómo quieres que se vea ClickOnMe en la pantalla del teléfono.</div>
+    <div class="field"><label>Usar como icono</label><select id="appIconMode">
+      <option value="profile">Mi foto o logotipo</option>
+      <option value="custom">Subir un icono diferente</option>
+      <option value="clickonme">Icono ClickOnMe</option>
+    </select></div>
+    <div class="field" id="customAppIconField" style="display:none"><label>Icono personalizado</label><input class="photo-input" type="file" id="appIconFile" accept="image/png,image/jpeg,image/webp"><div class="control-help">Recomendado: imagen cuadrada, sencilla y legible en tamaño pequeño.</div></div>
+    <div style="display:flex;align-items:center;gap:12px"><img id="appIconPreview" src="../logo-clickonme.png" alt="Vista previa del icono" style="width:64px;height:64px;object-fit:cover;border-radius:16px;background:#090b18;border:1px solid rgba(255,255,255,.15)"><div class="control-help">Así se identificará tu tarjeta cuando la instales.</div></div>
+  </div>
+
   <div class="row">
     <div class="field"><label>Forma de la imagen</label><select id="photoShape"><option value="circle">Círculo</option><option value="rounded">Cuadro redondeado</option><option value="square">Cuadro</option><option value="portrait">Retrato</option><option value="wide">Portada horizontal</option></select></div>
     <div class="field"><label>Ajuste de imagen</label><select id="photoFit"><option value="cover">Recortar para llenar</option><option value="contain">Mostrar completa</option></select></div>
@@ -1150,6 +1162,25 @@ document.getElementById("photo").addEventListener("change",async function(event)
   const file=event.target.files[0]; if(!file)return;
   try{document.getElementById("previewPhoto").src=await optimizeImage(file,900,.84);}catch(error){alert(error.message);event.target.value="";}
 });
+const appIconMode=document.getElementById("appIconMode");
+const appIconFile=document.getElementById("appIconFile");
+const appIconPreview=document.getElementById("appIconPreview");
+const customAppIconField=document.getElementById("customAppIconField");
+let customAppIconData="";
+function refreshAppIconPreview(){
+  customAppIconField.style.display=appIconMode.value==="custom"?"block":"none";
+  if(appIconMode.value==="profile"){
+    const src=document.getElementById("previewPhoto")?.src||"";
+    appIconPreview.src=src||"../logo-clickonme.png";
+  }else if(appIconMode.value==="custom"){
+    appIconPreview.src=customAppIconData||"../logo-clickonme.png";
+  }else appIconPreview.src="../logo-clickonme.png";
+}
+appIconMode.addEventListener("change",refreshAppIconPreview);
+appIconFile.addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{customAppIconData=await optimizeImage(file,512,.9);refreshAppIconPreview();}catch(error){alert(error.message);e.target.value="";}});
+document.getElementById("photo").addEventListener("change",()=>setTimeout(refreshAppIconPreview,150));
+setTimeout(refreshAppIconPreview,0);
+
 const photoShape=document.getElementById("photoShape");
 const photoFit=document.getElementById("photoFit");
 const previewPhoto=document.getElementById("previewPhoto");
