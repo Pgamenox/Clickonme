@@ -38,6 +38,14 @@ jobs:
           node --check /tmp/inline.js
           node --check crear/auth-bridge.js
           node --check supabase-config.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path("crear/perfil.html").read_text()
+          blocks=re.findall(r"<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)</script>",s,re.I)
+          Path("/tmp/profile-inline.js").write_text("\\n;\\n".join(blocks))
+          PY
+          node --check /tmp/profile-inline.js
       - name: Critical auth contract
         run: |
           grep -q 'signInWithPassword' crear/auth-bridge.js
@@ -45,3 +53,13 @@ jobs:
           grep -q 'auth.getSession' crear/index.html
           grep -q 'loadOwnProfile' crear/index.html
           grep -q 'loadMyCards' crear/index.html
+
+      - name: Public profile contract
+        run: |
+          grep -q 'profile_view' crear/perfil.html
+          grep -q 'shareBtn' crear/perfil.html
+          grep -q 'copyBtn' crear/perfil.html
+          grep -q 'qrBtn' crear/perfil.html
+          grep -q 'installBtn' crear/perfil.html
+          grep -q 'profile-manifest' crear/perfil.html
+          grep -q 'startupGuard' crear/perfil.html
