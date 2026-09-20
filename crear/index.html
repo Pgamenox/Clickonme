@@ -2148,13 +2148,14 @@ payButton.addEventListener("click",async()=>{
   if(payButton.disabled) return;
   if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
   payButton.disabled=true; payButton.textContent="Creando orden segura...";
-  const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId)}});
+  const desiredPlan=({professional:"personal",musician:"artist",visual_artist:"artist",presskit:"artist"}[profileType.value]||profileType.value||"personal");
+  const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}});
   if(error || !data?.checkoutUrl){
     payButton.disabled=false; setPayButton("Activar Plan Pro");
     alert(data?.error||"No fue posible iniciar el pago de prueba.");
     return;
   }
-  await trackBusinessEvent("checkout_started",currentProfileId,{source:"editor"});window.location.href=data.checkoutUrl;
+  await trackBusinessEvent("checkout_started",currentProfileId,{source:"editor",plan:data.plan,amount:data.amount});window.location.href=data.checkoutUrl;
 });
 
 async function trackBusinessEvent(eventType,profileId=null,metadata={}){if(!currentUser)return;try{await supabaseClient.from("business_events").insert({user_id:currentUser.id,profile_id:profileId?Number(profileId):null,event_type:eventType,metadata})}catch{}}
