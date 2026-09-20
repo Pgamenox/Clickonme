@@ -364,7 +364,7 @@ async function loadProfile(){
  setBtn('customButtonBtn',d.customButtonUrl,d.customButtonText||'Enlace',d,'custom');
  window.clickOnMeShareMessage=String(d.shareMessage||"Conoce mi perfil en ClickOnMe").slice(0,140); renderProfileMode(d); renderPresskitDetails(d); renderGalleryModule(d); renderAudioModule(d); renderVideoModule(d);
  const links=document.querySelector('.links');
- (Array.isArray(d.extraCustomButtons)?d.extraCustomButtons:[]).slice(0,2).forEach(x=>{const url=safeWebUrl(x.url);if(!x.text||!url)return;const a=document.createElement('a');a.className='btn';a.href=url;setButtonContent(a,d,'custom',x.text);a.target='_blank';a.rel='noopener noreferrer';links.appendChild(a);});
+ (Array.isArray(d.extraCustomButtons)?d.extraCustomButtons:[]).slice(0,3).forEach(x=>{const url=safeWebUrl(x.url);if(!x.text||!url)return;const a=document.createElement('a');a.className='btn';a.href=url;setButtonContent(a,d,'custom',x.text);a.target='_blank';a.rel='noopener noreferrer';links.appendChild(a);});
  document.querySelectorAll('.btn').forEach(button=>{styleButton(button,d);button.addEventListener('click',()=>{const id=button.id||'';const map={whatsappBtn:'whatsapp_click',phoneBtn:'phone_click',facebookBtn:'facebook_click',instagramBtn:'instagram_click',youtubeBtn:'youtube_click',websiteBtn:'website_click',customButtonBtn:'custom_click'};if(map[id])trackInteraction(map[id]);});});
  trackInteraction("profile_view");
  revealProfile();
