@@ -324,7 +324,7 @@ function renderGalleryModule(d){
 function revealProfile(){document.getElementById("startupGuard")?.remove();document.body.style.visibility="visible";}
 async function loadProfile(){
  if(!slug){document.getElementById("profileName").textContent="Perfil no encontrado";document.getElementById("profileRole").textContent="La dirección está incompleta.";revealProfile();return;}
- const {data:row,error}=await client.from('profiles').select('name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end').eq('slug',slug).maybeSingle();
+ const {data:row,error}=await client.from('profiles').select('name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile').eq('slug',slug).maybeSingle();
  if(error || !row){document.getElementById("profileName").textContent="Perfil no encontrado";document.getElementById("profileRole").textContent="Esta tarjeta no existe o no está disponible.";revealProfile();return;}
  const accessEnd=row.status==='active'?row.current_period_end:row.trial_ends_at;
  const expired=accessEnd&&new Date(accessEnd).getTime()<=Date.now();
@@ -335,6 +335,11 @@ async function loadProfile(){
    revealProfile(); return;
  }
  const d={...row,...(row.data||{})};
+ const effectivePlan=(row.demo_profile===true||row.account_role==='team')?'creator':(row.subscription_plan||'free');
+ const planLevel={free:0,personal:1,business:2,artist:3,creator:4}[effectivePlan]??0;
+ if(planLevel<2&&d.modules?.gallery)d.modules.gallery.enabled=false;
+ if(planLevel<3){if(d.modules?.audio)d.modules.audio.enabled=false;if(d.modules?.video)d.modules.video.enabled=false;d.profileMode='standard';d.presskit={};}
+ if(planLevel===0&&Array.isArray(d.extraCustomButtons))d.extraCustomButtons=d.extraCustomButtons.slice(0,4);
  const selectedInstallIcon=d.appIconMode==="custom"?safeImage(d.appIcon):(d.appIconMode==="profile"?safeImage(d.photo):"/pwa-icon.svg");
  const installIcon=selectedInstallIcon||"/pwa-icon.svg";
  document.getElementById("dynamicAppleIcon").href=installIcon;
