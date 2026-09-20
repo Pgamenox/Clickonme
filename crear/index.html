@@ -433,7 +433,7 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
-<script src="./auth-bridge.js?v=auth3" defer></script>
+<script src="./auth-bridge.js?v=auth4" defer></script>
 
 </head>
 
@@ -2385,7 +2385,7 @@ mobileSaveButton.addEventListener("click",()=>{
 });
 
 updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
-(async()=>{ const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
+(async()=>{ const params=new URLSearchParams(location.search); let {data:{session}}=await supabaseClient.auth.getSession(); if(!session){try{const raw=sessionStorage.getItem("clickonme_auth_handoff");if(raw){const h=JSON.parse(raw);if(h?.access_token&&h?.refresh_token){const restored=await supabaseClient.auth.setSession({access_token:h.access_token,refresh_token:h.refresh_token});session=restored.data?.session||null;}sessionStorage.removeItem("clickonme_auth_handoff");}}catch{}} await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
 </script>
 
 
