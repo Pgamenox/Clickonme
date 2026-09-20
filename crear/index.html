@@ -2350,7 +2350,7 @@ mobileSaveButton.addEventListener("click",()=>{
 });
 
 updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
-(async()=>{ await  const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
+(async()=>{ const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
 </script>
 
 
