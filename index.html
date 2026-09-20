@@ -70,7 +70,7 @@ nav{width:100%;max-width:1220px;margin:auto;padding:22px 28px;display:flex;align
 
 /* HERO */
 
-.hero{max-width:1220px;margin:28px auto 0;padding:70px 46% 82px 28px;text-align:left;position:relative;overflow:hidden;border-radius:38px;background:radial-gradient(circle at 82% 30%,rgba(0,229,255,.28),transparent 28%),radial-gradient(circle at 72% 62%,rgba(189,25,255,.30),transparent 35%),linear-gradient(125deg,#080914 0%,#0b1022 55%,#11162b 100%);border:1px solid rgba(255,255,255,.08)}.hero::after{content:'ClickOnMe';position:absolute;right:4%;top:22%;width:34%;aspect-ratio:.56;border-radius:38px;background:linear-gradient(160deg,#10152b,#12193a 45%,#090b18);border:8px solid #252a38;box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 65px rgba(0,229,255,.16);display:grid;place-items:center;font-size:clamp(24px,3vw,44px);font-weight:800;color:white;text-shadow:0 0 25px rgba(0,229,255,.6);transform:rotate(4deg)}
+.hero{max-width:1220px;margin:28px auto 0;padding:70px 46% 82px 28px;text-align:left;position:relative;overflow:hidden;border-radius:38px;background:radial-gradient(circle at 82% 30%,rgba(0,229,255,.28),transparent 28%),radial-gradient(circle at 72% 62%,rgba(189,25,255,.30),transparent 35%),linear-gradient(125deg,#080914 0%,#0b1022 55%,#11162b 100%);border:1px solid rgba(255,255,255,.08)}.phone-demo{position:absolute;right:4%;top:9%;width:35%;height:82%;border-radius:42px;background:linear-gradient(160deg,#10152b,#12193a 45%,#090b18);border:8px solid #252a38;box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 65px rgba(0,229,255,.16);transform:rotate(3deg);padding:26px 22px;z-index:1;overflow:hidden}.phone-demo:before{content:'';position:absolute;top:8px;left:38%;width:24%;height:18px;background:#05060b;border-radius:20px}.demo-card{height:100%;border-radius:28px;padding:30px 16px 18px;background:radial-gradient(circle at 70% 15%,rgba(0,229,255,.24),transparent 28%),linear-gradient(150deg,#24105a,#071326 55%,#07101c);text-align:center}.demo-avatar{width:86px;height:86px;border-radius:50%;margin:0 auto 10px;border:3px solid var(--com-cyan);background:linear-gradient(135deg,var(--com-purple),var(--com-cyan));display:grid;place-items:center;font-size:34px}.demo-card h3{font-size:22px;margin:2px 0}.demo-card p{font-size:12px;line-height:1.35;margin:0 0 14px;color:#d7d8e7}.demo-links{display:grid;gap:9px}.demo-link{padding:10px 12px;border-radius:12px;font-size:12px;font-weight:700;text-align:left;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12)}.demo-link:nth-child(1){background:#14b85a}.demo-link:nth-child(2){background:linear-gradient(90deg,#f33a83,#8b35ff)}.demo-link:nth-child(3){background:#e52222}.demo-link:nth-child(4){background:#1477df}.demo-mini{font-size:10px!important;margin-top:13px!important;color:#91eaff!important}
 
 .badge{
 display:inline-block;
@@ -404,7 +404,7 @@ color:var(--com-cyan);
 letter-spacing:1px;
 }
 
-@media(max-width:900px){.top-links{display:none}.main-nav{flex-wrap:wrap}.nav-actions{margin-left:auto}.hero{margin:12px 14px 0;padding:55px 24px 390px;text-align:left}.hero::after{width:210px;right:calc(50% - 105px);top:auto;bottom:45px}.hero h1{font-size:48px}.actions{justify-content:flex-start}
+@media(max-width:900px){.top-links{display:none}.main-nav{flex-wrap:wrap}.nav-actions{margin-left:auto}.hero{margin:12px 14px 0;padding:55px 24px 390px;text-align:left}.hero::after{width:210px;right:calc(50% - 105px);top:auto;bottom:45px}.hero h1{font-size:48px}.actions{justify-content:flex-start}.phone-demo{width:220px;height:350px;right:calc(50% - 110px);top:auto;bottom:28px}.demo-card{padding-top:25px}.demo-avatar{width:58px;height:58px}.demo-card h3{font-size:17px}.demo-link{padding:6px 9px}
 
 
 .feature-grid{
@@ -477,7 +477,7 @@ href="#ejemplos">
 Ver ejemplos
 </a>
 
-</div>
+</div><div class="phone-demo" aria-label="Ejemplo de una tarjeta ClickOnMe"><div class="demo-card"><div class="demo-avatar">👤</div><h3>Tu nombre</h3><p>Profesional · Negocio · Creador</p><div class="demo-links"><div class="demo-link">💬 WhatsApp</div><div class="demo-link">◎ Instagram</div><div class="demo-link">▶ YouTube</div><div class="demo-link">🌐 Mi portafolio</div></div><p class="demo-mini">TODO TU MUNDO · UN SOLO ENLACE</p></div></div>
 
 </header>
 
