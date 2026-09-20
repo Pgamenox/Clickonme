@@ -2072,13 +2072,22 @@ async function loadOwnProfile(){
     else return;
   }
   let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile");
-  if(requestedProfileId) query=query.eq("id",requestedProfileId).eq("user_id",currentUser.id);
+  if(requestedProfileId) query=query.eq("id",requestedProfileId).eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")');
   else query=query.eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
   const {data:rows,error}=await query;
   if(error){ authStatus.textContent="Sesión activa, pero no se pudo cargar tu tarjeta: "+error.message; return; }
   const data=rows?.[0];
-  if(requestedProfileId && !data){ authStatus.textContent="No tienes permiso para editar esta tarjeta."; return; }
-  if(data) populateProfile(data);
+  if(requestedProfileId && !data){
+    authStatus.textContent="Esta tarjeta es interna, de pruebas o no pertenece a tu cuenta. Abriremos tu ClickOnMe principal.";
+    window.history.replaceState({},"","/crear/");
+    profileLoadedFor=null;
+    let fallback=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
+    const {data:fallbackRows,error:fallbackError}=await fallback;
+    if(fallbackError){authStatus.textContent="Sesión activa, pero no se pudo cargar tu ClickOnMe principal.";return;}
+    if(fallbackRows?.[0])populateProfile(fallbackRows[0]);
+    return;
+  }
+  if(data){populateProfile(data);if(!requestedProfileId)window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(data.id)}`);}
 }
 
 document.getElementById("sessionBannerLogout")?.addEventListener("click",async()=>{ await supabaseClient.auth.signOut(); location.href="/crear/?new=1"; });
