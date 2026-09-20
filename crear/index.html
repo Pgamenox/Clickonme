@@ -1966,8 +1966,8 @@ function populateProfile(row){
 async function showProfileAnalytics(slug,name,button){
  const original=button.textContent;button.disabled=true;button.textContent="Cargando…";
  try{
-  const days=Number(prompt("Métricas de "+name+"\n\nPeriodo en días: 7, 30 o 90","30")||30);
-  const period=[7,30,90].includes(days)?days:30;
+  const savedPeriod=Number(localStorage.getItem("com_analytics_period")||30);
+  const period=[7,30,90].includes(savedPeriod)?savedPeriod:30;
   const since=new Date(Date.now()-period*86400000).toISOString();
   const {data,error}=await supabaseClient.from("profile_analytics_events").select("event_type,event_label,session_id,created_at").eq("profile_slug",slug).gte("created_at",since).order("created_at",{ascending:true});
   if(error)throw error;
@@ -1997,6 +1997,7 @@ async function showProfileAnalytics(slug,name,button){
   <div style="margin-top:18px"><strong>Visitas recientes</strong><div style="height:125px;display:flex;align-items:end;gap:5px;margin-top:10px;padding:8px;background:#0d1325;border-radius:14px">${daily.length?daily.map(([d,v])=>`<div title="${d}: ${v}" style="flex:1;min-width:5px;height:${Math.max(7,Math.round(v/max*100))}%;background:linear-gradient(180deg,#00e5ff,#8d3cff);border-radius:5px 5px 2px 2px"></div>`).join(""):'<span style="color:#8994ad">Sin visitas todavía.</span>'}</div></div>
   <div style="margin-top:18px"><strong>Interacciones principales</strong><div style="display:grid;gap:7px;margin-top:9px">${top.length?top.map(([k,v])=>`<div style="display:flex;justify-content:space-between;background:#11172a;padding:10px 12px;border-radius:10px"><span>${labels[k]||escapeHtml(k)}</span><b>${v}</b></div>`).join(""):'<div style="color:#8994ad">Aún sin interacciones.</div>'}</div></div>
   <div style="margin-top:15px;color:#93a0bb;font-size:12px">Índice de interacción: ${conversion}% · Conversión a contacto: ${contactRate}% (sesiones con al menos una acción de contacto / visitantes aproximados). Estas métricas son de ClickOnMe y no equivalen a ventas confirmadas.</div></div>`;
+  const periodBar=document.createElement("div");periodBar.style.cssText="display:flex;gap:7px;flex-wrap:wrap;padding:0 22px 18px";[7,30,90].forEach(d=>{const b=document.createElement("button");b.type="button";b.textContent=d===7?"7 días":d===30?"30 días":"90 días";b.style.cssText="border:1px solid rgba(0,229,255,.28);background:"+(d===period?"#17375a":"#0d1325")+";color:#fff;border-radius:999px;padding:7px 12px;cursor:pointer;font-weight:700";b.onclick=()=>{localStorage.setItem("com_analytics_period",String(d));modal.close();showProfileAnalytics(slug,name,button);};periodBar.appendChild(b);});modal.querySelector("div").insertAdjacentElement("afterend",periodBar);
   modal.querySelector("#analyticsClose").onclick=()=>modal.close();modal.showModal();
  }catch(e){alert("Todavía no fue posible consultar las métricas de esta tarjeta.");}
  finally{button.disabled=false;button.textContent=original;}
