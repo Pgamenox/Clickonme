@@ -407,6 +407,7 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 .mobile-actionbar{background:rgba(6,8,18,.88);border-color:rgba(255,255,255,.10);backdrop-filter:blur(22px);border-radius:19px}
 @media(max-width:900px){.layout{grid-template-columns:1fr;max-width:760px}.preview-area{position:static}.phone{max-width:390px}}
 @media(max-width:600px){.header{padding:12px 15px}.brand-logo{height:48px}.header p{display:none}.layout{padding:15px 10px 92px;gap:18px}.panel{padding:20px 15px;border-radius:23px}.panel h1{font-size:25px}.phone{border-radius:34px;padding:7px}.phone::before{margin-top:2px}.screen{min-height:650px;border-radius:27px}.mobile-actionbar{left:8px;right:8px;bottom:8px}}
+<style id="premiumProgressiveDisclosure">.advanced-hub{margin:28px 0 8px}.advanced-toggle{width:100%;min-height:70px;padding:14px 16px;border-radius:19px;border:1px solid rgba(88,196,255,.18);background:linear-gradient(135deg,rgba(39,215,255,.065),rgba(157,92,255,.065));color:#fff;display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer;font:inherit;transition:.18s}.advanced-toggle:hover{border-color:rgba(88,196,255,.32);transform:translateY(-1px)}.advanced-toggle span:first-child{display:grid;gap:3px}.advanced-toggle b{font-size:13px}.advanced-toggle small{font-size:10px;font-weight:500;color:#8f9bb4}.advanced-chevron{font-size:22px;color:#9edfff;transition:.2s}.advanced-toggle[aria-expanded="true"] .advanced-chevron{transform:rotate(180deg)}.advanced-options{padding-top:5px}.advanced-options>.section-title:first-child{margin-top:16px}.advanced-options .plus-box{position:relative}.advanced-options .section-title span{padding:3px 7px;border-radius:999px;background:rgba(39,215,255,.08)}@media(max-width:600px){.advanced-toggle{min-height:66px;border-radius:17px}.advanced-options{padding-top:1px}}</style>
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
@@ -552,6 +553,9 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
   </div>
 
 
+<div class="advanced-hub">
+<button type="button" id="advancedToggle" class="advanced-toggle" aria-expanded="false"><span><b>Plus y opciones avanzadas</b><small id="advancedSummary">Galería, audio, video y PressKit</small></span><span class="advanced-chevron">⌄</span></button>
+<div id="advancedOptions" class="advanced-options" style="display:none">
 <div class="section-title">ClickOnMe Plus · Galería / Slideshow <span style="font-size:10px;color:#00e5ff">BETA</span></div>
 <div class="plus-box">
   <strong>Convierte tu tarjeta en un portafolio visual</strong>
@@ -594,6 +598,8 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
  <div id="presskitPdfStatus" class="control-help"></div>
 </div>
 </div>
+
+</div></div>
 <div class="section-title">Compartir mi ClickOnMe</div><div class="plus-box">
 <div class="field"><label>Mensaje al compartir</label><input id="shareMessage" maxlength="140" placeholder="Conoce mi perfil en ClickOnMe"><div class="control-help">Este texto acompañará tu enlace cuando uses Compartir.</div></div>
 </div><div class="section-title">Diseña tu tarjeta</div>
