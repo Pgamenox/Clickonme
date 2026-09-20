@@ -1842,29 +1842,7 @@ const activationRequested = editorParams.get("activate") === "1";
 const returnedPaymentId = editorParams.get("payment_id") || editorParams.get("collection_id");
 const returnedPaymentStatus = editorParams.get("collection_status") || editorParams.get("status");
 let paymentConfirmationAttempted = false;
-let planPriceMxn = null;
-let planOfferLabel = "plan anual";
-
-function moneyMxn(value){
-  return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(value);
-}
-
-function setPayButton(label){
-  payButton.textContent=planPriceMxn?`${label} · ${moneyMxn(planPriceMxn)}`:label;
-}
-
-async function loadPricing(){
-  // Compatibilidad: el selector por plan usa plan_prices; estos campos legacy solo alimentan UI antigua si aún existe.
-  const {data,error}=await supabaseClient.from("business_settings").select("annual_price_mxn,launch_price_mxn,launch_promo_active,launch_promo_label,plan_prices,plan_promos,plan_promo_active").eq("id","main").maybeSingle();
-  if(error||!data){setPayButton("Elegir plan");return;}
-  const promo=data.launch_promo_active===true&&Number.isInteger(Number(data.launch_price_mxn));
-  planPriceMxn=Number(promo?data.launch_price_mxn:data.annual_price_mxn);
-  planOfferLabel=promo?(data.launch_promo_label||"Promoción de inauguración"):"plan anual";
-  paymentBox.querySelector("strong").textContent=promo?planOfferLabel:"Activa tu plan anual";
-  paymentBox.querySelector("p").textContent=promo?"Precio especial por tiempo limitado. Pago protegido por Mercado Pago.":"Pago protegido por Mercado Pago.";
-  setPayButton("Activar");
-}
-
+// Los precios de checkout se cargan por plan desde business_settings.plan_prices.
 function makeSlug(value){
   return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0,40);
 }
@@ -2306,7 +2284,7 @@ mobileSaveButton.addEventListener("click",()=>{
 });
 
 updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
-(async()=>{ await loadPricing(); const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
+(async()=>{ await  const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
 </script>
 
 
