@@ -1711,7 +1711,7 @@ addCustomButton.addEventListener(
   function(){
 
     extraButtonCount++;
-if (extraButtonCount >= 2) {
+if (extraButtonCount >= 3) {
   addCustomButton.style.display = "none";
 }
     const wrapper =
@@ -1945,7 +1945,7 @@ function populateProfile(row){
   refreshAppIconPreview();
   if(d.backgroundImage) previewScreen.dataset.backgroundImage=d.backgroundImage;
   customIcons=d.customIcons&&typeof d.customIcons==="object"?d.customIcons:{}; Object.keys(defaultIcons).forEach(renderIcon);
-  (d.extraCustomButtons||[]).slice(0,2).forEach(item=>{ addCustomButton.click(); const fields=extraCustomButtons.querySelectorAll(".field"); const field=fields[fields.length-1]; const text=field.querySelector(".extraButtonText"); const url=field.querySelector(".extraButtonUrl"); text.value=item.text||""; url.value=item.url||""; text.dispatchEvent(new Event("input")); url.dispatchEvent(new Event("input")); });
+  (d.extraCustomButtons||[]).slice(0,3).forEach(item=>{ addCustomButton.click(); const fields=extraCustomButtons.querySelectorAll(".field"); const field=fields[fields.length-1]; const text=field.querySelector(".extraButtonText"); const url=field.querySelector(".extraButtonUrl"); text.value=item.text||""; url.value=item.url||""; text.dispatchEvent(new Event("input")); url.dispatchEvent(new Event("input")); });
   updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); updateCustomButton(); updateProfileLink(row.slug);
   publishButton.textContent="Guardar cambios";
   renderPlanStatus(row); applyPlanAccess();
