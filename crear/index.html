@@ -420,7 +420,7 @@ select:focus{
     <button type="button" id="saveNewPasswordBtn" style="width:100%;padding:12px;border:0;border-radius:12px;font-weight:700;cursor:pointer;color:#fff;background:var(--com-gradient)">Guardar nueva contraseña</button>
   </div>
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
-  <div id="myCardsBox" style="display:none;margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>Mis tarjetas</strong><a class="button" href="/crear/?new=1" style="font-size:12px">+ Crear otra</a></div><div id="myCardsList" style="display:grid;gap:8px;margin-top:10px"></div></div>
+  <div id="myCardsBox" style="display:none;margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>Mi ClickOnMe</strong></div><div id="myCardsList" style="display:grid;gap:8px;margin-top:10px"></div></div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
   <div class="payment-box" id="paymentBox"><strong>Elige tu plan anual</strong><p>Selecciona el plan que quieres contratar para esta tarjeta. Verás el precio antes de ir a Mercado Pago.</p><label for="checkoutPlan" style="display:block;margin:10px 0 6px;font-size:12px;color:#bfcceb">Plan a contratar</label><select id="checkoutPlan" style="width:100%;padding:11px;border-radius:10px;background:#11162a;color:#fff;border:1px solid rgba(255,255,255,.16)"><option value="personal">Personal · $399/año</option><option value="business">Business · $599/año</option><option value="artist">Artista · $799/año</option><option value="creator">Creator · $999/año</option></select><div id="checkoutPlanSummary" style="margin:10px 0;font-size:12px;color:#bfcceb">Personal · $399 MXN al año</div><button type="button" id="payButton">Continuar con Personal · $399</button></div>
   <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
@@ -2009,7 +2009,11 @@ async function loadMyCards(){
 async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
-  if(createNewProfile) return;
+  if(createNewProfile){
+    const {data:existing}=await supabaseClient.from("profiles").select("id").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).limit(1);
+    if((existing||[]).length){ window.history.replaceState({},"","/crear/"); }
+    else return;
+  }
   let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan");
   if(requestedProfileId) query=query.eq("id",requestedProfileId);
   else query=query.eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1);
@@ -2255,6 +2259,11 @@ publishButton.addEventListener("click",async()=>{
   };
   if(!currentProfileId){ payload.user_id=currentUser.id; payload.created_by=currentUser.id; }
   let result;
+  if(!currentProfileId){
+    const {data:existing,error:existingError}=await supabaseClient.from("profiles").select("id,slug").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).limit(1);
+    if(existingError){ publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; alert("No se pudo verificar tu cuenta. Intenta nuevamente."); return; }
+    if((existing||[]).length){ publishButton.disabled=false; publishButton.textContent="Guardar cambios"; currentProfileId=existing[0].id; currentProfileSlug=existing[0].slug; alert("Tu cuenta ya tiene una tarjeta ClickOnMe. Abriremos esa misma tarjeta para editarla; no se crea una segunda tarjeta ni un nuevo periodo gratuito."); profileLoadedFor=null; await loadOwnProfile(); return; }
+  }
   if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
   else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
   publishButton.disabled=false;
