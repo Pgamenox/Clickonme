@@ -434,7 +434,12 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
+/* Login bootstrap aislado: se instala inmediatamente, sin depender de DOMContentLoaded.
+   Esto evita perder el evento si el script se ejecuta después de que el DOM ya quedó listo. */
+function installClickOnMeEmergencyLogin(){
+ const btn=document.getElementById("signinBtn"),status=document.getElementById("authStatus"),email=document.getElementById("authEmail"),password=document.getElementById("authPassword");
+ if(!btn||btn.dataset.authBootstrap==="1") return;
+ btn.dataset.authBootstrap="1";
  const btn=document.getElementById("signinBtn"),status=document.getElementById("authStatus"),email=document.getElementById("authEmail"),password=document.getElementById("authPassword");
  async function emergencySignin(){
   if(!email?.value.trim()||!password?.value){if(status)status.textContent="Escribe tu correo y contraseña.";return;}
@@ -451,7 +456,9 @@ document.addEventListener("DOMContentLoaded",()=>{
  }
  btn?.addEventListener("click",emergencySignin,{capture:true});
  password?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();emergencySignin();}},{capture:true});
-});
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",installClickOnMeEmergencyLogin,{once:true});
+else installClickOnMeEmergencyLogin();
 </script>
 </head>
 
