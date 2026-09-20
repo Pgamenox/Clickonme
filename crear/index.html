@@ -2220,7 +2220,442 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
 const checkoutPlan=document.getElementById("checkoutPlan"),checkoutPlanSummary=document.getElementById("checkoutPlanSummary");
 let CHECKOUT_PRICES={personal:399,business:599,artist:799,creator:999},CHECKOUT_NORMAL_PRICES={...CHECKOUT_PRICES},CHECKOUT_PROMOS={};
 const CHECKOUT_LABELS={personal:"Personal",business:"Business",artist:"Artista",creator:"Creator"};
-function refreshCheckoutPlan(){if(!checkoutPlan)return;const p=checkoutPlan.value,price=CHECKOUT_PRICES[p]||399,normal=CHECKOUT_NORMAL_PRICES[p]||price,label=CHECKOUT_LABELS[p]||"Personal",promo=CHECKOUT_PROMOS[p]===true&&price<normal;checkoutPlanSummary.textContent=promo?label+" · PROMO $"+price+" MXN/año · precio regular $"+normal:label+" · $"+price+" MXN al año";if(!payButton.disabled)payButton.textContent="Continuar con "+label+" · $"+price;}
+function refreshCheckoutPlan(){if(!checkoutPlan)return;const p=checkoutPlan.value,price=CHECKOUT_PRICES[p]||399,normal=CHECKOUT_NORMAL_PRICES[p]||price,label=CHECKOUT_LABELS[p]||"Personal",promo=CHECKOUT_PROMOS[p]===true&&price<normal;checkoutPlanSummary.textContent=promo?label+" · PROMO $"+price+" MXN/año · precio regular $"+normal:label+" · $"+price+" MXN al año";document.querySelectorAll("[data-plan-card]").forEach(card=>{const cp=card.dataset.planCard,cpPrice=CHECKOUT_PRICES[cp],cpNormal=CHECKOUT_NORMAL_PRICES[cp]||cpPrice,cpPromo=CHECKOUT_PROMOS[cp]===true&&cpPrice<cpNormal,priceEl=card.querySelector(".plan-price");card.classList.toggle("selected",cp===p);card.setAttribute("aria-pressed",String(cp===p));if(priceEl&&cpPrice)priceEl.innerHTML=cpPromo?'<span class="promo-price">
+async function loadCheckoutPrices(){try{const {data,error}=await supabaseClient.from("business_settings").select("plan_prices,plan_promos,plan_promo_active").eq("id","main").single();if(error||!data)return;for(const p of Object.keys(CHECKOUT_PRICES)){const normal=Number(data.plan_prices?.[p]),promo=Number(data.plan_promos?.[p]),active=data.plan_promo_active?.[p]===true&&Number.isInteger(promo)&&promo>0&&promo<normal;if(Number.isInteger(normal)&&normal>0&&normal<=999){CHECKOUT_NORMAL_PRICES[p]=normal;CHECKOUT_PRICES[p]=active?promo:normal;CHECKOUT_PROMOS[p]=active;const opt=checkoutPlan?.querySelector('option[value="'+p+'"]');if(opt)opt.textContent=CHECKOUT_LABELS[p]+" · "+(active?"PROMO $"+promo+" (antes $"+normal+")":"$"+normal)+"/año";}}refreshCheckoutPlan();}catch{}}
+checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan();loadCheckoutPrices();
+
+payButton.addEventListener("click",async()=>{
+  if(payButton.disabled) return;
+  if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
+  payButton.disabled=true; payButton.textContent="Creando orden segura...";
+  const checkoutPlan=document.getElementById("checkoutPlan");
+  const desiredPlan=checkoutPlan?.value||"personal";
+  const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}});
+  if(error || !data?.checkoutUrl){
+    payButton.disabled=false; refreshCheckoutPlan();
+    alert(data?.error||"No fue posible iniciar el pago de prueba.");
+    return;
+  }
+  await trackBusinessEvent("checkout_started",currentProfileId,{source:"editor",plan:data.plan,amount:data.amount});window.location.href=data.checkoutUrl;
+});
+
+async function trackBusinessEvent(eventType,profileId=null,metadata={}){if(!currentUser)return;try{await supabaseClient.from("business_events").insert({user_id:currentUser.id,profile_id:profileId?Number(profileId):null,event_type:eventType,metadata})}catch{}}
+function validWebUrl(value){ if(!value) return true; try{ const u=new URL(value); return u.protocol==="https:" || u.protocol==="http:"; }catch{return false;} }
+
+function dataUrlToBlob(dataUrl){
+  const match=dataUrl.match(/^data:([^;,]+);base64,(.+)$/);
+  if(!match) throw new Error("La imagen seleccionada no tiene un formato válido.");
+  const binary=atob(match[2]);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return new Blob([bytes],{type:match[1]});
+}
+
+async function uploadAudioAsset(item,folder){
+  if(!item?.file) return item?.url||"";
+  if(item.file.type!=="audio/mpeg"||item.file.size>12*1024*1024) throw new Error("El audio debe ser MP3 y pesar máximo 12 MB.");
+  const path=`${currentUser.id}/${folder}/audio-featured.mp3`;
+  const {error}=await supabaseClient.storage.from("profile-assets").upload(path,item.file,{contentType:"audio/mpeg",cacheControl:"3600",upsert:true});
+  if(error) throw new Error("No se pudo subir el audio: "+error.message);
+  const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path); return data.publicUrl+"?v="+Date.now();
+}
+
+async function uploadProfileAsset(value,folder,key){
+  if(!value || !value.startsWith("data:image/")) return value||"";
+  const blob=dataUrlToBlob(value);
+  if(blob.size>5*1024*1024) throw new Error("Cada imagen debe pesar menos de 5 MB.");
+  const path=`${currentUser.id}/${folder}/${key}`;
+  const {error}=await supabaseClient.storage.from("profile-assets").upload(path,blob,{contentType:blob.type,cacheControl:"60",upsert:true});
+  if(error) throw new Error("No se pudo subir la imagen: "+error.message);
+  const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path);
+  return data.publicUrl+"?v="+Date.now();
+}
+
+publishButton.addEventListener("click",async()=>{
+  if(publishButton.disabled) return;
+  publishButton.disabled=true;
+  const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session);
+  if(!currentUser){ publishButton.disabled=false; alert("Primero crea tu cuenta o inicia sesión."); return; }
+  const name=nameInput.value.trim(); const role=roleInput.value.trim(); const slug=makeSlug(slugInput.value||name);
+  if(!profileType.value){ publishButton.disabled=false; profileType.scrollIntoView({behavior:"smooth",block:"center"}); profileType.focus(); alert("Primero elige cómo vas a usar ClickOnMe: Personal, Negocio, Artista o Creator."); return; }
+  if(!name || !role){ publishButton.disabled=false; alert("Completa tu nombre y actividad o profesión."); return; }
+  if(slug.length<3){ publishButton.disabled=false; alert("La dirección debe tener al menos 3 caracteres."); return; }
+  const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
+  if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
+  if(!validYouTubeUrl(videoUrl.value.trim())){publishButton.disabled=false;alert("El video destacado debe ser un enlace válido de YouTube.");return;}
+  const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",appIconMode:appIconMode.value,appIcon:appIconMode.value==="custom"?customAppIconData:"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
+  profileData.profileType=profileType.value; profileData.shareMessage=(shareMessage.value.trim()||"Conoce mi perfil en ClickOnMe").slice(0,140);
+  profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
+  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim(); enforcePlanBeforeSave(profileData);
+  publishButton.disabled=true; publishButton.textContent="Guardando...";
+  try{
+    const assetFolder="profile-"+slug;
+    profileData.photo=await uploadProfileAsset(profileData.photo,assetFolder,"photo");
+    if(profileData.appIconMode==="profile" && profileData.photo){
+      try{ profileData.appIcon=await squareIconFromSource(profileData.photo,512); }
+      catch{ profileData.appIcon=""; }
+    }
+    profileData.appIcon=await uploadProfileAsset(profileData.appIcon,assetFolder,"app-icon.png");
+    customAppIconData=profileData.appIcon||customAppIconData;
+    profileData.backgroundImage=await uploadProfileAsset(profileData.backgroundImage,assetFolder,"background");
+    const uploadedIcons={};
+    for(const [key,value] of Object.entries(profileData.customIcons||{})) uploadedIcons[key]=await uploadProfileAsset(value,assetFolder,"icon-"+key);
+    profileData.customIcons=uploadedIcons;
+    customIcons=uploadedIcons;
+    const uploadedGallery=[];
+    for(let i=0;i<(profileData.modules?.gallery?.items||[]).length;i++){
+      const item=profileData.modules.gallery.items[i];
+      uploadedGallery.push({url:await uploadProfileAsset(item.url,assetFolder,"gallery-"+i),alt:String(item.alt||"").slice(0,120)});
+    }
+    profileData.modules.gallery.items=uploadedGallery; galleryItems=uploadedGallery; renderGalleryEditor();
+    profileData.presskit.pdfUrl=await uploadPresskitPdf(presskitPdfItem,assetFolder);presskitPdfItem={url:profileData.presskit.pdfUrl,name:profileData.presskit.pdfName};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
+    profileData.modules.audio.url=await uploadAudioAsset(audioItem,assetFolder); audioItem={url:profileData.modules.audio.url,name:profileData.modules.audio.name}; renderAudioEditor();
+  }catch(error){
+    publishButton.disabled=false;
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert(error.message||"No se pudieron subir las imágenes.");
+    return;
+  }
+  const payload={
+    slug,name,role,description:profileData.description,
+    photo_url:profileData.photo,whatsapp:profileData.whatsapp,phone:profileData.phone,
+    facebook:profileData.facebook,instagram:profileData.instagram,
+    youtube:profileData.youtube,website:profileData.website,
+    data:profileData,updated_at:new Date().toISOString()
+  };
+  if(!currentProfileId){ payload.user_id=currentUser.id; payload.created_by=currentUser.id; }
+  let result;
+  if(!currentProfileId){
+    const {data:existing,error:existingError}=await supabaseClient.from("profiles").select("id,slug").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).limit(1);
+    if(existingError){ publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; alert("No se pudo verificar tu cuenta. Intenta nuevamente."); return; }
+    if((existing||[]).length){ publishButton.disabled=false; publishButton.textContent="Guardar cambios"; currentProfileId=existing[0].id; currentProfileSlug=existing[0].slug; alert("Tu cuenta ya tiene una tarjeta ClickOnMe. Abriremos esa misma tarjeta para editarla; no se crea una segunda tarjeta ni un nuevo periodo gratuito."); profileLoadedFor=null; await loadOwnProfile(); return; }
+  }
+  if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+  else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+  publishButton.disabled=false;
+  if(result.error){ publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe"; alert(result.error.code==="23505"?"Esa dirección ya está ocupada. Elige otra.":"No se pudo guardar: "+result.error.message); return; }
+  await trackBusinessEvent(currentProfileId?"profile_updated":"profile_created",result.data.id,{slug:result.data.slug});
+  const saved=result.data.data||{};
+  const verifyKeys=["whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"];
+  const missing=verifyKeys.filter(key=>String(saved[key]||"")!==String(profileData[key]||""));
+  if(missing.length){
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert("La tarjeta no se guardó completa. Intenta nuevamente.");
+    return;
+  }
+  currentProfileId=result.data.id; currentProfileSlug=result.data.slug; updateProfileLink(currentProfileSlug); publishButton.textContent="Guardado ✓";
+  authStatus.textContent=`Tarjeta guardada correctamente. Dirección pública: clickonme.pro/crear/perfil.html?u=${currentProfileSlug}`;
+  paymentBox.style.display="block";
+  window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
+  window.setTimeout(()=>{publishButton.textContent="Guardar cambios";},1400);
+  viewProfileLink.focus();
+});
+
+function goToMobilePreview(){document.getElementById("previewArea").scrollIntoView({behavior:"smooth",block:"start"});}
+document.getElementById("mobilePreviewBtn").addEventListener("click",goToMobilePreview);document.getElementById("mobilePreviewHintBtn").addEventListener("click",goToMobilePreview);
+mobileSaveButton.addEventListener("click",()=>{
+  if(!currentUser){ document.getElementById("accountArea").scrollIntoView({behavior:"smooth",block:"center"}); authStatus.textContent="Inicia sesión o crea tu cuenta para guardar."; return; }
+  publishButton.click();
+});
+
+updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
+(async()=>{ const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
+</script>
+
+
+</body>
+</html>
++cpPrice+'</span> <small>MXN/año</small><del>
+async function loadCheckoutPrices(){try{const {data,error}=await supabaseClient.from("business_settings").select("plan_prices,plan_promos,plan_promo_active").eq("id","main").single();if(error||!data)return;for(const p of Object.keys(CHECKOUT_PRICES)){const normal=Number(data.plan_prices?.[p]),promo=Number(data.plan_promos?.[p]),active=data.plan_promo_active?.[p]===true&&Number.isInteger(promo)&&promo>0&&promo<normal;if(Number.isInteger(normal)&&normal>0&&normal<=999){CHECKOUT_NORMAL_PRICES[p]=normal;CHECKOUT_PRICES[p]=active?promo:normal;CHECKOUT_PROMOS[p]=active;const opt=checkoutPlan?.querySelector('option[value="'+p+'"]');if(opt)opt.textContent=CHECKOUT_LABELS[p]+" · "+(active?"PROMO $"+promo+" (antes $"+normal+")":"$"+normal)+"/año";}}refreshCheckoutPlan();}catch{}}
+checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan();loadCheckoutPrices();
+
+payButton.addEventListener("click",async()=>{
+  if(payButton.disabled) return;
+  if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
+  payButton.disabled=true; payButton.textContent="Creando orden segura...";
+  const checkoutPlan=document.getElementById("checkoutPlan");
+  const desiredPlan=checkoutPlan?.value||"personal";
+  const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}});
+  if(error || !data?.checkoutUrl){
+    payButton.disabled=false; refreshCheckoutPlan();
+    alert(data?.error||"No fue posible iniciar el pago de prueba.");
+    return;
+  }
+  await trackBusinessEvent("checkout_started",currentProfileId,{source:"editor",plan:data.plan,amount:data.amount});window.location.href=data.checkoutUrl;
+});
+
+async function trackBusinessEvent(eventType,profileId=null,metadata={}){if(!currentUser)return;try{await supabaseClient.from("business_events").insert({user_id:currentUser.id,profile_id:profileId?Number(profileId):null,event_type:eventType,metadata})}catch{}}
+function validWebUrl(value){ if(!value) return true; try{ const u=new URL(value); return u.protocol==="https:" || u.protocol==="http:"; }catch{return false;} }
+
+function dataUrlToBlob(dataUrl){
+  const match=dataUrl.match(/^data:([^;,]+);base64,(.+)$/);
+  if(!match) throw new Error("La imagen seleccionada no tiene un formato válido.");
+  const binary=atob(match[2]);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return new Blob([bytes],{type:match[1]});
+}
+
+async function uploadAudioAsset(item,folder){
+  if(!item?.file) return item?.url||"";
+  if(item.file.type!=="audio/mpeg"||item.file.size>12*1024*1024) throw new Error("El audio debe ser MP3 y pesar máximo 12 MB.");
+  const path=`${currentUser.id}/${folder}/audio-featured.mp3`;
+  const {error}=await supabaseClient.storage.from("profile-assets").upload(path,item.file,{contentType:"audio/mpeg",cacheControl:"3600",upsert:true});
+  if(error) throw new Error("No se pudo subir el audio: "+error.message);
+  const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path); return data.publicUrl+"?v="+Date.now();
+}
+
+async function uploadProfileAsset(value,folder,key){
+  if(!value || !value.startsWith("data:image/")) return value||"";
+  const blob=dataUrlToBlob(value);
+  if(blob.size>5*1024*1024) throw new Error("Cada imagen debe pesar menos de 5 MB.");
+  const path=`${currentUser.id}/${folder}/${key}`;
+  const {error}=await supabaseClient.storage.from("profile-assets").upload(path,blob,{contentType:blob.type,cacheControl:"60",upsert:true});
+  if(error) throw new Error("No se pudo subir la imagen: "+error.message);
+  const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path);
+  return data.publicUrl+"?v="+Date.now();
+}
+
+publishButton.addEventListener("click",async()=>{
+  if(publishButton.disabled) return;
+  publishButton.disabled=true;
+  const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session);
+  if(!currentUser){ publishButton.disabled=false; alert("Primero crea tu cuenta o inicia sesión."); return; }
+  const name=nameInput.value.trim(); const role=roleInput.value.trim(); const slug=makeSlug(slugInput.value||name);
+  if(!profileType.value){ publishButton.disabled=false; profileType.scrollIntoView({behavior:"smooth",block:"center"}); profileType.focus(); alert("Primero elige cómo vas a usar ClickOnMe: Personal, Negocio, Artista o Creator."); return; }
+  if(!name || !role){ publishButton.disabled=false; alert("Completa tu nombre y actividad o profesión."); return; }
+  if(slug.length<3){ publishButton.disabled=false; alert("La dirección debe tener al menos 3 caracteres."); return; }
+  const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
+  if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
+  if(!validYouTubeUrl(videoUrl.value.trim())){publishButton.disabled=false;alert("El video destacado debe ser un enlace válido de YouTube.");return;}
+  const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",appIconMode:appIconMode.value,appIcon:appIconMode.value==="custom"?customAppIconData:"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
+  profileData.profileType=profileType.value; profileData.shareMessage=(shareMessage.value.trim()||"Conoce mi perfil en ClickOnMe").slice(0,140);
+  profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
+  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim(); enforcePlanBeforeSave(profileData);
+  publishButton.disabled=true; publishButton.textContent="Guardando...";
+  try{
+    const assetFolder="profile-"+slug;
+    profileData.photo=await uploadProfileAsset(profileData.photo,assetFolder,"photo");
+    if(profileData.appIconMode==="profile" && profileData.photo){
+      try{ profileData.appIcon=await squareIconFromSource(profileData.photo,512); }
+      catch{ profileData.appIcon=""; }
+    }
+    profileData.appIcon=await uploadProfileAsset(profileData.appIcon,assetFolder,"app-icon.png");
+    customAppIconData=profileData.appIcon||customAppIconData;
+    profileData.backgroundImage=await uploadProfileAsset(profileData.backgroundImage,assetFolder,"background");
+    const uploadedIcons={};
+    for(const [key,value] of Object.entries(profileData.customIcons||{})) uploadedIcons[key]=await uploadProfileAsset(value,assetFolder,"icon-"+key);
+    profileData.customIcons=uploadedIcons;
+    customIcons=uploadedIcons;
+    const uploadedGallery=[];
+    for(let i=0;i<(profileData.modules?.gallery?.items||[]).length;i++){
+      const item=profileData.modules.gallery.items[i];
+      uploadedGallery.push({url:await uploadProfileAsset(item.url,assetFolder,"gallery-"+i),alt:String(item.alt||"").slice(0,120)});
+    }
+    profileData.modules.gallery.items=uploadedGallery; galleryItems=uploadedGallery; renderGalleryEditor();
+    profileData.presskit.pdfUrl=await uploadPresskitPdf(presskitPdfItem,assetFolder);presskitPdfItem={url:profileData.presskit.pdfUrl,name:profileData.presskit.pdfName};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
+    profileData.modules.audio.url=await uploadAudioAsset(audioItem,assetFolder); audioItem={url:profileData.modules.audio.url,name:profileData.modules.audio.name}; renderAudioEditor();
+  }catch(error){
+    publishButton.disabled=false;
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert(error.message||"No se pudieron subir las imágenes.");
+    return;
+  }
+  const payload={
+    slug,name,role,description:profileData.description,
+    photo_url:profileData.photo,whatsapp:profileData.whatsapp,phone:profileData.phone,
+    facebook:profileData.facebook,instagram:profileData.instagram,
+    youtube:profileData.youtube,website:profileData.website,
+    data:profileData,updated_at:new Date().toISOString()
+  };
+  if(!currentProfileId){ payload.user_id=currentUser.id; payload.created_by=currentUser.id; }
+  let result;
+  if(!currentProfileId){
+    const {data:existing,error:existingError}=await supabaseClient.from("profiles").select("id,slug").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).limit(1);
+    if(existingError){ publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; alert("No se pudo verificar tu cuenta. Intenta nuevamente."); return; }
+    if((existing||[]).length){ publishButton.disabled=false; publishButton.textContent="Guardar cambios"; currentProfileId=existing[0].id; currentProfileSlug=existing[0].slug; alert("Tu cuenta ya tiene una tarjeta ClickOnMe. Abriremos esa misma tarjeta para editarla; no se crea una segunda tarjeta ni un nuevo periodo gratuito."); profileLoadedFor=null; await loadOwnProfile(); return; }
+  }
+  if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+  else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+  publishButton.disabled=false;
+  if(result.error){ publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe"; alert(result.error.code==="23505"?"Esa dirección ya está ocupada. Elige otra.":"No se pudo guardar: "+result.error.message); return; }
+  await trackBusinessEvent(currentProfileId?"profile_updated":"profile_created",result.data.id,{slug:result.data.slug});
+  const saved=result.data.data||{};
+  const verifyKeys=["whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"];
+  const missing=verifyKeys.filter(key=>String(saved[key]||"")!==String(profileData[key]||""));
+  if(missing.length){
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert("La tarjeta no se guardó completa. Intenta nuevamente.");
+    return;
+  }
+  currentProfileId=result.data.id; currentProfileSlug=result.data.slug; updateProfileLink(currentProfileSlug); publishButton.textContent="Guardado ✓";
+  authStatus.textContent=`Tarjeta guardada correctamente. Dirección pública: clickonme.pro/crear/perfil.html?u=${currentProfileSlug}`;
+  paymentBox.style.display="block";
+  window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
+  window.setTimeout(()=>{publishButton.textContent="Guardar cambios";},1400);
+  viewProfileLink.focus();
+});
+
+function goToMobilePreview(){document.getElementById("previewArea").scrollIntoView({behavior:"smooth",block:"start"});}
+document.getElementById("mobilePreviewBtn").addEventListener("click",goToMobilePreview);document.getElementById("mobilePreviewHintBtn").addEventListener("click",goToMobilePreview);
+mobileSaveButton.addEventListener("click",()=>{
+  if(!currentUser){ document.getElementById("accountArea").scrollIntoView({behavior:"smooth",block:"center"}); authStatus.textContent="Inicia sesión o crea tu cuenta para guardar."; return; }
+  publishButton.click();
+});
+
+updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
+(async()=>{ const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
+</script>
+
+
+</body>
+</html>
++cpNormal+'</del>':'
+async function loadCheckoutPrices(){try{const {data,error}=await supabaseClient.from("business_settings").select("plan_prices,plan_promos,plan_promo_active").eq("id","main").single();if(error||!data)return;for(const p of Object.keys(CHECKOUT_PRICES)){const normal=Number(data.plan_prices?.[p]),promo=Number(data.plan_promos?.[p]),active=data.plan_promo_active?.[p]===true&&Number.isInteger(promo)&&promo>0&&promo<normal;if(Number.isInteger(normal)&&normal>0&&normal<=999){CHECKOUT_NORMAL_PRICES[p]=normal;CHECKOUT_PRICES[p]=active?promo:normal;CHECKOUT_PROMOS[p]=active;const opt=checkoutPlan?.querySelector('option[value="'+p+'"]');if(opt)opt.textContent=CHECKOUT_LABELS[p]+" · "+(active?"PROMO $"+promo+" (antes $"+normal+")":"$"+normal)+"/año";}}refreshCheckoutPlan();}catch{}}
+checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan();loadCheckoutPrices();
+
+payButton.addEventListener("click",async()=>{
+  if(payButton.disabled) return;
+  if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
+  payButton.disabled=true; payButton.textContent="Creando orden segura...";
+  const checkoutPlan=document.getElementById("checkoutPlan");
+  const desiredPlan=checkoutPlan?.value||"personal";
+  const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}});
+  if(error || !data?.checkoutUrl){
+    payButton.disabled=false; refreshCheckoutPlan();
+    alert(data?.error||"No fue posible iniciar el pago de prueba.");
+    return;
+  }
+  await trackBusinessEvent("checkout_started",currentProfileId,{source:"editor",plan:data.plan,amount:data.amount});window.location.href=data.checkoutUrl;
+});
+
+async function trackBusinessEvent(eventType,profileId=null,metadata={}){if(!currentUser)return;try{await supabaseClient.from("business_events").insert({user_id:currentUser.id,profile_id:profileId?Number(profileId):null,event_type:eventType,metadata})}catch{}}
+function validWebUrl(value){ if(!value) return true; try{ const u=new URL(value); return u.protocol==="https:" || u.protocol==="http:"; }catch{return false;} }
+
+function dataUrlToBlob(dataUrl){
+  const match=dataUrl.match(/^data:([^;,]+);base64,(.+)$/);
+  if(!match) throw new Error("La imagen seleccionada no tiene un formato válido.");
+  const binary=atob(match[2]);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return new Blob([bytes],{type:match[1]});
+}
+
+async function uploadAudioAsset(item,folder){
+  if(!item?.file) return item?.url||"";
+  if(item.file.type!=="audio/mpeg"||item.file.size>12*1024*1024) throw new Error("El audio debe ser MP3 y pesar máximo 12 MB.");
+  const path=`${currentUser.id}/${folder}/audio-featured.mp3`;
+  const {error}=await supabaseClient.storage.from("profile-assets").upload(path,item.file,{contentType:"audio/mpeg",cacheControl:"3600",upsert:true});
+  if(error) throw new Error("No se pudo subir el audio: "+error.message);
+  const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path); return data.publicUrl+"?v="+Date.now();
+}
+
+async function uploadProfileAsset(value,folder,key){
+  if(!value || !value.startsWith("data:image/")) return value||"";
+  const blob=dataUrlToBlob(value);
+  if(blob.size>5*1024*1024) throw new Error("Cada imagen debe pesar menos de 5 MB.");
+  const path=`${currentUser.id}/${folder}/${key}`;
+  const {error}=await supabaseClient.storage.from("profile-assets").upload(path,blob,{contentType:blob.type,cacheControl:"60",upsert:true});
+  if(error) throw new Error("No se pudo subir la imagen: "+error.message);
+  const {data}=supabaseClient.storage.from("profile-assets").getPublicUrl(path);
+  return data.publicUrl+"?v="+Date.now();
+}
+
+publishButton.addEventListener("click",async()=>{
+  if(publishButton.disabled) return;
+  publishButton.disabled=true;
+  const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session);
+  if(!currentUser){ publishButton.disabled=false; alert("Primero crea tu cuenta o inicia sesión."); return; }
+  const name=nameInput.value.trim(); const role=roleInput.value.trim(); const slug=makeSlug(slugInput.value||name);
+  if(!profileType.value){ publishButton.disabled=false; profileType.scrollIntoView({behavior:"smooth",block:"center"}); profileType.focus(); alert("Primero elige cómo vas a usar ClickOnMe: Personal, Negocio, Artista o Creator."); return; }
+  if(!name || !role){ publishButton.disabled=false; alert("Completa tu nombre y actividad o profesión."); return; }
+  if(slug.length<3){ publishButton.disabled=false; alert("La dirección debe tener al menos 3 caracteres."); return; }
+  const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
+  if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
+  if(!validYouTubeUrl(videoUrl.value.trim())){publishButton.disabled=false;alert("El video destacado debe ser un enlace válido de YouTube.");return;}
+  const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",appIconMode:appIconMode.value,appIcon:appIconMode.value==="custom"?customAppIconData:"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
+  profileData.profileType=profileType.value; profileData.shareMessage=(shareMessage.value.trim()||"Conoce mi perfil en ClickOnMe").slice(0,140);
+  profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
+  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim(); enforcePlanBeforeSave(profileData);
+  publishButton.disabled=true; publishButton.textContent="Guardando...";
+  try{
+    const assetFolder="profile-"+slug;
+    profileData.photo=await uploadProfileAsset(profileData.photo,assetFolder,"photo");
+    if(profileData.appIconMode==="profile" && profileData.photo){
+      try{ profileData.appIcon=await squareIconFromSource(profileData.photo,512); }
+      catch{ profileData.appIcon=""; }
+    }
+    profileData.appIcon=await uploadProfileAsset(profileData.appIcon,assetFolder,"app-icon.png");
+    customAppIconData=profileData.appIcon||customAppIconData;
+    profileData.backgroundImage=await uploadProfileAsset(profileData.backgroundImage,assetFolder,"background");
+    const uploadedIcons={};
+    for(const [key,value] of Object.entries(profileData.customIcons||{})) uploadedIcons[key]=await uploadProfileAsset(value,assetFolder,"icon-"+key);
+    profileData.customIcons=uploadedIcons;
+    customIcons=uploadedIcons;
+    const uploadedGallery=[];
+    for(let i=0;i<(profileData.modules?.gallery?.items||[]).length;i++){
+      const item=profileData.modules.gallery.items[i];
+      uploadedGallery.push({url:await uploadProfileAsset(item.url,assetFolder,"gallery-"+i),alt:String(item.alt||"").slice(0,120)});
+    }
+    profileData.modules.gallery.items=uploadedGallery; galleryItems=uploadedGallery; renderGalleryEditor();
+    profileData.presskit.pdfUrl=await uploadPresskitPdf(presskitPdfItem,assetFolder);presskitPdfItem={url:profileData.presskit.pdfUrl,name:profileData.presskit.pdfName};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
+    profileData.modules.audio.url=await uploadAudioAsset(audioItem,assetFolder); audioItem={url:profileData.modules.audio.url,name:profileData.modules.audio.name}; renderAudioEditor();
+  }catch(error){
+    publishButton.disabled=false;
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert(error.message||"No se pudieron subir las imágenes.");
+    return;
+  }
+  const payload={
+    slug,name,role,description:profileData.description,
+    photo_url:profileData.photo,whatsapp:profileData.whatsapp,phone:profileData.phone,
+    facebook:profileData.facebook,instagram:profileData.instagram,
+    youtube:profileData.youtube,website:profileData.website,
+    data:profileData,updated_at:new Date().toISOString()
+  };
+  if(!currentProfileId){ payload.user_id=currentUser.id; payload.created_by=currentUser.id; }
+  let result;
+  if(!currentProfileId){
+    const {data:existing,error:existingError}=await supabaseClient.from("profiles").select("id,slug").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).limit(1);
+    if(existingError){ publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; alert("No se pudo verificar tu cuenta. Intenta nuevamente."); return; }
+    if((existing||[]).length){ publishButton.disabled=false; publishButton.textContent="Guardar cambios"; currentProfileId=existing[0].id; currentProfileSlug=existing[0].slug; alert("Tu cuenta ya tiene una tarjeta ClickOnMe. Abriremos esa misma tarjeta para editarla; no se crea una segunda tarjeta ni un nuevo periodo gratuito."); profileLoadedFor=null; await loadOwnProfile(); return; }
+  }
+  if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+  else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+  publishButton.disabled=false;
+  if(result.error){ publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe"; alert(result.error.code==="23505"?"Esa dirección ya está ocupada. Elige otra.":"No se pudo guardar: "+result.error.message); return; }
+  await trackBusinessEvent(currentProfileId?"profile_updated":"profile_created",result.data.id,{slug:result.data.slug});
+  const saved=result.data.data||{};
+  const verifyKeys=["whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"];
+  const missing=verifyKeys.filter(key=>String(saved[key]||"")!==String(profileData[key]||""));
+  if(missing.length){
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert("La tarjeta no se guardó completa. Intenta nuevamente.");
+    return;
+  }
+  currentProfileId=result.data.id; currentProfileSlug=result.data.slug; updateProfileLink(currentProfileSlug); publishButton.textContent="Guardado ✓";
+  authStatus.textContent=`Tarjeta guardada correctamente. Dirección pública: clickonme.pro/crear/perfil.html?u=${currentProfileSlug}`;
+  paymentBox.style.display="block";
+  window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
+  window.setTimeout(()=>{publishButton.textContent="Guardar cambios";},1400);
+  viewProfileLink.focus();
+});
+
+function goToMobilePreview(){document.getElementById("previewArea").scrollIntoView({behavior:"smooth",block:"start"});}
+document.getElementById("mobilePreviewBtn").addEventListener("click",goToMobilePreview);document.getElementById("mobilePreviewHintBtn").addEventListener("click",goToMobilePreview);
+mobileSaveButton.addEventListener("click",()=>{
+  if(!currentUser){ document.getElementById("accountArea").scrollIntoView({behavior:"smooth",block:"center"}); authStatus.textContent="Inicia sesión o crea tu cuenta para guardar."; return; }
+  publishButton.click();
+});
+
+updatePhotoStyle(); updateBackground(); updateCardStyle(); updateButtonStyle(); Object.keys(defaultIcons).forEach(renderIcon);
+(async()=>{ const params=new URLSearchParams(location.search); const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session); if(params.get("confirmed")==="1"){authStatus.textContent=session?"Correo confirmado. Tu sesión está activa; ya puedes crear tu tarjeta.":"Correo confirmado. Ahora pulsa Entrar con tu correo y contraseña.";} })();
+</script>
+
+
+</body>
+</html>
++cpPrice+' <small>MXN/año</small>';});if(!payButton.disabled)payButton.textContent="Continuar con "+label+" · $"+price;}
 async function loadCheckoutPrices(){try{const {data,error}=await supabaseClient.from("business_settings").select("plan_prices,plan_promos,plan_promo_active").eq("id","main").single();if(error||!data)return;for(const p of Object.keys(CHECKOUT_PRICES)){const normal=Number(data.plan_prices?.[p]),promo=Number(data.plan_promos?.[p]),active=data.plan_promo_active?.[p]===true&&Number.isInteger(promo)&&promo>0&&promo<normal;if(Number.isInteger(normal)&&normal>0&&normal<=999){CHECKOUT_NORMAL_PRICES[p]=normal;CHECKOUT_PRICES[p]=active?promo:normal;CHECKOUT_PROMOS[p]=active;const opt=checkoutPlan?.querySelector('option[value="'+p+'"]');if(opt)opt.textContent=CHECKOUT_LABELS[p]+" · "+(active?"PROMO $"+promo+" (antes $"+normal+")":"$"+normal)+"/año";}}refreshCheckoutPlan();}catch{}}
 checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan();loadCheckoutPrices();
 
