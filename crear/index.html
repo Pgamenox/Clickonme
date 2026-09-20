@@ -1854,7 +1854,8 @@ function setPayButton(label){
 }
 
 async function loadPricing(){
-  const {data,error}=await supabaseClient.from("business_settings").select("annual_price_mxn,launch_price_mxn,launch_promo_active,launch_promo_label").eq("id","main").maybeSingle();
+  // Compatibilidad: el selector por plan usa plan_prices; estos campos legacy solo alimentan UI antigua si aún existe.
+  const {data,error}=await supabaseClient.from("business_settings").select("annual_price_mxn,launch_price_mxn,launch_promo_active,launch_promo_label,plan_prices,plan_promos,plan_promo_active").eq("id","main").maybeSingle();
   if(error||!data){setPayButton("Elegir plan");return;}
   const promo=data.launch_promo_active===true&&Number.isInteger(Number(data.launch_price_mxn));
   planPriceMxn=Number(promo?data.launch_price_mxn:data.annual_price_mxn);
@@ -1925,15 +1926,16 @@ function applyPlanAccess(){
  if(level<2){galleryEnabled.checked=false;}
  if(level<3){audioEnabled.checked=false;videoEnabled.checked=false;}
 }
+function cloneData(value){if(value===undefined)return undefined;try{return typeof structuredClone==="function"?structuredClone(value):JSON.parse(JSON.stringify(value));}catch{return JSON.parse(JSON.stringify(value));}}
 function enforcePlanBeforeSave(profileData){
  const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
  // Un downgrade solo oculta funciones: nunca borra ni desactiva el material premium guardado.
  const old=originalStoredProfileData||{};
- if(level<2 && old.modules?.gallery) profileData.modules.gallery=structuredClone(old.modules.gallery);
+ if(level<2 && old.modules?.gallery) profileData.modules.gallery=cloneData(old.modules.gallery);
  if(level<3){
-   if(old.modules?.audio) profileData.modules.audio=structuredClone(old.modules.audio);
-   if(old.modules?.video) profileData.modules.video=structuredClone(old.modules.video);
-   if(old.presskit) profileData.presskit=structuredClone(old.presskit);
+   if(old.modules?.audio) profileData.modules.audio=cloneData(old.modules.audio);
+   if(old.modules?.video) profileData.modules.video=cloneData(old.modules.video);
+   if(old.presskit) profileData.presskit=cloneData(old.presskit);
    if(old.profileMode!==undefined) profileData.profileMode=old.profileMode;
    if(old.presskitLabel!==undefined) profileData.presskitLabel=old.presskitLabel;
  }
@@ -1941,7 +1943,7 @@ function enforcePlanBeforeSave(profileData){
  return profileData;
 }
 function populateProfile(row){
-  const d={...row,...(row.data||{})}; originalStoredProfileData=structuredClone(row.data||{}); currentProfileId=row.id; currentProfileSlug=row.slug; currentSubscriptionPlan=row.subscription_plan||"free";
+  const d={...row,...(row.data||{})}; originalStoredProfileData=cloneData(row.data||{}); currentProfileId=row.id; currentProfileSlug=row.slug; currentSubscriptionPlan=row.subscription_plan||"free";
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];window.__galleryCount=galleryItems.length;
   audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};window.__audioReady=!!audioItem.url;
   profileType.value=({professional:"personal",musician:"artist",visual_artist:"artist",presskit:"artist"}[d.profileType]||d.profileType||"personal"); shareMessage.value=d.shareMessage||"Conoce mi perfil en ClickOnMe";
