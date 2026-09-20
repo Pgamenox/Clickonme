@@ -336,7 +336,7 @@ async function loadProfile(){
  const d={...row,...(row.data||{})};
  const paidExpired=row.account_role!=='team'&&row.demo_profile!==true&&row.subscription_plan!=='free'&&row.current_period_end&&new Date(row.current_period_end).getTime()<=Date.now();
  const trialExpired=row.account_role!=='team'&&row.demo_profile!==true&&row.status==='trial'&&row.trial_ends_at&&new Date(row.trial_ends_at).getTime()<=Date.now();
- const effectivePlan=(row.demo_profile===true||row.account_role==='team')?'creator':((paidExpired||trialExpired)?'free':(row.subscription_plan||'free'));
+ const effectivePlan=(paidExpired||trialExpired)?'free':(row.subscription_plan||'free');
  const planLevel={free:0,personal:1,business:2,artist:3,creator:4}[effectivePlan]??0;
  if(planLevel<2&&d.modules?.gallery)d.modules.gallery.enabled=false;
  if(planLevel<3){if(d.modules?.audio)d.modules.audio.enabled=false;if(d.modules?.video)d.modules.video.enabled=false;d.profileMode='standard';d.presskit={};}
