@@ -1919,8 +1919,10 @@ let currentSubscriptionPlan="free";
 const PLAN_LEVEL={free:0,personal:1,business:2,artist:3,creator:4};
 function applyPlanAccess(){
  const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
- [[galleryEnabled,2,"Business"],[audioEnabled,3,"Artista"],[videoEnabled,3,"Artista"]].forEach(([el,min,label])=>{const box=el?.closest(".plus-box");if(!box)return;const locked=level<min;box.dataset.planLocked=locked?"1":"0";box.style.opacity=locked?".58":"1";box.title=locked?"Disponible desde ClickOnMe "+label:"";});
+ [[galleryEnabled,2,"Business"],[audioEnabled,3,"Artista"],[videoEnabled,3,"Artista"]].forEach(([el,min,label])=>{const box=el?.closest(".plus-box");if(!box)return;const locked=level<min;box.dataset.planLocked=locked?"1":"0";box.style.opacity=locked?".58":"1";box.title=locked?"Disponible desde ClickOnMe "+label:"";box.querySelectorAll("input,select,textarea,button").forEach(ctrl=>{ctrl.disabled=locked;});});
  const pressLocked=level<3;[presskitBio,presskitEvents,bookingEmail,bookingWhatsapp,presskitPdf,profileMode,presskitLabel].forEach(el=>{if(el)el.disabled=pressLocked;});
+ if(level<2){galleryEnabled.checked=false;galleryItems=[];window.__galleryCount=0;renderGalleryEditor();}
+ if(level<3){audioEnabled.checked=false;audioItem={url:"",name:""};window.__audioReady=false;renderAudioEditor();videoEnabled.checked=false;profileMode.value="standard";presskitPdfItem={url:"",name:""};presskitPdfStatus.textContent="";}
 }
 function enforcePlanBeforeSave(profileData){
  const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
