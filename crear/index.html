@@ -422,7 +422,7 @@ select:focus{
   <div class="auth-status" id="authStatus">Aún no has iniciado sesión.</div>
   <div id="myCardsBox" style="display:none;margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>Mis tarjetas</strong><a class="button" href="/crear/?new=1" style="font-size:12px">+ Crear otra</a></div><div id="myCardsList" style="display:grid;gap:8px;margin-top:10px"></div></div>
   <div class="account-tools" id="accountTools"><a id="viewProfileLink" href="#" aria-disabled="true" target="_blank" rel="noopener">Guarda para ver tu tarjeta</a><button type="button" id="signoutBtn">Cerrar sesión</button></div>
-  <div class="payment-box" id="paymentBox"><strong>Activa tu Plan Pro anual</strong><p>El Plan Pro corresponde a esta tarjeta. Cada tarjeta adicional requiere su propia activación.</p><button type="button" id="payButton">Consultar precio vigente</button></div>
+  <div class="payment-box" id="paymentBox"><strong>Elige tu plan anual</strong><p>Selecciona el plan que quieres contratar para esta tarjeta. Verás el precio antes de ir a Mercado Pago.</p><label for="checkoutPlan" style="display:block;margin:10px 0 6px;font-size:12px;color:#bfcceb">Plan a contratar</label><select id="checkoutPlan" style="width:100%;padding:11px;border-radius:10px;background:#11162a;color:#fff;border:1px solid rgba(255,255,255,.16)"><option value="personal">Personal · $399/año</option><option value="business">Business · $599/año</option><option value="artist">Artista · $799/año</option><option value="creator">Creator · $999/año</option></select><div id="checkoutPlanSummary" style="margin:10px 0;font-size:12px;color:#bfcceb">Personal · $399 MXN al año</div><button type="button" id="payButton">Continuar con Personal · $399</button></div>
   <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
 </div></section>
 
@@ -2144,11 +2144,17 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
   window.setTimeout(()=>applySession(session),0);
 });
 
+const checkoutPlan=document.getElementById("checkoutPlan"),checkoutPlanSummary=document.getElementById("checkoutPlanSummary");
+const CHECKOUT_PRICES={personal:399,business:599,artist:799,creator:999},CHECKOUT_LABELS={personal:"Personal",business:"Business",artist:"Artista",creator:"Creator"};
+function refreshCheckoutPlan(){if(!checkoutPlan)return;const p=checkoutPlan.value,price=CHECKOUT_PRICES[p]||399,label=CHECKOUT_LABELS[p]||"Personal";checkoutPlanSummary.textContent=label+" · $"+price+" MXN al año";if(!payButton.disabled)payButton.textContent="Continuar con "+label+" · $"+price;}
+checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan();
+
 payButton.addEventListener("click",async()=>{
   if(payButton.disabled) return;
   if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
   payButton.disabled=true; payButton.textContent="Creando orden segura...";
-  const desiredPlan=({professional:"personal",musician:"artist",visual_artist:"artist",presskit:"artist"}[profileType.value]||profileType.value||"personal");
+  const checkoutPlan=document.getElementById("checkoutPlan");
+  const desiredPlan=checkoutPlan?.value||"personal";
   const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}});
   if(error || !data?.checkoutUrl){
     payButton.disabled=false; setPayButton("Activar Plan Pro");
