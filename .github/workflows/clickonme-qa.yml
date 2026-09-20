@@ -1,0 +1,47 @@
+name: ClickOnMe QA Gate
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  constructor-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate constructor HTML and extract inline JS
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,sys
+          p=Path("crear/index.html")
+          s=p.read_text()
+          checks={
+            "style tags": len(re.findall(r"<style(?:\s|>)",s,re.I))==len(re.findall(r"</style>",s,re.I)),
+            "script tags": len(re.findall(r"<script(?:\s|>)",s,re.I))==len(re.findall(r"</script>",s,re.I)),
+            "single signin button": s.count('id="signinBtn"')==1,
+            "single auth status": s.count('id="authStatus"')==1,
+            "supabase config": '../supabase-config.js' in s,
+            "auth bridge": './auth-bridge.js' in s,
+            "no merge markers": not any(x in s for x in ("<<<<<<<","=======",">>>>>>>")),
+          }
+          for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
+          if not all(checks.values()): sys.exit(1)
+          blocks=re.findall(r"<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)</script>",s,re.I)
+          Path("/tmp/inline.js").write_text("\n;\n".join(blocks))
+          print("inline blocks",len(blocks),"bytes",Path("/tmp/inline.js").stat().st_size)
+          PY
+      - name: JavaScript syntax
+        run: |
+          node --check /tmp/inline.js
+          node --check crear/auth-bridge.js
+          node --check supabase-config.js
+      - name: Critical auth contract
+        run: |
+          grep -q 'signInWithPassword' crear/auth-bridge.js
+          grep -q '__CLICKONME_AUTH_CLIENT' crear/index.html
+          grep -q 'auth.getSession' crear/index.html
+          grep -q 'loadOwnProfile' crear/index.html
+          grep -q 'loadMyCards' crear/index.html
