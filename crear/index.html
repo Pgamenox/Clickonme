@@ -1896,6 +1896,23 @@ const supabaseClient = window.supabase.createClient(window.CLICKONME_SUPABASE_UR
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}
 });
 const authStatus = document.getElementById("authStatus");
+function setAuthStatus(message){ if(authStatus) authStatus.textContent=message; }
+async function directEmailSignin(){
+  const email=document.getElementById("authEmail")?.value.trim()||"";
+  const password=document.getElementById("authPassword")?.value||"";
+  if(!email||!password){setAuthStatus("Escribe tu correo y contraseña.");return;}
+  const btn=document.getElementById("signinBtn"); if(btn){btn.disabled=true;btn.textContent="Entrando…";}
+  setAuthStatus("Entrando…");
+  try{
+    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if(error){setAuthStatus("No fue posible entrar. Revisa tu correo y contraseña.");return;}
+    document.getElementById("authPassword").value="";
+    profileLoadedFor=null; await applySession(data.session);
+  }catch(error){setAuthStatus("No pudimos iniciar sesión. Recarga la página e inténtalo nuevamente.");}
+  finally{if(btn){btn.disabled=false;btn.textContent="Entrar";}}
+}
+document.getElementById("signinBtn")?.addEventListener("click",directEmailSignin);
+document.getElementById("authPassword")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();directEmailSignin();}});
 const authCredentials = document.getElementById("authCredentials");
 const resetPasswordBox = document.getElementById("resetPasswordBox");
 const accountTools = document.getElementById("accountTools");
@@ -2191,16 +2208,6 @@ document.getElementById("resendConfirmationBtn").addEventListener("click",async(
     return;
   }
   authStatus.textContent="Correo de confirmación enviado. Revisa tu bandeja de entrada y Spam. Abre el mensaje de ClickOnMe y pulsa “Confirmar mi cuenta”.";
-});
-
-document.getElementById("signinBtn").addEventListener("click",async()=>{
-  const email=document.getElementById("authEmail").value.trim(); const password=document.getElementById("authPassword").value;
-  if(!email || !password){ alert("Escribe tu correo y contraseña."); return; }
-  authStatus.textContent="Entrando...";
-  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-  document.getElementById("authPassword").value="";
-  if(error){ authStatus.textContent="No fue posible entrar. Revisa tu correo y contraseña."; return; }
-  profileLoadedFor=null; await applySession(data.session);
 });
 
 document.getElementById("forgotPasswordBtn").addEventListener("click",async()=>{
