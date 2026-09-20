@@ -433,7 +433,7 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
-<script src="./auth-bridge.js?v=auth2" defer></script>
+<script src="./auth-bridge.js?v=auth3" defer></script>
 
 </head>
 
@@ -460,7 +460,7 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
   <div id="authCredentials">
     <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="tu@correo.com"></div>
     <div class="field"><label>Contraseña</label><input id="authPassword" type="password" minlength="10" autocomplete="current-password" placeholder="Escribe tu contraseña"></div>
-    <div class="auth-actions"><button type="button" id="signupBtn">Crear mi cuenta</button><button type="button" id="signinBtn">Entrar</button></div><button type="button" id="googleAuthBtn" style="width:100%;margin-top:10px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#fff;color:#202124;font-weight:800;cursor:pointer"><span class="google-g">G</span> Continuar con Google</button><div class="auth-divider"><span>o continúa con correo</span></div>
+    <div class="auth-actions"><button type="button" id="signupBtn">Crear mi cuenta</button><button type="button" id="signinBtn" onclick="window.clickOnMeLogin&&window.clickOnMeLogin(event);return false;">Entrar</button></div><button type="button" id="googleAuthBtn" style="width:100%;margin-top:10px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#fff;color:#202124;font-weight:800;cursor:pointer"><span class="google-g">G</span> Continuar con Google</button><div class="auth-divider"><span>o continúa con correo</span></div>
     <button type="button" id="forgotPasswordBtn" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#151a2d;color:#fff;cursor:pointer">Olvidé mi contraseña</button>
 <button type="button" id="resendConfirmationBtn" style="grid-column:1/-1;padding:11px;border-radius:12px;border:1px solid rgba(0,229,255,.25);background:#10182b;color:#bdefff;font-weight:700;cursor:pointer">Reenviar correo de confirmación</button>
   </div>
