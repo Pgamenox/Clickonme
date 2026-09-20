@@ -61,37 +61,16 @@ z-index:-2;
 
 /* NAVEGACIÓN */
 
-nav{
-width:100%;
-max-width:1180px;
-margin:auto;
-padding:26px 28px;
-display:flex;
-align-items:center;
-justify-content:center;
-position:relative;
-}
+nav{width:100%;max-width:1220px;margin:auto;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:28px;position:relative}.top-links{display:flex;align-items:center;gap:24px}.top-links a{color:#e9e7f4;text-decoration:none;font-size:14px;font-weight:500}.top-links a:hover{color:var(--com-cyan)}.nav-actions{display:flex;gap:10px}.nav-actions .btn{padding:11px 17px;border-radius:999px}
 
 .logo{display:flex;align-items:center;text-decoration:none}
-.logo .com-brand-logo{width:310px;max-width:78vw}
+.logo .com-brand-logo{width:235px;max-width:68vw}
 
-.nav-note{
-max-width:640px;
-margin:8px auto 0;
-text-align:center;
-color:#aeb2c9;
-font-size:14px;
-line-height:1.55;
-}
+.nav-note{display:none}
 
 /* HERO */
 
-.hero{
-max-width:1000px;
-margin:auto;
-padding:105px 24px 80px;
-text-align:center;
-}
+.hero{max-width:1220px;margin:28px auto 0;padding:70px 46% 82px 28px;text-align:left;position:relative;overflow:hidden;border-radius:38px;background:radial-gradient(circle at 82% 30%,rgba(0,229,255,.28),transparent 28%),radial-gradient(circle at 72% 62%,rgba(189,25,255,.30),transparent 35%),linear-gradient(125deg,#080914 0%,#0b1022 55%,#11162b 100%);border:1px solid rgba(255,255,255,.08)}.hero::after{content:'ClickOnMe';position:absolute;right:4%;top:22%;width:34%;aspect-ratio:.56;border-radius:38px;background:linear-gradient(160deg,#10152b,#12193a 45%,#090b18);border:8px solid #252a38;box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 65px rgba(0,229,255,.16);display:grid;place-items:center;font-size:clamp(24px,3vw,44px);font-weight:800;color:white;text-shadow:0 0 25px rgba(0,229,255,.6);transform:rotate(4deg)}
 
 .badge{
 display:inline-block;
@@ -104,14 +83,7 @@ color:#d7d7ee;
 margin-bottom:25px;
 }
 
-.hero h1{
-font-size:clamp(46px,8vw,82px);
-line-height:1.02;
-letter-spacing:-3px;
-font-weight:800;
-max-width:900px;
-margin:auto;
-}
+.hero h1{font-size:clamp(46px,6vw,76px);line-height:1.02;letter-spacing:-3px;font-weight:800;max-width:720px;margin:0}
 
 .gradient-text{
 background:var(--com-gradient);
@@ -120,9 +92,7 @@ background:var(--com-gradient);
 background-clip:text;
 }
 
-.hero p{
-max-width:690px;
-margin:28px auto 0;
+.hero p{max-width:650px;margin:28px 0 0;
 font-size:18px;
 line-height:1.8;
 color:#bdbdd0;
@@ -130,7 +100,7 @@ color:#bdbdd0;
 
 .actions{
 display:flex;
-justify-content:center;
+justify-content:flex-start;
 flex-wrap:wrap;
 gap:15px;
 margin-top:38px;
@@ -434,7 +404,8 @@ color:var(--com-cyan);
 letter-spacing:1px;
 }
 
-@media(max-width:750px){
+@media(max-width:900px){.top-links{display:none}.main-nav{flex-wrap:wrap}.nav-actions{margin-left:auto}.hero{margin:12px 14px 0;padding:55px 24px 390px;text-align:left}.hero::after{width:210px;right:calc(50% - 105px);top:auto;bottom:45px}.hero h1{font-size:48px}.actions{justify-content:flex-start}
+
 
 .feature-grid{
 grid-template-columns:1fr;
@@ -475,33 +446,21 @@ margin-top:5px;
 
 <body>
 
-<nav>
-
-<a class="logo" href="/" aria-label="ClickOnMe, inicio">
-<img class="com-brand-logo" src="/logo-clickonme.png" alt="ClickOnMe — Un clic y listo">
-</a>
-
-<p class="nav-note">Tu identidad, contenido y formas de contacto reunidos en una página profesional hecha para compartir.</p>
-
-</nav>
+<nav class="main-nav"><a class="logo" href="/" aria-label="ClickOnMe, inicio"><img class="com-brand-logo" src="/logo-clickonme.png" alt="ClickOnMe — Un clic y listo"></a><div class="top-links"><a href="/">Inicio</a><a href="#ejemplos">Ejemplos</a><a href="#precios">Precios</a><a href="#como-funciona">Cómo funciona</a><a href="/soporte.html">Ayuda</a></div><div class="nav-actions"><a class="btn btn-secondary" href="/crear/">Iniciar sesión</a><a class="btn btn-primary" href="/crear/?new=1">Crear mi tarjeta</a></div></nav>
 
 
 <header class="hero">
 
 <div class="badge">
-✨ Tu presencia digital en un solo lugar
+TU MUNDO EN UN SOLO ENLACE
 </div>
 
 <h1>
-Todo sobre ti.
-<br>
-<span class="gradient-text">En un solo enlace.</span>
+Más que un link,<br><span class="gradient-text">todas tus oportunidades.</span>
 </h1>
 
 <p>
-Reúne tu contacto, WhatsApp, redes sociales, proyectos,
-negocio, contenido y comunidad en una página diseñada para ti.
-Comparte una sola dirección. Haz que encontrarte sea fácil.
+Crea tu tarjeta digital, comparte tus redes, servicios, contacto y mucho más. Personalizable, fácil de usar y lista en minutos.
 </p>
 
 <div class="actions">
@@ -509,7 +468,7 @@ Comparte una sola dirección. Haz que encontrarte sea fácil.
 <a
 class="btn btn-primary"
 href="/crear/?new=1">
-Quiero mi ClickOnMe
+Crea tu tarjeta gratis
 </a>
 
 <a
