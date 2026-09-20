@@ -2226,6 +2226,7 @@ publishButton.addEventListener("click",async()=>{
   const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session);
   if(!currentUser){ publishButton.disabled=false; alert("Primero crea tu cuenta o inicia sesión."); return; }
   const name=nameInput.value.trim(); const role=roleInput.value.trim(); const slug=makeSlug(slugInput.value||name);
+  if(!profileType.value){ publishButton.disabled=false; profileType.scrollIntoView({behavior:"smooth",block:"center"}); profileType.focus(); alert("Primero elige cómo vas a usar ClickOnMe: Personal, Negocio, Artista o Creator."); return; }
   if(!name || !role){ publishButton.disabled=false; alert("Completa tu nombre y actividad o profesión."); return; }
   if(slug.length<3){ publishButton.disabled=false; alert("La dirección debe tener al menos 3 caracteres."); return; }
   const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
