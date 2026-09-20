@@ -434,42 +434,36 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
 <script>
-/* Login bootstrap aislado: se instala inmediatamente, sin depender de DOMContentLoaded.
-   Esto evita perder el evento si el script se ejecuta después de que el DOM ya quedó listo. */
-function installClickOnMeEmergencyLogin(){
- const btn=document.getElementById("signinBtn"),status=document.getElementById("authStatus"),email=document.getElementById("authEmail"),password=document.getElementById("authPassword");
- if(!btn||btn.dataset.authBootstrap==="1") return;
- btn.dataset.authBootstrap="1";
- async function emergencySignin(){
-  if(!email?.value.trim()||!password?.value){if(status)status.textContent="Escribe tu correo y contraseña.";return;}
-  if(status)status.textContent="Entrando…"; if(btn){btn.disabled=true;btn.textContent="Entrando…";}
-  try{
-   if(!window.supabase||!window.CLICKONME_SUPABASE_URL||!window.CLICKONME_SUPABASE_KEY)throw new Error("auth-config");
-   const authClient=window.__CLICKONME_AUTH_CLIENT||(window.__CLICKONME_AUTH_CLIENT=window.supabase.createClient(window.CLICKONME_SUPABASE_URL,window.CLICKONME_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}}));
-   const {data,error}=await authClient.auth.signInWithPassword({email:email.value.trim(),password:password.value});
-   if(error){if(status)status.textContent="No fue posible entrar: "+(error.message||"revisa tu correo y contraseña.");return;}
-   if(!data?.session){if(status)status.textContent="El acceso fue aceptado, pero no se recibió una sesión. Intenta nuevamente.";return;}
-   /* No recargar: la sesión recién creada ya es válida. Entregarla al constructor
-      evita perderla durante el ciclo de recarga y permite diagnosticar cualquier
-      fallo posterior sin devolver al usuario silenciosamente al login. */
-   if(status)status.textContent="Sesión iniciada. Cargando tu ClickOnMe…";
-   password.value="";
-   if(typeof applySession==="function"){
-     await applySession(data.session);
-   }else{
-     /* Si el constructor aún no terminó de cargar, conservar la sesión y dejar
-        que su getSession() de arranque la recoja. */
-     const {data:check}=await authClient.auth.getSession();
-     if(check?.session) location.replace("/crear/?auth=ok");
-   }
-  }catch(e){if(status)status.textContent="No se pudo iniciar el acceso. Recarga la página e inténtalo otra vez.";}
-  finally{if(btn){btn.disabled=false;btn.textContent="Entrar";}}
+/* Bootstrap de acceso: este script está en <head>, por lo que los controles aún no
+   existen. Se instala cuando el DOM ya está disponible y también soporta ejecución tardía. */
+(function(){
+ function installLogin(){
+  const btn=document.getElementById("signinBtn"),status=document.getElementById("authStatus"),email=document.getElementById("authEmail"),password=document.getElementById("authPassword");
+  if(!btn||btn.dataset.authBootstrap==="1") return;
+  btn.dataset.authBootstrap="1";
+  async function signin(){
+   if(!email.value.trim()||!password.value){if(status)status.textContent="Escribe tu correo y contraseña.";return;}
+   if(status)status.textContent="Entrando…";
+   btn.disabled=true; btn.textContent="Entrando…";
+   try{
+    if(!window.supabase||!window.CLICKONME_SUPABASE_URL||!window.CLICKONME_SUPABASE_KEY) throw new Error("No cargó la configuración de acceso.");
+    const client=window.__CLICKONME_AUTH_CLIENT||(window.__CLICKONME_AUTH_CLIENT=window.supabase.createClient(window.CLICKONME_SUPABASE_URL,window.CLICKONME_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}}));
+    const {data,error}=await client.auth.signInWithPassword({email:email.value.trim(),password:password.value});
+    if(error){if(status)status.textContent="Acceso rechazado: "+(error.message||"credenciales no válidas.");return;}
+    if(!data?.session){if(status)status.textContent="Acceso sin sesión. Intenta nuevamente.";return;}
+    password.value="";
+    if(status)status.textContent="Sesión iniciada. Cargando tu ClickOnMe…";
+    if(typeof window.applySession==="function") await window.applySession(data.session);
+    else location.replace("/crear/?auth=ok");
+   }catch(e){if(status)status.textContent="Error de acceso: "+(e?.message||"intenta nuevamente.");}
+   finally{btn.disabled=false;btn.textContent="Entrar";}
+  }
+  btn.addEventListener("click",signin);
+  password.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();signin();}});
  }
- btn?.addEventListener("click",emergencySignin,{capture:true});
- password?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();emergencySignin();}},{capture:true});
-}
-if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",installClickOnMeEmergencyLogin,{once:true});
-else installClickOnMeEmergencyLogin();
+ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",installLogin,{once:true});
+ else installLogin();
+})();
 </script>
 </head>
 
