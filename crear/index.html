@@ -2085,7 +2085,7 @@ async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
   if(createNewProfile){
-    const {data:existing}=await supabaseClient.from("profiles").select("id").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).limit(1);
+    const {data:existing}=await supabaseClient.from("profiles").select("id").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').limit(1);
     if((existing||[]).length){ window.history.replaceState({},"","/crear/"); }
     else return;
   }
@@ -2344,7 +2344,7 @@ publishButton.addEventListener("click",async()=>{
   if(!currentProfileId){ payload.user_id=currentUser.id; payload.created_by=currentUser.id; }
   let result;
   if(!currentProfileId){
-    const {data:existing,error:existingError}=await supabaseClient.from("profiles").select("id,slug").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).limit(1);
+    const {data:existing,error:existingError}=await supabaseClient.from("profiles").select("id,slug").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').limit(1);
     if(existingError){ publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; alert("No se pudo verificar tu cuenta. Intenta nuevamente."); return; }
     if((existing||[]).length){ publishButton.disabled=false; publishButton.textContent="Guardar cambios"; currentProfileId=existing[0].id; currentProfileSlug=existing[0].slug; alert("Tu cuenta ya tiene una tarjeta ClickOnMe. Abriremos esa misma tarjeta para editarla; no se crea una segunda tarjeta ni un nuevo periodo gratuito."); profileLoadedFor=null; await loadOwnProfile(); return; }
   }
