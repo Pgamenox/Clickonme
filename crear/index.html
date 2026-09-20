@@ -2145,9 +2145,11 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
 });
 
 const checkoutPlan=document.getElementById("checkoutPlan"),checkoutPlanSummary=document.getElementById("checkoutPlanSummary");
-const CHECKOUT_PRICES={personal:399,business:599,artist:799,creator:999},CHECKOUT_LABELS={personal:"Personal",business:"Business",artist:"Artista",creator:"Creator"};
-function refreshCheckoutPlan(){if(!checkoutPlan)return;const p=checkoutPlan.value,price=CHECKOUT_PRICES[p]||399,label=CHECKOUT_LABELS[p]||"Personal";checkoutPlanSummary.textContent=label+" · $"+price+" MXN al año";if(!payButton.disabled)payButton.textContent="Continuar con "+label+" · $"+price;}
-checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan();
+let CHECKOUT_PRICES={personal:399,business:599,artist:799,creator:999},CHECKOUT_NORMAL_PRICES={...CHECKOUT_PRICES},CHECKOUT_PROMOS={};
+const CHECKOUT_LABELS={personal:"Personal",business:"Business",artist:"Artista",creator:"Creator"};
+function refreshCheckoutPlan(){if(!checkoutPlan)return;const p=checkoutPlan.value,price=CHECKOUT_PRICES[p]||399,normal=CHECKOUT_NORMAL_PRICES[p]||price,label=CHECKOUT_LABELS[p]||"Personal",promo=CHECKOUT_PROMOS[p]===true&&price<normal;checkoutPlanSummary.textContent=promo?label+" · PROMO $"+price+" MXN/año · precio regular $"+normal:label+" · $"+price+" MXN al año";if(!payButton.disabled)payButton.textContent="Continuar con "+label+" · $"+price;}
+async function loadCheckoutPrices(){try{const {data,error}=await supabaseClient.from("business_settings").select("plan_prices,plan_promos,plan_promo_active").eq("id","main").single();if(error||!data)return;for(const p of Object.keys(CHECKOUT_PRICES)){const normal=Number(data.plan_prices?.[p]),promo=Number(data.plan_promos?.[p]),active=data.plan_promo_active?.[p]===true&&Number.isInteger(promo)&&promo>0&&promo<normal;if(Number.isInteger(normal)&&normal>0&&normal<=999){CHECKOUT_NORMAL_PRICES[p]=normal;CHECKOUT_PRICES[p]=active?promo:normal;CHECKOUT_PROMOS[p]=active;const opt=checkoutPlan?.querySelector('option[value="'+p+'"]');if(opt)opt.textContent=CHECKOUT_LABELS[p]+" · "+(active?"PROMO $"+promo+" (antes $"+normal+")":"$"+normal)+"/año";}}refreshCheckoutPlan();}catch{}}
+checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan();loadCheckoutPrices();
 
 payButton.addEventListener("click",async()=>{
   if(payButton.disabled) return;
@@ -2157,7 +2159,7 @@ payButton.addEventListener("click",async()=>{
   const desiredPlan=checkoutPlan?.value||"personal";
   const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}});
   if(error || !data?.checkoutUrl){
-    payButton.disabled=false; setPayButton("Activar Plan Pro");
+    payButton.disabled=false; refreshCheckoutPlan();
     alert(data?.error||"No fue posible iniciar el pago de prueba.");
     return;
   }
