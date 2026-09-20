@@ -1926,7 +1926,7 @@ function enforcePlanBeforeSave(profileData){
  const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
  if(level<2){profileData.modules.gallery.enabled=false;profileData.modules.gallery.items=[];}
  if(level<3){profileData.modules.audio={enabled:false,title:"",url:"",name:""};profileData.modules.video={enabled:false,title:"",url:""};profileData.profileMode="standard";profileData.presskit={bio:"",events:[],bookingEmail:"",bookingWhatsapp:"",pdfUrl:"",pdfName:""};}
- if(level===0)profileData.extraCustomButtons=(profileData.extraCustomButtons||[]).slice(0,3);
+ if(level===0)profileData.extraCustomButtons=(profileData.extraCustomButtons||[]).slice(0,4);
  return profileData;
 }
 function populateProfile(row){
