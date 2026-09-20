@@ -2042,13 +2042,13 @@ async function showProfileAnalytics(slug,name,button){
 
 async function loadMyCards(){
   if(!currentUser)return;
-  const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end,updated_at").eq("user_id",currentUser.id).order("updated_at",{ascending:false});
+  const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end,updated_at,subscription_plan").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
   const box=document.getElementById("myCardsBox"),list=document.getElementById("myCardsList"); if(error){box.style.display="none";return}
   box.style.display="block"; list.replaceChildren(); const now=Date.now();
   for(const c of data||[]){
     const trialEnd=c.trial_ends_at?new Date(c.trial_ends_at).getTime():0, periodEnd=c.current_period_end?new Date(c.current_period_end).getTime():0;
     const active=c.status==="active"&&(!periodEnd||periodEnd>now), trial=c.status==="trial"&&trialEnd>now;
-    const label=active?"Plan activo":trial?"Prueba activa":"Plan Free"; const end=active?c.current_period_end:(trial?c.trial_ends_at:null);
+    const planNames={free:"Free",personal:"Personal",business:"Business",artist:"Artista",creator:"Creator"};const planName=planNames[String(c.subscription_plan||"free").toLowerCase()]||"Free";const label=trial?"Prueba "+planName:(active&&planName!=="Free"?"Plan "+planName:"Plan Free"); const end=active?c.current_period_end:(trial?c.trial_ends_at:null);
     const row=document.createElement("div"); row.className="my-card-row";
     const top=document.createElement("div"); top.style.cssText="display:flex;justify-content:space-between;align-items:flex-start;gap:10px";
     const info=document.createElement("div"),name=document.createElement("strong"),meta=document.createElement("div"),statusPill=document.createElement("div"); name.textContent=c.name||c.slug; meta.className="muted"; meta.textContent=end?"Vigencia: "+new Date(end).toLocaleDateString("es-MX"):"Tu tarjeta permanece disponible"; statusPill.className="card-status-pill";statusPill.textContent=label;info.append(name,statusPill,meta);
