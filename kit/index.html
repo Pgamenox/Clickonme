@@ -262,6 +262,12 @@ const analyticsEndpoint="https://jjiiuvfshzdgjalmsaay.supabase.co/functions/v1/p
 let analyticsSession=sessionStorage.getItem("com_analytics_sid");if(!analyticsSession){analyticsSession=crypto.randomUUID();sessionStorage.setItem("com_analytics_sid",analyticsSession);}
 function trackInteraction(type,label=""){if(!slug)return;fetch(analyticsEndpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug,type,label,session_id:analyticsSession}),keepalive:true}).catch(()=>{});}
 document.addEventListener("clickonme:interaction",e=>trackInteraction(e.detail?.type,e.detail?.label));
+document.addEventListener("click",e=>{
+ const a=e.target.closest("a,button"); if(!a)return;
+ const map={whatsappBtn:"whatsapp_click",phoneBtn:"phone_click",facebookBtn:"facebook_click",instagramBtn:"instagram_click",youtubeBtn:"youtube_click",websiteBtn:"website_click",customButtonBtn:"custom_click",shareBtn:"share_click",copyBtn:"copy_click",qrBtn:"qr_open"};
+ const type=map[a.id]; if(type)trackInteraction(type,(a.textContent||"").trim().slice(0,80));
+ if(a.classList?.contains("extra-custom-btn"))trackInteraction("custom_click",(a.textContent||"").trim().slice(0,80));
+});
 
 const slug = (params.get("u")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
 const manifestLink=document.getElementById("dynamicManifest");
