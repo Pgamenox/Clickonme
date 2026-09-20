@@ -433,6 +433,26 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+ const btn=document.getElementById("signinBtn"),status=document.getElementById("authStatus"),email=document.getElementById("authEmail"),password=document.getElementById("authPassword");
+ async function emergencySignin(){
+  if(!email?.value.trim()||!password?.value){if(status)status.textContent="Escribe tu correo y contraseña.";return;}
+  if(status)status.textContent="Entrando…"; if(btn){btn.disabled=true;btn.textContent="Entrando…";}
+  try{
+   if(!window.supabase||!window.CLICKONME_SUPABASE_URL||!window.CLICKONME_SUPABASE_KEY)throw new Error("auth-config");
+   const authClient=window.__CLICKONME_AUTH_CLIENT||(window.__CLICKONME_AUTH_CLIENT=window.supabase.createClient(window.CLICKONME_SUPABASE_URL,window.CLICKONME_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}}));
+   const {error}=await authClient.auth.signInWithPassword({email:email.value.trim(),password:password.value});
+   if(error){if(status)status.textContent="No fue posible entrar. Revisa tu correo y contraseña.";return;}
+   if(status)status.textContent="Sesión iniciada. Abriendo tu ClickOnMe…";
+   location.reload();
+  }catch(e){if(status)status.textContent="No se pudo iniciar el acceso. Recarga la página e inténtalo otra vez.";}
+  finally{if(btn){btn.disabled=false;btn.textContent="Entrar";}}
+ }
+ btn?.addEventListener("click",emergencySignin,{capture:true});
+ password?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();emergencySignin();}},{capture:true});
+});
+</script>
 </head>
 
 
