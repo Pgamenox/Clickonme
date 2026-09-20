@@ -1921,14 +1921,14 @@ function applyPlanAccess(){
  const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
  [[galleryEnabled,2,"Business"],[audioEnabled,3,"Artista"],[videoEnabled,3,"Artista"]].forEach(([el,min,label])=>{const box=el?.closest(".plus-box");if(!box)return;const locked=level<min;box.dataset.planLocked=locked?"1":"0";box.style.opacity=locked?".58":"1";box.title=locked?"Disponible desde ClickOnMe "+label:"";box.querySelectorAll("input,select,textarea,button").forEach(ctrl=>{ctrl.disabled=locked;});});
  const pressLocked=level<3;[presskitBio,presskitEvents,bookingEmail,bookingWhatsapp,presskitPdf,profileMode,presskitLabel].forEach(el=>{if(el)el.disabled=pressLocked;});
- if(level<2){galleryEnabled.checked=false;galleryItems=[];window.__galleryCount=0;renderGalleryEditor();}
- if(level<3){audioEnabled.checked=false;audioItem={url:"",name:""};window.__audioReady=false;renderAudioEditor();videoEnabled.checked=false;profileMode.value="standard";presskitPdfItem={url:"",name:""};presskitPdfStatus.textContent="";}
+ if(level<2){galleryEnabled.checked=false;}
+ if(level<3){audioEnabled.checked=false;videoEnabled.checked=false;}
 }
 function enforcePlanBeforeSave(profileData){
  const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
- if(level<2){profileData.modules.gallery.enabled=false;profileData.modules.gallery.items=[];}
- if(level<3){profileData.modules.audio={enabled:false,title:"",url:"",name:""};profileData.modules.video={enabled:false,title:"",url:""};profileData.profileMode="standard";profileData.presskit={bio:"",events:[],bookingEmail:"",bookingWhatsapp:"",pdfUrl:"",pdfName:""};}
- if(level===0)profileData.extraCustomButtons=(profileData.extraCustomButtons||[]).slice(0,4);
+ // El plan controla qué se publica, no destruye el material premium ya guardado.
+ // La tarjeta pública aplica los entitlements; aquí preservamos contenido para una futura renovación.
+ if(level===0)profileData.extraCustomButtons=(profileData.extraCustomButtons||[]).slice(0,3);
  return profileData;
 }
 function populateProfile(row){
