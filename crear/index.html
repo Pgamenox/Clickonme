@@ -1894,9 +1894,9 @@ if (extraButtonCount >= 3) {
 
   }
 ); 
-const supabaseClient = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY,{
+const supabaseClient = window.__CLICKONME_AUTH_CLIENT || (window.__CLICKONME_AUTH_CLIENT = window.supabase.createClient(window.CLICKONME_SUPABASE_URL, window.CLICKONME_SUPABASE_KEY,{
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}
-});
+}));
 const authStatus = document.getElementById("authStatus");
 function setAuthStatus(message){ if(authStatus) authStatus.textContent=message; }
 async function directEmailSignin(){
