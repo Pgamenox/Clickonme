@@ -1843,7 +1843,7 @@ const returnedPaymentId = editorParams.get("payment_id") || editorParams.get("co
 const returnedPaymentStatus = editorParams.get("collection_status") || editorParams.get("status");
 let paymentConfirmationAttempted = false;
 let planPriceMxn = null;
-let planOfferLabel = "Plan Pro anual";
+let planOfferLabel = "plan anual";
 
 function moneyMxn(value){
   return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(value);
@@ -1855,11 +1855,11 @@ function setPayButton(label){
 
 async function loadPricing(){
   const {data,error}=await supabaseClient.from("business_settings").select("annual_price_mxn,launch_price_mxn,launch_promo_active,launch_promo_label").eq("id","main").maybeSingle();
-  if(error||!data){setPayButton("Activar Plan Pro");return;}
+  if(error||!data){setPayButton("Elegir plan");return;}
   const promo=data.launch_promo_active===true&&Number.isInteger(Number(data.launch_price_mxn));
   planPriceMxn=Number(promo?data.launch_price_mxn:data.annual_price_mxn);
-  planOfferLabel=promo?(data.launch_promo_label||"Promoción de inauguración"):"Plan Pro anual";
-  paymentBox.querySelector("strong").textContent=promo?planOfferLabel:"Activa tu Plan Pro anual";
+  planOfferLabel=promo?(data.launch_promo_label||"Promoción de inauguración"):"plan anual";
+  paymentBox.querySelector("strong").textContent=promo?planOfferLabel:"Activa tu plan anual";
   paymentBox.querySelector("p").textContent=promo?"Precio especial por tiempo limitado. Pago protegido por Mercado Pago.":"Pago protegido por Mercado Pago.";
   setPayButton("Activar");
 }
@@ -1893,25 +1893,25 @@ function renderPlanStatus(row){
   paymentBox.style.display="block";
   payButton.disabled=false;
   if(status==="active"&&validEnd&&days>7){
-    paymentBox.querySelector("strong").textContent="Plan Pro activo";
+    paymentBox.querySelector("strong").textContent="Plan activo";
     paymentBox.querySelector("p").textContent=`Vigente hasta el ${dateText}.`;
     setPayButton("Renovar anticipadamente");
   }else if(status==="active"&&validEnd&&days>3){
-    paymentBox.querySelector("strong").textContent=`Tu Plan Pro vence en ${days} día${days===1?"":"s"}`;
-    paymentBox.querySelector("p").textContent=`Renueva antes del ${dateText} para mantener tu tarjeta publicada.`;
-    setPayButton("Renovar Plan Pro");
+    paymentBox.querySelector("strong").textContent=`Tu plan vence en ${days} día${days===1?"":"s"}`;
+    paymentBox.querySelector("p").textContent=`Renueva antes del ${dateText} para conservar las funciones de tu plan. Tu tarjeta seguirá publicada en Free si no renuevas.`;
+    setPayButton("Renovar plan");
   }else if(status==="active"&&validEnd&&days>0){
     paymentBox.querySelector("strong").textContent=`Aviso urgente: vence en ${days} día${days===1?"":"s"}`;
-    paymentBox.querySelector("p").textContent=`Tu tarjeta se suspenderá el ${dateText} si no renuevas.`;
+    paymentBox.querySelector("p").textContent=`Las funciones premium se desactivarán el ${dateText} si no renuevas; tu tarjeta seguirá publicada en Free.`;
     setPayButton("Renovar ahora");
   }else if(status==="trial"&&validEnd&&days>0){
     paymentBox.querySelector("strong").textContent=`Prueba gratuita: ${days} día${days===1?"":"s"} restante${days===1?"":"s"}`;
-    paymentBox.querySelector("p").textContent=`Activa Plan Pro antes del ${dateText} para evitar que tu tarjeta se suspenda.`;
-    setPayButton("Activar Plan Pro");
+    paymentBox.querySelector("p").textContent=`Elige un plan antes del ${dateText} para conservar las funciones premium. Después, tu tarjeta seguirá publicada en Free.`;
+    setPayButton("Elegir plan");
   }else{
     paymentBox.querySelector("strong").textContent="Tu tarjeta necesita renovación";
-    paymentBox.querySelector("p").textContent="El periodo terminó. Renueva Plan Pro para volver a publicar tu tarjeta.";
-    setPayButton("Renovar y reactivar");
+    paymentBox.querySelector("p").textContent="El periodo terminó. Tu tarjeta continúa publicada en Free; elige un plan para recuperar las funciones premium.";
+    setPayButton("Elegir plan");
   }
 }
 
@@ -1990,7 +1990,7 @@ async function loadMyCards(){
   for(const c of data||[]){
     const trialEnd=c.trial_ends_at?new Date(c.trial_ends_at).getTime():0, periodEnd=c.current_period_end?new Date(c.current_period_end).getTime():0;
     const active=c.status==="active"&&(!periodEnd||periodEnd>now), trial=c.status==="trial"&&trialEnd>now;
-    const label=active?"Plan Pro activo":trial?"Prueba activa":"Requiere activación"; const end=active?c.current_period_end:(trial?c.trial_ends_at:null);
+    const label=active?"Plan activo":trial?"Prueba activa":"Plan Free"; const end=active?c.current_period_end:(trial?c.trial_ends_at:null);
     const row=document.createElement("div"); row.style.cssText="padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:#0e1427";
     const top=document.createElement("div"); top.style.cssText="display:flex;justify-content:space-between;align-items:flex-start;gap:10px";
     const info=document.createElement("div"),name=document.createElement("strong"),meta=document.createElement("div"); name.textContent=c.name||c.slug; meta.className="muted"; meta.textContent=label+(end?" · vence "+new Date(end).toLocaleDateString("es-MX"):""); info.append(name,meta);
@@ -2046,8 +2046,8 @@ async function confirmReturnedPayment(){
   });
   if(!error && data?.active){
     const end=data.currentPeriodEnd?new Date(data.currentPeriodEnd).toLocaleDateString("es-MX"):"";
-    paymentBox.querySelector("strong").textContent="Plan Pro activo";
-    paymentBox.querySelector("p").textContent=end?`Pago aprobado. Vigencia hasta ${end}.`:"Pago aprobado por Mercado Pago.";
+    paymentBox.querySelector("strong").textContent="Plan activo";
+    paymentBox.querySelector("p").textContent=end?`Pago aprobado. Tu plan está vigente hasta ${end}.`:"Pago aprobado por Mercado Pago.";
     payButton.textContent="Pago aprobado";
     window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
     return;
