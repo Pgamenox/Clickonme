@@ -2071,9 +2071,9 @@ async function loadOwnProfile(){
     if((existing||[]).length){ window.history.replaceState({},"","/crear/"); }
     else return;
   }
-  let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan");
-  if(requestedProfileId) query=query.eq("id",requestedProfileId);
-  else query=query.eq("user_id",currentUser.id).order("updated_at",{ascending:false}).limit(1);
+  let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile");
+  if(requestedProfileId) query=query.eq("id",requestedProfileId).eq("user_id",currentUser.id);
+  else query=query.eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
   const {data:rows,error}=await query;
   if(error){ authStatus.textContent="Sesión activa, pero no se pudo cargar tu tarjeta: "+error.message; return; }
   const data=rows?.[0];
