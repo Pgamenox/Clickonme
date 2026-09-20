@@ -440,7 +440,6 @@ function installClickOnMeEmergencyLogin(){
  const btn=document.getElementById("signinBtn"),status=document.getElementById("authStatus"),email=document.getElementById("authEmail"),password=document.getElementById("authPassword");
  if(!btn||btn.dataset.authBootstrap==="1") return;
  btn.dataset.authBootstrap="1";
- const btn=document.getElementById("signinBtn"),status=document.getElementById("authStatus"),email=document.getElementById("authEmail"),password=document.getElementById("authPassword");
  async function emergencySignin(){
   if(!email?.value.trim()||!password?.value){if(status)status.textContent="Escribe tu correo y contraseña.";return;}
   if(status)status.textContent="Entrando…"; if(btn){btn.disabled=true;btn.textContent="Entrando…";}
