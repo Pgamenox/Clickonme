@@ -606,6 +606,16 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
   <div id="galleryEditorPreview" class="gallery-preview"></div>
 </div>
 
+<div class="section-title">Mini Tienda ClickOnMe <span style="font-size:10px;color:#00e5ff">BETA</span></div>
+<div class="plus-box" id="storeBox">
+ <strong>Vende desde tu ClickOnMe</strong><div class="control-help">Publica hasta 6 productos con foto, precio y pedido directo por WhatsApp.</div>
+ <div class="field" style="margin-top:12px"><label><input type="checkbox" id="storeEnabled" style="width:auto;margin-right:7px"> Activar Mini Tienda</label></div>
+ <div class="field"><label>Título</label><input id="storeTitle" maxlength="60" placeholder="Ej. Mi tienda • Productos"></div>
+ <div class="field"><label>WhatsApp para pedidos</label><input id="storeWhatsapp" type="tel" maxlength="24" placeholder="528441234567"></div>
+ <div id="storeProductsEditor"></div>
+ <button type="button" id="addStoreProduct" style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(0,229,255,.3);background:#151a2d;color:#fff;font-weight:800;cursor:pointer">+ Agregar producto</button>
+</div>
+
 <div class="section-title">ClickOnMe Plus · Audio / Música <span style="font-size:10px;color:#00e5ff">BETA</span></div>
 <div class="plus-box">
  <strong>Audio destacado</strong><div class="control-help">Para músicos, podcasts y PressKit. El visitante decide cuándo reproducir; no forzamos audio automático.</div>
@@ -1333,6 +1343,26 @@ galleryImagesInput.addEventListener("change",async e=>{
   try{galleryItems=[];for(const file of files){galleryItems.push({url:await optimizeImage(file,1400,.82),alt:""});window.__galleryCount=galleryItems.length;}renderGalleryEditor();}catch(error){alert(error.message);galleryItems=[];renderGalleryEditor();}
 });
 
+const storeEnabled=document.getElementById("storeEnabled"),storeTitle=document.getElementById("storeTitle"),storeWhatsapp=document.getElementById("storeWhatsapp"),storeProductsEditor=document.getElementById("storeProductsEditor"),addStoreProduct=document.getElementById("addStoreProduct");
+let storeProducts=[];
+function renderStoreEditor(){
+ storeProductsEditor.replaceChildren();
+ storeProducts.slice(0,6).forEach((p,i)=>{
+  const box=document.createElement("div");box.style.cssText="margin:10px 0;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:12px";
+  const title=document.createElement("strong");title.textContent="Producto "+(i+1);
+  const name=document.createElement("input");name.placeholder="Nombre del producto";name.maxLength=80;name.value=p.name||"";name.addEventListener("input",()=>p.name=name.value);
+  const price=document.createElement("input");price.placeholder="Precio MXN";price.type="number";price.min="0";price.step="0.01";price.value=p.price||"";price.addEventListener("input",()=>p.price=price.value);
+  const desc=document.createElement("input");desc.placeholder="Descripción breve";desc.maxLength=140;desc.value=p.description||"";desc.addEventListener("input",()=>p.description=desc.value);
+  const image=document.createElement("input");image.type="file";image.accept="image/jpeg,image/png,image/webp";image.className="photo-input";image.addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{p.image=await optimizeImage(file,900,.82);renderStoreEditor();}catch(err){alert(err.message);}});
+  const status=document.createElement("div");status.className="control-help";status.textContent=p.image?"✓ Imagen lista":"Agrega una foto del producto";
+  const remove=document.createElement("button");remove.type="button";remove.textContent="Eliminar";remove.style.cssText="margin-top:7px;padding:7px 10px;border:0;border-radius:8px;cursor:pointer";remove.addEventListener("click",()=>{storeProducts.splice(i,1);renderStoreEditor();});
+  box.append(title,name,price,desc,image,status,remove);storeProductsEditor.appendChild(box);
+ });
+ addStoreProduct.disabled=storeProducts.length>=6;
+}
+addStoreProduct.addEventListener("click",()=>{if(storeProducts.length<6){storeProducts.push({name:"",price:"",description:"",image:""});renderStoreEditor();}});
+renderStoreEditor();
+
 const defaultIcons={whatsapp:"💬",phone:"📞",facebook:"f",instagram:"◎",youtube:"▶",website:"🌐"};
 let customIcons={};
 function renderIcon(key){
@@ -1998,9 +2028,9 @@ let originalStoredProfileData=null;
 const PLAN_LEVEL={free:0,personal:1,business:2,artist:3,creator:4};
 function applyPlanAccess(){
  const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
- [[galleryEnabled,2,"Business"],[audioEnabled,3,"Artista"],[videoEnabled,3,"Artista"]].forEach(([el,min,label])=>{const box=el?.closest(".plus-box");if(!box)return;const locked=level<min;box.dataset.planLocked=locked?"1":"0";box.dataset.lockLabel=locked?"🔒 Disponible desde ClickOnMe "+label:"";box.title=locked?"Disponible desde ClickOnMe "+label:"";box.querySelectorAll("input,select,textarea,button").forEach(ctrl=>{ctrl.disabled=locked;});});
+ [[galleryEnabled,2,"Business"],[storeEnabled,2,"Business"],[audioEnabled,3,"Artista"],[videoEnabled,3,"Artista"]].forEach(([el,min,label])=>{const box=el?.closest(".plus-box");if(!box)return;const locked=level<min;box.dataset.planLocked=locked?"1":"0";box.dataset.lockLabel=locked?"🔒 Disponible desde ClickOnMe "+label:"";box.title=locked?"Disponible desde ClickOnMe "+label:"";box.querySelectorAll("input,select,textarea,button").forEach(ctrl=>{ctrl.disabled=locked;});});
  const pressLocked=level<3;[presskitBio,presskitEvents,bookingEmail,bookingWhatsapp,presskitPdf,profileMode,presskitLabel].forEach(el=>{if(el)el.disabled=pressLocked;});
- if(level<2){galleryEnabled.checked=false;}
+ if(level<2){galleryEnabled.checked=false;storeEnabled.checked=false;}
  if(level<3){audioEnabled.checked=false;videoEnabled.checked=false;}
 }
 function cloneData(value){if(value===undefined)return undefined;try{return typeof structuredClone==="function"?structuredClone(value):JSON.parse(JSON.stringify(value));}catch{return JSON.parse(JSON.stringify(value));}}
@@ -2008,7 +2038,7 @@ function enforcePlanBeforeSave(profileData){
  const level=PLAN_LEVEL[currentSubscriptionPlan]??0;
  // Un downgrade solo oculta funciones: nunca borra ni desactiva el material premium guardado.
  const old=originalStoredProfileData||{};
- if(level<2 && old.modules?.gallery) profileData.modules.gallery=cloneData(old.modules.gallery);
+ if(level<2 && old.modules?.gallery) profileData.modules.gallery=cloneData(old.modules.gallery); if(level<2 && old.modules?.store) profileData.modules.store=cloneData(old.modules.store);
  if(level<3){
    if(old.modules?.audio) profileData.modules.audio=cloneData(old.modules.audio);
    if(old.modules?.video) profileData.modules.video=cloneData(old.modules.video);
@@ -2022,7 +2052,7 @@ function enforcePlanBeforeSave(profileData){
 function populateProfile(row){
   const d={...row,...(row.data||{})}; originalStoredProfileData=cloneData(row.data||{}); currentProfileId=row.id; currentProfileSlug=row.slug; currentSubscriptionPlan=row.subscription_plan||"free";
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];window.__galleryCount=galleryItems.length;
-  audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};window.__audioReady=!!audioItem.url;
+  audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};window.__audioReady=!!audioItem.url; storeProducts=Array.isArray(d.modules?.store?.products)?cloneData(d.modules.store.products).slice(0,6):[]; storeEnabled.checked=Boolean(d.modules?.store?.enabled); storeTitle.value=d.modules?.store?.title||"Mi tienda"; storeWhatsapp.value=d.modules?.store?.whatsapp||d.whatsapp||""; renderStoreEditor();
   profileType.value=({professional:"personal",musician:"artist",visual_artist:"artist",presskit:"artist"}[d.profileType]||d.profileType||"personal"); shareMessage.value=d.shareMessage||"Conoce mi perfil en ClickOnMe";
   presskitBio.value=d.presskit?.bio||"";presskitEvents.value=(d.presskit?.events||[]).join("\n");bookingEmail.value=d.presskit?.bookingEmail||"";bookingWhatsapp.value=d.presskit?.bookingWhatsapp||"";presskitPdfItem=d.presskit?.pdfUrl?{url:d.presskit.pdfUrl,name:d.presskit.pdfName||"PressKit PDF"}:{url:"",name:""};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
   videoEnabled.checked=Boolean(d.modules?.video?.enabled); applyProfileType(); videoTitle.value=d.modules?.video?.title||""; videoUrl.value=d.modules?.video?.url||""; profileMode.value=d.profileMode==="presskit"?"presskit":"standard"; presskitLabel.value=d.presskitLabel||""; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
@@ -2318,7 +2348,7 @@ publishButton.addEventListener("click",async()=>{
   const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",appIconMode:appIconMode.value,appIcon:appIconMode.value==="custom"?customAppIconData:"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
   profileData.profileType=profileType.value; profileData.shareMessage=(shareMessage.value.trim()||"Conoce mi perfil en ClickOnMe").slice(0,140);
   profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
-  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim(); enforcePlanBeforeSave(profileData);
+  profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},store:{enabled:storeEnabled.checked,title:storeTitle.value.trim()||"Mi tienda",whatsapp:storeWhatsapp.value.replace(/\D/g,""),products:storeProducts.slice(0,6).map(p=>({name:String(p.name||"").trim().slice(0,80),price:String(p.price||"").trim(),description:String(p.description||"").trim().slice(0,140),image:p.image||""})).filter(p=>p.name&&p.price)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim(); enforcePlanBeforeSave(profileData);
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   try{
     const assetFolder="profile-"+slug;
@@ -2340,6 +2370,7 @@ publishButton.addEventListener("click",async()=>{
       uploadedGallery.push({url:await uploadProfileAsset(item.url,assetFolder,"gallery-"+i),alt:String(item.alt||"").slice(0,120)});
     }
     profileData.modules.gallery.items=uploadedGallery; galleryItems=uploadedGallery; renderGalleryEditor();
+    const uploadedStore=[]; for(let i=0;i<(profileData.modules?.store?.products||[]).length;i++){const p=profileData.modules.store.products[i];uploadedStore.push({...p,image:await uploadProfileAsset(p.image,assetFolder,"store-"+i)});} profileData.modules.store.products=uploadedStore; storeProducts=uploadedStore; renderStoreEditor();
     profileData.presskit.pdfUrl=await uploadPresskitPdf(presskitPdfItem,assetFolder);presskitPdfItem={url:profileData.presskit.pdfUrl,name:profileData.presskit.pdfName};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
     profileData.modules.audio.url=await uploadAudioAsset(audioItem,assetFolder); audioItem={url:profileData.modules.audio.url,name:profileData.modules.audio.name}; renderAudioEditor();
   }catch(error){
