@@ -148,6 +148,24 @@ jobs:
           if not all(checks.values()): sys.exit(1)
           PY
 
+      - name: Carousel performance and premium contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          s=Path("index.html").read_text()
+          checks={
+            "hero optimized images": s.count("hero:'https://images.unsplash.com/") >= 5 and "w=420&h=520&q=80" in s,
+            "hero preload cache": "const heroCache=new Map()" in s and "function preloadHero" in s and "Promise.all(demos.map(preloadHero))" in s,
+            "switch waits for photo": "async function show(n)" in s and "src=await preloadHero(d)" in s,
+            "premium hero refinement": "PREMIUM HERO V5" in s,
+            "hero limited to three actions": "d.links.slice(0,3)" in s,
+            "high priority first image": 'fetchpriority="high"' in s,
+          }
+          for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
+          if not all(checks.values()): sys.exit(1)
+          PY
+
       - name: Public profile contract
         run: |
           grep -q 'profile_view' crear/perfil.html
