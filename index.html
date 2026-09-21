@@ -582,6 +582,39 @@ margin-top:5px;
   .showcase-body h3{font-size:24px}
 }
 
+
+/* PREMIUM HERO V5 — faster imagery + cleaner luxury composition */
+.phone-demo{background:linear-gradient(160deg,#0b0f1e,#171b30 46%,#070912);border-color:#2a2f3d;box-shadow:0 36px 90px rgba(0,0,0,.58),0 0 90px rgba(83,82,255,.13)}
+.demo-card[data-visual="premium-v4"]{padding:24px 16px 17px;border-radius:30px}
+.demo-card[data-visual="premium-v4"]::selection{background:transparent}
+.demo-card[data-visual="premium-v4"] .demo-brand{width:94px;margin-bottom:7px;opacity:.94}
+.demo-card[data-visual="premium-v4"] .demo-plan{margin-bottom:8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+.demo-card[data-visual="premium-v4"] .demo-avatar{transition:opacity .2s ease,transform .28s ease;will-change:transform}
+.demo-card[data-visual="premium-v4"] h3{font-weight:850;line-height:1.02}
+.demo-card[data-visual="premium-v4"] .demo-links{margin-top:12px}
+.demo-card[data-visual="premium-v4"] .demo-link{min-height:38px;display:flex;align-items:center;padding:9px 11px;letter-spacing:.01em}
+.demo-card[data-visual="premium-v4"] .demo-mini{display:inline-block;margin:11px auto 0!important;padding:5px 8px;border-radius:999px;border:1px solid currentColor;opacity:.8}
+.demo-free[data-visual="premium-v4"]{box-shadow:0 30px 70px rgba(34,56,96,.18),inset 0 1px 0 #fff}
+.demo-free[data-visual="premium-v4"] .demo-avatar{width:122px;height:145px;border-radius:30px;box-shadow:0 22px 44px rgba(38,66,111,.24),0 0 0 1px rgba(95,132,185,.10)}
+.demo-personal[data-visual="premium-v4"] .demo-avatar{width:126px;height:146px;box-shadow:0 23px 44px rgba(0,44,60,.38)}
+.demo-business[data-visual="premium-v4"]{box-shadow:0 30px 70px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,217,141,.08)}
+.demo-business[data-visual="premium-v4"] .demo-avatar{width:90px;height:102px}
+.demo-artista[data-visual="premium-v4"] .demo-avatar{width:142px;height:142px}
+.demo-creator[data-visual="premium-v4"] .demo-avatar{width:118px;height:118px}
+@media(max-width:900px){
+  .demo-card[data-visual="premium-v4"]{padding:16px 12px 12px}
+  .demo-card[data-visual="premium-v4"] .demo-brand{width:82px;margin-bottom:4px}
+  .demo-card[data-visual="premium-v4"] .demo-plan{margin-bottom:5px}
+  .demo-card[data-visual="premium-v4"] .demo-links{margin-top:8px;gap:6px}
+  .demo-card[data-visual="premium-v4"] .demo-link{min-height:32px;padding:6px 8px;font-size:9px}
+  .demo-card[data-visual="premium-v4"] .demo-mini{margin-top:7px!important;padding:4px 7px}
+  .demo-free[data-visual="premium-v4"] .demo-avatar{width:100px;height:116px}
+  .demo-personal[data-visual="premium-v4"] .demo-avatar{width:100px;height:116px}
+  .demo-business[data-visual="premium-v4"] .demo-avatar{width:72px;height:82px}
+  .demo-artista[data-visual="premium-v4"] .demo-avatar{width:102px;height:102px}
+  .demo-creator[data-visual="premium-v4"] .demo-avatar{width:88px;height:88px}
+}
+
 </style>
 </head>
 
@@ -622,7 +655,7 @@ Ver ejemplos
 <div class="demo-card" id="heroDemoCard">
 <img class="demo-brand" src="/logo-clickonme.png" alt="ClickOnMe">
 <div class="demo-plan" id="heroDemoPlan">CREATOR</div>
-<div class="demo-avatar"><img id="heroDemoAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88" alt="Ejemplo ClickOnMe"></div>
+<div class="demo-avatar"><img id="heroDemoAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=420&h=520&q=80" alt="Ejemplo ClickOnMe" fetchpriority="high" decoding="async"></div>
 <h3 id="heroDemoName">Valeria Torres</h3><p id="heroDemoRole">Diseñadora gráfica · Creadora</p>
 <div class="demo-links" id="heroDemoLinks"></div>
 <p class="demo-mini" id="heroDemoTagline">DISEÑA TU HISTORIA</p>
@@ -724,11 +757,11 @@ Tu mundo, en un solo enlace.
 <script>
 (function(){
 const demos=[
-{plan:'FREE',name:'Ana Pérez',role:'Estudiante · Vida en movimiento',img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',tag:'SENCILLO · ESENCIAL · TU PUNTO DE PARTIDA',pitch:'Una presencia limpia, fresca y elegante para empezar.',links:[['👤','Sobre mí'],['◎','Mis redes'],['✉','Contacto']]},
-{plan:'PERSONAL',name:'Carlos Mendoza',role:'Viajero · Fotógrafo · Explorador',img:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',tag:'TU HISTORIA · TU ESTILO',pitch:'Fotografía protagonista, personalidad y enlaces que se sienten tuyos.',links:[['▣','Mis fotos'],['✈','Mis viajes'],['📍','Recomendaciones'],['✉','Contacto']]},
-{plan:'BUSINESS',name:'Lorenzo Rivas',role:'Arquitecto · Estudio',img:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',tag:'DISEÑO · FUNCIONALIDAD · VALOR',pitch:'Negro, oro y estructura editorial para una presencia corporativa premium.',links:[['▥','Nuestros proyectos'],['⚙','Servicios'],['📍','Ubicación'],['✉','Contáctanos']]},
-{plan:'ARTISTA',name:'Diego Luna',role:'Cantautor · Músico',img:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1000&h=1200&q=88',tag:'MÚSICA QUE CONECTA',pitch:'Una experiencia de escenario para música, fechas, galería y contratación.',links:[['▶','Escucha mi música'],['🎟','Próximos conciertos'],['▣','Galería'],['✉','Contacto']]},
-{plan:'CREATOR',name:'Valeria Torres',role:'Creadora de contenido',img:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',tag:'IDEAS · ESTILO · COMUNIDAD',pitch:'Color, energía y módulos visuales para contenido, colaboraciones y tienda.',links:[['◎','Mi contenido'],['✦','Colaboraciones'],['🛍','Tienda'],['✉','Contacto']]}
+{plan:'FREE',name:'Ana Pérez',role:'Estudiante · Vida en movimiento',img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'SENCILLO · ESENCIAL · TU PUNTO DE PARTIDA',pitch:'Una presencia limpia, fresca y elegante para empezar.',links:[['👤','Sobre mí'],['◎','Mis redes'],['✉','Contacto']]},
+{plan:'PERSONAL',name:'Carlos Mendoza',role:'Viajero · Fotógrafo · Explorador',img:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'TU HISTORIA · TU ESTILO',pitch:'Fotografía protagonista, personalidad y enlaces que se sienten tuyos.',links:[['▣','Mis fotos'],['✈','Mis viajes'],['📍','Recomendaciones'],['✉','Contacto']]},
+{plan:'BUSINESS',name:'Lorenzo Rivas',role:'Arquitecto · Estudio',img:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'DISEÑO · FUNCIONALIDAD · VALOR',pitch:'Negro, oro y estructura editorial para una presencia corporativa premium.',links:[['▥','Nuestros proyectos'],['⚙','Servicios'],['📍','Ubicación'],['✉','Contáctanos']]},
+{plan:'ARTISTA',name:'Diego Luna',role:'Cantautor · Músico',img:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=420&h=520&q=80',tag:'MÚSICA QUE CONECTA',pitch:'Una experiencia de escenario para música, fechas, galería y contratación.',links:[['▶','Escucha mi música'],['🎟','Próximos conciertos'],['▣','Galería'],['✉','Contacto']]},
+{plan:'CREATOR',name:'Valeria Torres',role:'Creadora de contenido',img:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'IDEAS · ESTILO · COMUNIDAD',pitch:'Color, energía y módulos visuales para contenido, colaboraciones y tienda.',links:[['◎','Mi contenido'],['✦','Colaboraciones'],['🛍','Tienda'],['✉','Contacto']]}
 ]
 const showcase=document.getElementById('premiumShowcaseGrid');
 if(showcase){
@@ -741,13 +774,28 @@ if(showcase){
     '</article>';
   }).join('');
 }
-let i=4,timer;
+let i=4,timer,renderToken=0;
 const card=document.getElementById('heroDemoCard'),plan=document.getElementById('heroDemoPlan'),avatar=document.getElementById('heroDemoAvatar'),name=document.getElementById('heroDemoName'),role=document.getElementById('heroDemoRole'),links=document.getElementById('heroDemoLinks'),tag=document.getElementById('heroDemoTagline'),dots=document.getElementById('heroDemoDots');
 if(!card)return;
+const heroCache=new Map();
+function preloadHero(d){
+  if(heroCache.has(d.hero)) return heroCache.get(d.hero);
+  const p=new Promise(resolve=>{const im=new Image();im.decoding='async';im.onload=()=>resolve(d.hero);im.onerror=()=>resolve(d.img);im.src=d.hero;});
+  heroCache.set(d.hero,p); return p;
+}
+demos.forEach(preloadHero);
 demos.forEach((d,n)=>{const b=document.createElement('button');b.type='button';b.className='demo-dot';b.setAttribute('aria-label','Ver '+d.plan);b.onclick=()=>{show(n);restart()};dots.appendChild(b)});
-function show(n){i=n;const d=demos[n];card.className='demo-card demo-'+d.plan.toLowerCase();card.dataset.visual='premium-v4';void card.offsetWidth;card.classList.add('demo-changing');plan.textContent=d.plan;avatar.style.display='block';avatar.onerror=()=>{avatar.style.display='none'};avatar.src=d.img;name.textContent=d.name;role.textContent=d.role;tag.textContent=d.tag;links.innerHTML=d.links.map((x,k)=>'<div class="demo-link demo-link-'+k+'">'+x[0]+' '+x[1]+'</div>').join('');[...dots.children].forEach((b,k)=>b.classList.toggle('active',k===n))}
-function restart(){clearInterval(timer);timer=setInterval(()=>show((i+1)%demos.length),4200)}
-show(i);restart();
+async function show(n){
+  const token=++renderToken,d=demos[n],src=await preloadHero(d);
+  if(token!==renderToken)return;
+  i=n;card.className='demo-card demo-'+d.plan.toLowerCase();card.dataset.visual='premium-v4';void card.offsetWidth;card.classList.add('demo-changing');
+  plan.textContent=d.plan;avatar.style.display='block';avatar.onerror=()=>{avatar.src=d.img};avatar.src=src;
+  name.textContent=d.name;role.textContent=d.role;tag.textContent=d.tag;
+  links.innerHTML=d.links.slice(0,3).map((x,k)=>'<div class="demo-link demo-link-'+k+'">'+x[0]+' '+x[1]+'</div>').join('');
+  [...dots.children].forEach((b,k)=>b.classList.toggle('active',k===n));
+}
+function restart(){clearInterval(timer);timer=setInterval(()=>show((i+1)%demos.length),5000)}
+Promise.all(demos.map(preloadHero)).then(()=>{show(i);restart()});
 let sx=0;card.addEventListener('touchstart',e=>{sx=e.changedTouches[0].clientX},{passive:true});card.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>45){show((i+(dx<0?1:-1)+demos.length)%demos.length);restart()}},{passive:true});
 })();
 </script>
