@@ -122,8 +122,8 @@ jobs:
             "premium v4 marker": "V4 LIVE PREMIUM CARDS 2026-09-21" in s,
             "live premium data marker": "premium-v4" in s,
             "Ana placeholder removed": "ana-perez.svg" not in s,
-            "Ana uses real photo": "images.unsplash.com/photo-1765648636065-fd5c0884b629" in s,
-            "Ana has local fallback": "fallback:'/assets/examples/creator.jpg'" in s,
+            "Ana uses premium photo": "images.unsplash.com/photo-1494790108377-be9c29b29330" in s,
+            "Ana has no legacy fallback": "fallback:'/assets/examples/creator.jpg'" not in s,
             "five plan styles": all(x in s for x in ("demo-free[data-visual=\"premium-v4\"]","demo-personal[data-visual=\"premium-v4\"]","demo-business[data-visual=\"premium-v4\"]","demo-artista[data-visual=\"premium-v4\"]","demo-creator[data-visual=\"premium-v4\"]")),
           }
           for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
