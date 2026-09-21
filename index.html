@@ -2706,6 +2706,153 @@ margin-top:5px;
 .layout-media .showcase-real-link{color:#f0dcff;border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.055)}
 @media(max-width:900px){.showcase-real-link{min-height:36px;font-size:9.5px;margin-top:8px}}
 
+
+/* REAL DESIGNER PREVIEWS V1 — actual public profiles, not mockups */
+.real-demo-examples{
+  max-width:1180px;
+  padding:18px 24px 66px;
+}
+.real-demo-examples .section-title{
+  font-size:clamp(30px,4vw,42px);
+  letter-spacing:-.045em;
+  margin-bottom:9px;
+}
+.real-demo-examples .section-subtitle{
+  max-width:760px;
+  margin-bottom:24px;
+}
+.real-demo-grid{
+  display:grid;
+  grid-template-columns:repeat(10,minmax(0,1fr));
+  gap:18px;
+  max-width:1120px;
+  margin:26px auto 0;
+}
+.real-demo-card{
+  grid-column:span 5;
+  min-width:0;
+  padding:16px;
+  border-radius:28px;
+  background:linear-gradient(155deg,rgba(17,22,40,.92),rgba(7,10,21,.94));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 26px 62px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.real-demo-card:nth-child(5){grid-column:3 / span 6}
+.real-demo-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:26px;
+  margin-bottom:12px;
+}
+.real-demo-top span{
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.17em;
+  color:#dfe7f5;
+}
+.real-demo-top small{
+  font-size:9px;
+  color:#77849d;
+}
+.real-phone-frame{
+  position:relative;
+  width:100%;
+  aspect-ratio:390/720;
+  overflow:hidden;
+  border-radius:30px;
+  background:#060810;
+  border:7px solid #202634;
+  box-shadow:0 24px 55px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.real-phone-frame::before{
+  content:"";
+  position:absolute;
+  top:7px;
+  left:50%;
+  width:70px;
+  height:13px;
+  transform:translateX(-50%);
+  border-radius:999px;
+  background:#030407;
+  z-index:3;
+  pointer-events:none;
+}
+.real-phone-frame iframe{
+  position:absolute;
+  inset:0;
+  width:390px;
+  height:720px;
+  border:0;
+  transform-origin:top left;
+  transform:scale(var(--demo-scale,1));
+  pointer-events:none;
+  background:#080a12;
+}
+.real-demo-card>a{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:42px;
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:13px;
+  text-decoration:none;
+  color:#eaf1ff;
+  font-size:10.5px;
+  font-weight:800;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.085);
+}
+.real-demo-card>a:hover{
+  background:rgba(255,255,255,.075);
+  border-color:rgba(92,205,255,.22);
+}
+.demo-free-real{border-color:rgba(185,200,220,.22)}
+.demo-personal-real{border-color:rgba(89,220,215,.18)}
+.demo-business-real{border-color:rgba(220,179,93,.24)}
+.demo-artist-real{border-color:rgba(255,72,126,.22)}
+.demo-creator-real{border-color:rgba(183,102,255,.26)}
+.demo-business-real .real-demo-top span{color:#e3bd70}
+.demo-artist-real .real-demo-top span{color:#ff83aa}
+.demo-creator-real .real-demo-top span{color:#d7b4ff}
+
+@media(min-width:901px){
+  .real-phone-frame iframe{
+    --demo-scale:calc((100vw - 96px)/780);
+  }
+}
+@media(max-width:900px){
+  .real-demo-examples{padding:10px 14px 48px}
+  .real-demo-grid{
+    grid-template-columns:1fr;
+    gap:15px;
+    margin-top:18px;
+  }
+  .real-demo-card,
+  .real-demo-card:nth-child(5){
+    grid-column:1!important;
+    padding:13px;
+    border-radius:24px;
+  }
+  .real-phone-frame{
+    border-width:6px;
+    border-radius:25px;
+  }
+  .real-phone-frame iframe{
+    width:390px;
+    height:720px;
+    --demo-scale:calc((100vw - 54px)/390);
+  }
+}
+@media(max-width:430px){
+  .real-demo-examples .section-title{font-size:28px}
+  .real-demo-card{padding:11px}
+  .real-phone-frame iframe{--demo-scale:calc((100vw - 46px)/390)}
+}
+
 </style>
 </head>
 
@@ -2799,19 +2946,59 @@ Una experiencia compacta y profesional para presentar tu identidad, concentrar t
 </section>
 
 
-<section class="examples premium-examples" id="ejemplos">
+<section class="examples real-demo-examples" id="ejemplos">
 
 <h2 class="section-title">
-Ejemplos Premium ClickOnMe
+Ejemplos reales creados con ClickOnMe
 </h2>
 
 <p class="section-subtitle">
-Cinco estilos construidos con las funciones reales de ClickOnMe. Cada muestra tiene también una tarjeta pública real creada con el mismo diseñador.
+Estas cinco tarjetas salen del mismo diseñador que usa el cliente. No son mockups: son perfiles demo reales con las funciones disponibles en cada plan.
 </p>
 
-<div class="premium-showcase-grid" id="premiumShowcaseGrid" aria-label="Ejemplos premium de ClickOnMe"></div>
+<div class="real-demo-grid" aria-label="Tarjetas reales creadas con el diseñador ClickOnMe">
+  <article class="real-demo-card demo-free-real">
+    <div class="real-demo-top"><span>FREE</span><small>Esencial</small></div>
+    <div class="real-phone-frame">
+      <iframe loading="lazy" title="Demo real Free ClickOnMe" src="/crear/perfil.html?u=demo-clickonme-free" tabindex="-1"></iframe>
+    </div>
+    <a href="/crear/perfil.html?u=demo-clickonme-free" target="_blank" rel="noopener">Abrir tarjeta real <b>↗</b></a>
+  </article>
 
-<p class="demo-note">Ejemplos ficticios creados únicamente para mostrar la apariencia y posibilidades de cada plan.</p>
+  <article class="real-demo-card demo-personal-real">
+    <div class="real-demo-top"><span>PERSONAL</span><small>Perfil personal</small></div>
+    <div class="real-phone-frame">
+      <iframe loading="lazy" title="Demo real Personal ClickOnMe" src="/crear/perfil.html?u=demo-clickonme-personal" tabindex="-1"></iframe>
+    </div>
+    <a href="/crear/perfil.html?u=demo-clickonme-personal" target="_blank" rel="noopener">Abrir tarjeta real <b>↗</b></a>
+  </article>
+
+  <article class="real-demo-card demo-business-real">
+    <div class="real-demo-top"><span>BUSINESS</span><small>Negocio + galería</small></div>
+    <div class="real-phone-frame">
+      <iframe loading="lazy" title="Demo real Business ClickOnMe" src="/crear/perfil.html?u=demo-clickonme-business" tabindex="-1"></iframe>
+    </div>
+    <a href="/crear/perfil.html?u=demo-clickonme-business" target="_blank" rel="noopener">Abrir tarjeta real <b>↗</b></a>
+  </article>
+
+  <article class="real-demo-card demo-artist-real">
+    <div class="real-demo-top"><span>ARTISTA</span><small>PressKit + multimedia</small></div>
+    <div class="real-phone-frame">
+      <iframe loading="lazy" title="Demo real Artista ClickOnMe" src="/crear/perfil.html?u=demo-clickonme-artista" tabindex="-1"></iframe>
+    </div>
+    <a href="/crear/perfil.html?u=demo-clickonme-artista" target="_blank" rel="noopener">Abrir tarjeta real <b>↗</b></a>
+  </article>
+
+  <article class="real-demo-card demo-creator-real">
+    <div class="real-demo-top"><span>CREATOR</span><small>Media Kit + contenido</small></div>
+    <div class="real-phone-frame">
+      <iframe loading="lazy" title="Demo real Creator ClickOnMe" src="/crear/perfil.html?u=demo-clickonme-creator" tabindex="-1"></iframe>
+    </div>
+    <a href="/crear/perfil.html?u=demo-clickonme-creator" target="_blank" rel="noopener">Abrir tarjeta real <b>↗</b></a>
+  </article>
+</div>
+
+<p class="demo-note">Cada vista previa carga el perfil público real generado con el diseñador ClickOnMe.</p>
 
 </section>
 
@@ -2990,27 +3177,6 @@ const demos=[
 {plan:'ARTISTA',name:'Diego Luna',role:'Cantautor · Músico',img:'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1200&h=900&q=88',hero:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=420&h=520&q=80',tag:'MÚSICA QUE CONECTA',pitch:'Una experiencia de escenario para música, fechas, galería y contratación.',links:[['▶','Escucha mi música'],['🎟','Próximos conciertos'],['▣','Galería'],['✉','Contacto']]},
 {plan:'CREATOR',name:'Valeria Torres',role:'Creadora de contenido',img:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'IDEAS · ESTILO · COMUNIDAD',pitch:'Color, energía y módulos visuales para contenido, colaboraciones y tienda.',links:[['◎','Mi contenido'],['✦','Colaboraciones'],['🛍','Tienda'],['✉','Contacto']]}
 ]
-const showcase=document.getElementById('premiumShowcaseGrid');
-if(showcase){
-  const layouts=['editorial','profile','executive','stage','media'];
-  const demoSlugs=['demo-clickonme-free','demo-clickonme-personal','demo-clickonme-business','demo-clickonme-artista','demo-clickonme-creator'];
-  showcase.innerHTML=demos.map((d,n)=>{
-    const cls=d.plan.toLowerCase();
-    const links=d.links.slice(0,3).map((x,k)=>'<span><i class="showcase-mark" aria-hidden="true"></i>'+x[1]+'</span>').join('');
-    return '<article class="premium-showcase-card showcase-'+cls+' layout-'+layouts[n]+'" data-card-layout="'+layouts[n]+'">'+
-      '<div class="showcase-photo-wrap">'+
-        '<img class="showcase-photo" src="'+d.img+'" alt="Ejemplo '+d.plan+' de ClickOnMe" loading="lazy" onerror="this.style.display=\'none\'">'+
-        '<span class="showcase-plan">'+d.plan+'</span>'+
-        '<span class="showcase-photo-accent" aria-hidden="true"></span>'+
-      '</div>'+
-      '<div class="showcase-body">'+
-        '<div class="showcase-copy"><small>'+d.tag+'</small><h3>'+d.name+'</h3><p class="showcase-role">'+d.role+'</p><p class="showcase-pitch">'+d.pitch+'</p></div>'+
-        '<div class="showcase-links">'+links+'</div>'+
-        '<a class="showcase-real-link" href="/crear/perfil.html?u='+demoSlugs[n]+'" target="_blank" rel="noopener">Ver tarjeta real <span aria-hidden="true">↗</span></a>'+
-      '</div>'+
-    '</article>';
-  }).join('');
-}
 let i=4,timer,renderToken=0,activeAvatar=0;
 const card=document.getElementById('heroDemoCard'),plan=document.getElementById('heroDemoPlan'),avatarA=document.getElementById('heroDemoAvatarA'),avatarB=document.getElementById('heroDemoAvatarB'),avatars=[avatarA,avatarB],name=document.getElementById('heroDemoName'),role=document.getElementById('heroDemoRole'),links=document.getElementById('heroDemoLinks'),tag=document.getElementById('heroDemoTagline'),dots=document.getElementById('heroDemoDots');
 if(!card)return;
