@@ -1,4 +1,4 @@
-const CACHE="clickonme-kit-v2";
+const CACHE="clickonme-kit-v3";
 const CORE=["/kit/","/brand.css","/logo-clickonme.png","/pwa-icon.svg"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).catch(()=>{}));});
 self.addEventListener("activate",e=>e.waitUntil(self.clients.claim()));
