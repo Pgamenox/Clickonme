@@ -2465,6 +2465,219 @@ margin-top:5px;
   .layout-media .showcase-photo-wrap{margin-left:12px}
 }
 
+
+/* PREMIUM SHOWCASE V11 — fine polish only, carousel untouched */
+.premium-showcase-grid{gap:15px}
+
+/* shared refinement */
+.premium-showcase-card{
+  border-radius:26px;
+  box-shadow:0 24px 54px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.premium-showcase-card::after{border-radius:25px}
+.showcase-body small{letter-spacing:.14em}
+.showcase-body h3{line-height:1.04}
+.showcase-pitch{line-height:1.46}
+.showcase-links span{
+  min-height:30px;
+  padding:7px 10px;
+  border-radius:10px;
+}
+
+/* FREE — tighter editorial balance */
+.layout-editorial{
+  grid-template-columns:40% 60%;
+  min-height:338px!important;
+}
+.layout-editorial .showcase-photo-wrap{min-height:338px}
+.layout-editorial .showcase-body{
+  min-height:338px;
+  padding:26px 24px 22px;
+}
+.layout-editorial .showcase-body h3{font-size:28px}
+.layout-editorial .showcase-links{margin-top:14px!important}
+
+/* PERSONAL — less tall, cleaner floating panel */
+.layout-profile{min-height:392px!important}
+.layout-profile .showcase-photo-wrap{height:242px!important}
+.layout-profile .showcase-body{
+  width:calc(100% - 28px);
+  min-height:174px;
+  margin:-48px 14px 14px;
+  padding:18px 18px 16px;
+  border-radius:20px;
+}
+.layout-profile .showcase-body h3{font-size:25px}
+.layout-profile .showcase-links{margin-top:9px!important}
+
+/* BUSINESS — more compact executive card */
+.layout-executive{min-height:342px!important}
+.layout-executive .showcase-photo-wrap{min-height:342px}
+.layout-executive .showcase-body{
+  min-height:342px;
+  padding:30px 25px 24px;
+}
+.layout-executive .showcase-body h3{font-size:29px}
+.layout-executive .showcase-links{margin-top:14px!important}
+
+/* ARTISTA — stronger crop, shorter poster, quieter text block */
+.layout-stage{min-height:420px!important}
+.layout-stage .showcase-photo{
+  object-position:42% center!important;
+  transform:scale(1.06)!important;
+  filter:saturate(.86) contrast(1.10) brightness(.72)!important;
+}
+.layout-stage .showcase-photo-wrap::after{
+  background:linear-gradient(
+    180deg,
+    rgba(4,4,6,.03) 10%,
+    rgba(4,4,6,.12) 36%,
+    rgba(4,4,6,.66) 68%,
+    rgba(4,4,6,.97) 94%
+  )!important;
+}
+.layout-stage .showcase-body{
+  min-height:420px;
+  padding:226px 20px 18px;
+}
+.layout-stage .showcase-body h3{
+  font-size:29px;
+  letter-spacing:.02em;
+}
+.layout-stage .showcase-role{margin-bottom:8px}
+.layout-stage .showcase-pitch{
+  margin-bottom:12px;
+  max-width:92%;
+}
+.layout-stage .showcase-links{
+  gap:6px;
+  margin-top:7px!important;
+}
+.layout-stage .showcase-links span{
+  min-height:36px;
+  padding:7px 9px;
+  border-radius:12px;
+  font-size:9px;
+}
+
+/* CREATOR — better visual balance, more breathing room */
+.layout-media{
+  grid-template-columns:40% 60%;
+  min-height:326px!important;
+}
+.layout-media .showcase-photo-wrap{
+  min-height:290px;
+  margin:18px 0 18px 18px;
+  border-radius:20px;
+}
+.layout-media .showcase-photo{
+  object-position:center 18%!important;
+  filter:saturate(.90) contrast(1.05);
+}
+.layout-media .showcase-body{
+  min-height:326px;
+  padding:28px 24px;
+}
+.layout-media .showcase-body h3{
+  font-size:30px;
+  margin-bottom:6px;
+}
+.layout-media .showcase-links{
+  gap:7px;
+  margin-top:14px!important;
+}
+.layout-media .showcase-links span{
+  min-height:37px;
+  border-radius:12px;
+}
+
+/* Mobile fine tuning */
+@media(max-width:900px){
+  .premium-showcase-grid{gap:13px}
+
+  .layout-editorial{
+    grid-template-columns:108px 1fr;
+    min-height:272px!important;
+  }
+  .layout-editorial .showcase-photo-wrap{min-height:272px}
+  .layout-editorial .showcase-body{
+    min-height:272px;
+    padding:19px 14px 16px;
+  }
+  .layout-editorial .showcase-body h3{font-size:22px}
+
+  .layout-profile{min-height:350px!important}
+  .layout-profile .showcase-photo-wrap{height:214px!important}
+  .layout-profile .showcase-body{
+    width:calc(100% - 22px);
+    margin:-43px 11px 11px;
+    padding:16px 15px 15px;
+  }
+  .layout-profile .showcase-body h3{font-size:23px}
+
+  .layout-executive{
+    grid-template-columns:1fr 112px;
+    min-height:286px!important;
+  }
+  .layout-executive .showcase-photo-wrap{min-height:286px}
+  .layout-executive .showcase-body{
+    min-height:286px;
+    padding:21px 14px 18px;
+  }
+  .layout-executive .showcase-body h3{font-size:23px}
+
+  .layout-stage{min-height:392px!important}
+  .layout-stage .showcase-photo{
+    object-position:40% center!important;
+    transform:scale(1.08)!important;
+  }
+  .layout-stage .showcase-body{
+    min-height:392px;
+    padding:202px 15px 16px;
+  }
+  .layout-stage .showcase-body h3{
+    font-size:25px;
+    margin-bottom:3px;
+  }
+  .layout-stage .showcase-pitch{
+    max-width:100%;
+    font-size:10.5px;
+    margin-bottom:10px;
+  }
+  .layout-stage .showcase-links span{
+    min-height:34px;
+    font-size:9px;
+  }
+
+  .layout-media{
+    grid-template-columns:138px 1fr;
+    min-height:306px!important;
+  }
+  .layout-media .showcase-photo-wrap{
+    min-height:270px;
+    margin:18px 0 18px 13px;
+    border-radius:17px;
+  }
+  .layout-media .showcase-body{
+    min-height:306px;
+    padding:21px 14px 18px;
+  }
+  .layout-media .showcase-body h3{
+    font-size:24px;
+    line-height:1.02;
+  }
+  .layout-media .showcase-pitch{font-size:10px}
+  .layout-media .showcase-links span{min-height:33px}
+}
+
+@media(max-width:420px){
+  .layout-editorial{grid-template-columns:100px 1fr}
+  .layout-executive{grid-template-columns:1fr 102px}
+  .layout-media{grid-template-columns:126px 1fr}
+  .layout-stage{min-height:380px!important}
+  .layout-stage .showcase-body{min-height:380px;padding-top:194px}
+}
+
 </style>
 </head>
 
