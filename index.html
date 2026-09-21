@@ -615,6 +615,40 @@ margin-top:5px;
   .demo-creator[data-visual="premium-v4"] .demo-avatar{width:88px;height:88px}
 }
 
+
+/* PREMIUM BENEFITS V2 — compact, editorial, no emoji */
+.benefits-section{max-width:1080px;padding:42px 24px 72px}
+.benefits-kicker{text-align:center;margin:0 auto 12px;font-size:10px;font-weight:900;letter-spacing:.18em;color:#75dcff}
+.benefits-section .section-title{font-size:clamp(28px,4vw,38px);letter-spacing:-.035em;margin-bottom:10px}
+.benefits-section .section-subtitle{max-width:700px;margin-bottom:26px}
+.benefit-panel{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;padding:1px;border-radius:26px;overflow:hidden;background:linear-gradient(120deg,rgba(79,206,255,.28),rgba(255,255,255,.06),rgba(159,87,255,.26));box-shadow:0 22px 60px rgba(0,0,0,.18)}
+.benefit-panel::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 0,rgba(47,214,255,.10),transparent 25%),radial-gradient(circle at 88% 100%,rgba(154,83,255,.11),transparent 27%);pointer-events:none}
+.benefit-item{position:relative;z-index:1;display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:start;min-height:168px;padding:23px 21px;background:linear-gradient(160deg,rgba(19,24,43,.90),rgba(8,11,23,.88));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.benefit-item:first-child{border-radius:25px 0 0 25px}.benefit-item:last-child{border-radius:0 25px 25px 0}
+.benefit-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(44,211,255,.13),rgba(143,87,255,.10));border:1px solid rgba(105,211,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.benefit-icon svg{width:22px;height:22px;fill:none;stroke:#a8ecff;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+.benefit-copy span{display:block;margin-bottom:7px;font-size:9px;font-weight:900;letter-spacing:.16em;color:#6f7d9b}
+.benefit-copy h3{font-size:16px;line-height:1.25;margin:0 0 7px;letter-spacing:-.015em}
+.benefit-copy p{font-size:12px;line-height:1.55;margin:0;color:#9ea9bd}
+@media(max-width:900px){
+  .benefits-section{padding:30px 15px 48px}
+  .benefits-section .section-subtitle{margin-bottom:20px}
+  .benefit-panel{grid-template-columns:1fr;border-radius:22px}
+  .benefit-item{min-height:0;grid-template-columns:42px 1fr;gap:13px;padding:17px 16px}
+  .benefit-item:first-child{border-radius:21px 21px 0 0}.benefit-item:last-child{border-radius:0 0 21px 21px}
+  .benefit-icon{width:40px;height:40px;border-radius:12px}
+  .benefit-icon svg{width:20px;height:20px}
+  .benefit-copy span{margin-bottom:4px}
+  .benefit-copy h3{font-size:15px;margin-bottom:4px}
+  .benefit-copy p{font-size:11.5px;line-height:1.45}
+}
+@media(max-width:520px){
+  .benefits-kicker{font-size:8px;letter-spacing:.14em}
+  .benefits-section .section-title{font-size:27px}
+  .benefits-section .section-subtitle{font-size:13px;line-height:1.55}
+  .benefit-item{padding:15px 14px}
+}
+
 </style>
 </head>
 
@@ -665,41 +699,40 @@ Ver ejemplos
 </header>
 <div class="audience-strip"><strong>IDEAL PARA</strong><span>Personas</span><span>Negocios</span><span>Artistas</span><span>Creadores</span><span>Profesionistas</span></div>
 
-<section class="features">
+<section class="features benefits-section">
+
+<div class="benefits-kicker">CLICKONME · DISEÑA · CONECTA · MIDE</div>
 
 <h2 class="section-title">
-Todo lo que necesitas para conectar
+Todo lo que necesitas, sin complicarlo
 </h2>
 
 <p class="section-subtitle">
-Personaliza tu tarjeta, reúne todo en un solo enlace, mide resultados y mantén tu información protegida.
+Una experiencia compacta y profesional para presentar tu identidad, concentrar tus enlaces y entender qué genera interacción.
 </p>
 
-<div class="feature-grid">
+<div class="benefit-panel">
 
-<div class="feature">
-<div class="feature-icon">💬</div>
-<h3>Totalmente personalizable</h3>
-<p>
-Colores, fondos, iconos, botones y contenido para hacerla realmente tuya.
-</p>
+<article class="benefit-item">
+<div class="benefit-icon" aria-hidden="true">
+<svg viewBox="0 0 24 24" role="img"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M8 14v6" /></svg>
 </div>
+<div class="benefit-copy"><span>01</span><h3>Personaliza tu identidad</h3><p>Colores, fondos, botones, imágenes y estilo visual alineados con tu marca.</p></div>
+</article>
 
-<div class="feature">
-<div class="feature-icon">🚀</div>
-<h3>Todo en un solo enlace</h3>
-<p>
-Redes, contacto, catálogo, menú, reservaciones, portafolio y mucho más.
-</p>
+<article class="benefit-item">
+<div class="benefit-icon" aria-hidden="true">
+<svg viewBox="0 0 24 24" role="img"><path d="M9.5 14.5 14.5 9.5M7.3 17.7l-1 1a3.5 3.5 0 0 1-5-5l3.2-3.2a3.5 3.5 0 0 1 5 0M16.7 6.3l1-1a3.5 3.5 0 1 1 5 5l-3.2 3.2a3.5 3.5 0 0 1-5 0" /></svg>
 </div>
+<div class="benefit-copy"><span>02</span><h3>Todo en un solo enlace</h3><p>Contacto, redes, catálogo, menú, reservaciones, portafolio y más.</p></div>
+</article>
 
-<div class="feature">
-<div class="feature-icon">🔗</div>
-<h3>Métricas y confianza</h3>
-<p>
-Conoce las interacciones de tu tarjeta y mantén tu información protegida.
-</p>
+<article class="benefit-item">
+<div class="benefit-icon" aria-hidden="true">
+<svg viewBox="0 0 24 24" role="img"><path d="M5 19V10M12 19V5M19 19v-7M3 19h18" /><path d="m4 8 5-4 4 3 7-5" /></svg>
 </div>
+<div class="benefit-copy"><span>03</span><h3>Mide lo que importa</h3><p>Visitas e interacciones para saber qué acciones genera tu ClickOnMe.</p></div>
+</article>
 
 </div>
 
