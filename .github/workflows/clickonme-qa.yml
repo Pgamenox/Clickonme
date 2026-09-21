@@ -166,6 +166,23 @@ jobs:
           if not all(checks.values()): sys.exit(1)
           PY
 
+      - name: Premium benefits coherence contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          s=Path("index.html").read_text()
+          checks={
+            "compact premium benefits": "PREMIUM BENEFITS V2" in s and 'class="features benefits-section"' in s,
+            "no emoji benefit icons": all(x not in s for x in (">💬<",">🚀<",">🔗<")),
+            "line svg icons": s.count('class="benefit-icon"') == 3 and s.count("<svg viewBox=") >= 3,
+            "three compact items": s.count('class="benefit-item"') == 3,
+            "mobile compact layout": "@media(max-width:520px)" in s and ".benefit-item{padding:15px 14px}" in s,
+          }
+          for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
+          if not all(checks.values()): sys.exit(1)
+          PY
+
       - name: Public profile contract
         run: |
           grep -q 'profile_view' crear/perfil.html
