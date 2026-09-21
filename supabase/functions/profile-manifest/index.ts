@@ -1,0 +1,21 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2";
+const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type"};
+Deno.serve(async(req)=>{
+ if(req.method==="OPTIONS")return new Response("ok",{headers:cors});
+ const u=new URL(req.url),slug=(u.searchParams.get("u")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
+ if(!slug)return new Response("Missing profile",{status:400,headers:cors});
+ const sb=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_ANON_KEY")!);
+ const {data:row}=await sb.from("profiles").select("name,photo_url,data,status,trial_ends_at,current_period_end,subscription_plan,demo_profile").eq("slug",slug).maybeSingle();
+ if(!row)return new Response("Profile not found",{status:404,headers:cors});
+ const d={...row,...(row.data||{})} as any,end=row.status==="active"?row.current_period_end:row.trial_ends_at;
+ if(["suspended","expired"].includes(row.status)||(end&&new Date(end).getTime()<=Date.now()))return new Response("Profile unavailable",{status:410,headers:cors});
+ const origin="https://clickonme.pro",fallback=origin+"/pwa-icon.svg",demo=row.demo_profile===true;
+ const photo=typeof d.photo==="string"&&/^https:\/\//.test(d.photo)?d.photo:(typeof row.photo_url==="string"&&/^https:\/\//.test(row.photo_url)?row.photo_url:"");
+ let raw=d.appIconMode==="custom"?d.appIcon:(d.appIconMode==="clickonme"?fallback:(d.appIcon||photo));if(!d.appIconMode)raw=d.appIcon||photo||fallback;
+ const baseIcon=typeof raw==="string"&&/^https:\/\//.test(raw)?raw:fallback,icon=baseIcon+(baseIcon.includes("?")?"&":"?")+"pwa=6";
+ const profile=origin+(demo?"/kit/?u=":"/crear/perfil.html?u=")+encodeURIComponent(slug);
+ const plan=String(row.subscription_plan||"").toUpperCase(),short=demo?("Demo "+(plan==="ARTIST"?"ARTISTA":plan)):String(d.name||"ClickOnMe").slice(0,24);
+ const manifest={id:origin+"/app/"+encodeURIComponent(slug),name:(demo?short+" · ":"")+(d.name||"Mi ClickOnMe")+" | ClickOnMe",short_name:short,start_url:profile+"&source=pwa",scope:demo?origin+"/kit/":origin+"/crear/perfil.html",display:"standalone",background_color:"#090b18",theme_color:"#090b18",prefer_related_applications:false,icons:[{src:icon,sizes:"any",purpose:"any"}]};
+ return new Response(JSON.stringify(manifest),{headers:{...cors,"Content-Type":"application/manifest+json","Cache-Control":"no-store"}});
+});
