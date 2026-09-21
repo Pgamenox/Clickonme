@@ -76,6 +76,35 @@ jobs:
 
           print("PASS: no exposed high-risk secrets or forbidden private-key files detected.")
 
+      - name: Allow only approved external script hosts
+        shell: python
+        run: |
+          from pathlib import Path
+          from urllib.parse import urlparse
+          import re, sys
+
+          approved = {"cdn.jsdelivr.net"}
+          findings = []
+
+          for path in Path(".").rglob("*.html"):
+              if ".git" in path.parts:
+                  continue
+              body = path.read_text(errors="ignore")
+              for src in re.findall(r'<script[^>]+src=["\']([^"\']+)["\']', body, flags=re.I):
+                  if not src.startswith(("https://","http://")):
+                      continue
+                  host = (urlparse(src).hostname or "").lower()
+                  if host not in approved:
+                      findings.append(f"Unapproved external script host {host}: {path} -> {src}")
+
+          if findings:
+              print("SECURITY CHECK FAILED")
+              for item in findings:
+                  print(" -", item)
+              sys.exit(1)
+
+          print("PASS: external scripts use only approved hosts.")
+
       - name: Verify critical security files
         shell: bash
         run: |
