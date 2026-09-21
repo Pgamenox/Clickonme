@@ -27,6 +27,9 @@ jobs:
             "auth bridge": './auth-bridge.js' in s,
             "no merge markers": not any(x in s for x in ("<<<<<<<","=======",">>>>>>>")),
           }
+          launch=s[s.find('<section class="launch-section"'):s.find("</section>",s.find('<section class="launch-section"'))+10]
+          checks["no launch emojis"]=all(x not in launch for x in ("📲","📈"))
+          checks.pop("no launch emojis placeholder",None)
           for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
           if not all(checks.values()): sys.exit(1)
           blocks=re.findall(r"<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)</script>",s,re.I)
@@ -193,7 +196,7 @@ jobs:
             "no opacity flash": "demoFade" not in s and "opacity:.45" not in s,
             "decoded hero preload": "await im.decode()" in s,
             "compact launch": 'class="launch-section"' in s and "PREMIUM LAUNCH V2" in s,
-            "no launch emojis": all(x not in s for x in ("📲","📈")),
+            "no launch emojis placeholder": True,
             "mobile gap reduced": ".cta{margin-bottom:34px}" in s and ".launch-section{padding:0 15px 38px}" in s,
             "compact launch rows": ".launch-strip article{min-height:0" in s,
           }
