@@ -2678,6 +2678,34 @@ margin-top:5px;
   .layout-stage .showcase-body{min-height:380px;padding-top:194px}
 }
 
+
+/* REAL DESIGNER DEMO LINKS */
+.showcase-real-link{
+  position:relative;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:34px;
+  margin-top:10px;
+  padding:8px 10px;
+  border-radius:11px;
+  text-decoration:none;
+  color:inherit;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.02em;
+  border:1px solid currentColor;
+  opacity:.72;
+  transition:opacity .18s ease,transform .18s ease,background .18s ease;
+}
+.showcase-real-link:hover{opacity:1;transform:translateY(-1px);background:rgba(255,255,255,.06)}
+.showcase-free .showcase-real-link{color:#38506e;background:rgba(255,255,255,.45)}
+.layout-stage .showcase-real-link{color:#ffb7cf;border-color:rgba(255,84,137,.32);background:rgba(7,3,6,.56)}
+.layout-media .showcase-real-link{color:#f0dcff;border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.055)}
+@media(max-width:900px){.showcase-real-link{min-height:36px;font-size:9.5px;margin-top:8px}}
+
 </style>
 </head>
 
@@ -2778,7 +2806,7 @@ Ejemplos Premium ClickOnMe
 </h2>
 
 <p class="section-subtitle">
-Los mismos cinco estilos del carrusel, ahora en una vista más completa. Cada plan tiene una identidad visual propia y todos mantienen la misma línea premium.
+Cinco estilos construidos con las funciones reales de ClickOnMe. Cada muestra tiene también una tarjeta pública real creada con el mismo diseñador.
 </p>
 
 <div class="premium-showcase-grid" id="premiumShowcaseGrid" aria-label="Ejemplos premium de ClickOnMe"></div>
@@ -2959,12 +2987,13 @@ const demos=[
 {plan:'FREE',name:'Ana Pérez',role:'Estudiante · Vida en movimiento',img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'SENCILLO · ESENCIAL · TU PUNTO DE PARTIDA',pitch:'Una presencia limpia, fresca y elegante para empezar.',links:[['👤','Sobre mí'],['◎','Mis redes'],['✉','Contacto']]},
 {plan:'PERSONAL',name:'Carlos Mendoza',role:'Viajero · Fotógrafo · Explorador',img:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'TU HISTORIA · TU ESTILO',pitch:'Fotografía protagonista, personalidad y enlaces que se sienten tuyos.',links:[['▣','Mis fotos'],['✈','Mis viajes'],['📍','Recomendaciones'],['✉','Contacto']]},
 {plan:'BUSINESS',name:'Lorenzo Rivas',role:'Arquitecto · Estudio',img:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'DISEÑO · FUNCIONALIDAD · VALOR',pitch:'Negro, oro y estructura editorial para una presencia corporativa premium.',links:[['▥','Nuestros proyectos'],['⚙','Servicios'],['📍','Ubicación'],['✉','Contáctanos']]},
-{plan:'ARTISTA',name:'Diego Luna',role:'Cantautor · Músico',img:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=420&h=520&q=80',tag:'MÚSICA QUE CONECTA',pitch:'Una experiencia de escenario para música, fechas, galería y contratación.',links:[['▶','Escucha mi música'],['🎟','Próximos conciertos'],['▣','Galería'],['✉','Contacto']]},
+{plan:'ARTISTA',name:'Diego Luna',role:'Cantautor · Músico',img:'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1200&h=900&q=88',hero:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=420&h=520&q=80',tag:'MÚSICA QUE CONECTA',pitch:'Una experiencia de escenario para música, fechas, galería y contratación.',links:[['▶','Escucha mi música'],['🎟','Próximos conciertos'],['▣','Galería'],['✉','Contacto']]},
 {plan:'CREATOR',name:'Valeria Torres',role:'Creadora de contenido',img:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',hero:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=420&h=520&q=80',tag:'IDEAS · ESTILO · COMUNIDAD',pitch:'Color, energía y módulos visuales para contenido, colaboraciones y tienda.',links:[['◎','Mi contenido'],['✦','Colaboraciones'],['🛍','Tienda'],['✉','Contacto']]}
 ]
 const showcase=document.getElementById('premiumShowcaseGrid');
 if(showcase){
   const layouts=['editorial','profile','executive','stage','media'];
+  const demoSlugs=['demo-clickonme-free','demo-clickonme-personal','demo-clickonme-business','demo-clickonme-artista','demo-clickonme-creator'];
   showcase.innerHTML=demos.map((d,n)=>{
     const cls=d.plan.toLowerCase();
     const links=d.links.slice(0,3).map((x,k)=>'<span><i class="showcase-mark" aria-hidden="true"></i>'+x[1]+'</span>').join('');
@@ -2977,6 +3006,7 @@ if(showcase){
       '<div class="showcase-body">'+
         '<div class="showcase-copy"><small>'+d.tag+'</small><h3>'+d.name+'</h3><p class="showcase-role">'+d.role+'</p><p class="showcase-pitch">'+d.pitch+'</p></div>'+
         '<div class="showcase-links">'+links+'</div>'+
+        '<a class="showcase-real-link" href="/crear/perfil.html?u='+demoSlugs[n]+'" target="_blank" rel="noopener">Ver tarjeta real <span aria-hidden="true">↗</span></a>'+
       '</div>'+
     '</article>';
   }).join('');
