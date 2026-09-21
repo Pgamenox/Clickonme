@@ -230,6 +230,37 @@ jobs:
           if not all(checks.values()): sys.exit(1)
           PY
 
+      - name: Premium demo identity and presentation kits contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          profile=Path("crear/perfil.html").read_text()
+          checks={
+            "demo plan identity component": 'id="demoPlanIdentity"' in profile and "dataset.demoPlan" in profile and 'id="demoPlanIdentityV1"' in profile,
+            "five premium plan identities": all(('data-demo-plan="'+x+'"') in profile for x in ("free","personal","business","artist","creator")),
+          }
+          people={
+            "pablo":"pablo",
+            "andrea":"andrea",
+            "anapaula":"anapaula",
+            "francisco":"francisco",
+            "rafael":"rafael",
+          }
+          for folder,prefix in people.items():
+            p=Path("presentacion")/folder/"index.html"
+            exists=p.exists()
+            checks[f"{folder} presentation exists"]=exists
+            if not exists:
+              continue
+            src=p.read_text()
+            checks[f"{folder} five plan demos"]=all(f"demo-{prefix}-{plan}" in src for plan in ("free","personal","business","artista","creator"))
+            checks[f"{folder} clean route"]=("/kit/?u=" not in src and 'rel="manifest"' not in src and "serviceWorker" not in src)
+            checks[f"{folder} official logo"]=('/logo-clickonme.png' in src)
+          for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
+          if not all(checks.values()): sys.exit(1)
+          PY
+
       - name: Public profile contract
         run: |
           grep -q 'profile_view' crear/perfil.html
