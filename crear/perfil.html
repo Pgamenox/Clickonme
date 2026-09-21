@@ -603,10 +603,11 @@ async function loadProfile(){
    isOwner=Boolean(session?.user?.id && row.user_id && session.user.id===row.user_id);
  }catch(_){}
  window.__CLICKONME_IS_OWNER=isOwner;
+ const openedAsInstalledApp=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true||params.get("source")==="pwa";
  const ownerInstallPanel=document.getElementById("installPanel");
  if(ownerInstallPanel){
-   ownerInstallPanel.style.display=(isOwner&&!runningAsApp())?"block":"none";
-   ownerInstallPanel.setAttribute("aria-hidden",isOwner&&!runningAsApp()?"false":"true");
+   ownerInstallPanel.style.display=(isOwner&&!openedAsInstalledApp)?"block":"none";
+   ownerInstallPanel.setAttribute("aria-hidden",isOwner&&!openedAsInstalledApp?"false":"true");
  }
  const paidExpired=row.account_role!=='team'&&row.demo_profile!==true&&row.subscription_plan!=='free'&&row.current_period_end&&new Date(row.current_period_end).getTime()<=Date.now();
  const trialExpired=row.account_role!=='team'&&row.demo_profile!==true&&row.status==='trial'&&row.trial_ends_at&&new Date(row.trial_ends_at).getTime()<=Date.now();
@@ -638,7 +639,7 @@ async function loadProfile(){
  setBtn('customButtonBtn',d.customButtonUrl,d.customButtonText||'Enlace',d,'custom');
  window.clickOnMeShareMessage=String(d.shareMessage||"Conoce mi perfil en ClickOnMe").slice(0,140); renderProfileMode(d); renderPresskitDetails(d); renderGalleryModule(d); renderStoreModule(d); renderAudioModule(d); renderVideoModule(d);
  const links=document.querySelector('.links');
- (Array.isArray(d.extraCustomButtons)?d.extraCustomButtons:[]).slice(0,3).forEach(x=>{const url=safeWebUrl(x.url);if(!x.text||!url)return;const a=document.createElement('a');a.className='btn';a.href=url;setButtonContent(a,d,'custom',x.text);a.target='_blank';a.rel='noopener noreferrer';links.appendChild(a);});
+ (Array.isArray(d.extraCustomButtons)?d.extraCustomButtons:[]).slice(0,3).forEach(x=>{const url=safeWebUrl(x.url);if(!x.text||!url)return;const a=document.createElement('a');a.className='btn extra-custom-btn';a.href=url;setButtonContent(a,d,'custom',x.text);a.target='_blank';a.rel='noopener noreferrer';links.appendChild(a);});
  document.querySelectorAll('.btn').forEach(button=>styleButton(button,d));
  trackInteraction("profile_view");
  revealProfile();
