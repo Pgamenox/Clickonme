@@ -13,9 +13,9 @@ Deno.serve(async(req)=>{
  const origin="https://clickonme.pro",fallback=origin+"/pwa-icon.svg",demo=row.demo_profile===true;
  const photo=typeof d.photo==="string"&&/^https:\/\//.test(d.photo)?d.photo:(typeof row.photo_url==="string"&&/^https:\/\//.test(row.photo_url)?row.photo_url:"");
  let raw=d.appIconMode==="custom"?d.appIcon:(d.appIconMode==="clickonme"?fallback:(d.appIcon||photo));if(!d.appIconMode)raw=d.appIcon||photo||fallback;
- const baseIcon=typeof raw==="string"&&/^https:\/\//.test(raw)?raw:fallback,icon=baseIcon+(baseIcon.includes("?")?"&":"?")+"pwa=6";
- const profile=origin+(demo?"/kit/?u=":"/crear/perfil.html?u=")+encodeURIComponent(slug);
+ const baseIcon=typeof raw==="string"&&/^https:\/\//.test(raw)?raw:fallback,icon=baseIcon+(baseIcon.includes("?")?"&":"?")+"pwa=7";
+ const profile=origin+"/crear/perfil.html?u="+encodeURIComponent(slug);
  const plan=String(row.subscription_plan||"").toUpperCase(),short=demo?("Demo "+(plan==="ARTIST"?"ARTISTA":plan)):String(d.name||"ClickOnMe").slice(0,24);
- const manifest={id:origin+"/app/"+encodeURIComponent(slug),name:(demo?short+" · ":"")+(d.name||"Mi ClickOnMe")+" | ClickOnMe",short_name:short,start_url:profile+"&source=pwa",scope:demo?origin+"/kit/":origin+"/crear/perfil.html",display:"standalone",background_color:"#090b18",theme_color:"#090b18",prefer_related_applications:false,icons:[{src:icon,sizes:"any",purpose:"any"}]};
+ const manifest={id:origin+"/app/"+encodeURIComponent(slug),name:(demo?short+" · ":"")+(d.name||"Mi ClickOnMe")+" | ClickOnMe",short_name:short,start_url:profile+"&source=pwa",scope:origin+"/crear/",display:"standalone",background_color:"#090b18",theme_color:"#090b18",prefer_related_applications:false,icons:[{src:icon,sizes:"any",purpose:"any"}]};
  return new Response(JSON.stringify(manifest),{headers:{...cors,"Content-Type":"application/manifest+json","Cache-Control":"no-store"}});
 });
