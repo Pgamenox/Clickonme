@@ -414,6 +414,7 @@ body.team-corporate-page>.com-brandbar{display:none}
   .card.team-corporate .team-corporate-highlights div{padding:0 4px}
 }
 </style>
+<style id="publicInstallHidden">.install-panel{display:none!important}</style>
 <style id="startupGuard">body{visibility:hidden;background:#090b18!important}</style>
 </head>
 
@@ -606,8 +607,8 @@ async function loadProfile(){
  const openedAsInstalledApp=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true||params.get("source")==="pwa";
  const ownerInstallPanel=document.getElementById("installPanel");
  if(ownerInstallPanel){
-   ownerInstallPanel.style.display=(isOwner&&!openedAsInstalledApp)?"block":"none";
-   ownerInstallPanel.setAttribute("aria-hidden",isOwner&&!openedAsInstalledApp?"false":"true");
+   ownerInstallPanel.style.display="none";
+   ownerInstallPanel.setAttribute("aria-hidden","true");
  }
  const paidExpired=row.account_role!=='team'&&row.demo_profile!==true&&row.subscription_plan!=='free'&&row.current_period_end&&new Date(row.current_period_end).getTime()<=Date.now();
  const trialExpired=row.account_role!=='team'&&row.demo_profile!==true&&row.status==='trial'&&row.trial_ends_at&&new Date(row.trial_ends_at).getTime()<=Date.now();
@@ -661,7 +662,7 @@ function runningAsApp(){return displayMode.matches||window.navigator.standalone=
 function syncInstallState(){
  if(!installPanel)return;
  const owner=window.__CLICKONME_IS_OWNER===true;
- if(runningAsApp()||!owner){
+ if(true){
    installPanel.style.display="none";
    installPanel.setAttribute("aria-hidden","true");
    return;
@@ -688,8 +689,8 @@ window.clickOnMeInstall=async function(){
  guideSteps();
 };
 syncInstallState();
-if(installPanel&&window.__CLICKONME_IS_OWNER===true&&!runningAsApp()){installHelp.textContent="Instala la tarjeta como app. Si el navegador ofrece “Crear acceso directo”, no elijas esa opción: puede añadir el logo de Chrome.";installBtn.textContent="📲 Instalar mi ClickOnMe";}
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();if(runningAsApp())return;deferredInstallPrompt=e;if(installPanel&&window.__CLICKONME_IS_OWNER===true){installPanel.style.display="block";installPanel.setAttribute("aria-hidden","false");installBtn.textContent="📲 Instalar mi ClickOnMe";}});
+if(false&&installPanel&&window.__CLICKONME_IS_OWNER===true&&!runningAsApp()){installHelp.textContent="Instala la tarjeta como app. Si el navegador ofrece “Crear acceso directo”, no elijas esa opción: puede añadir el logo de Chrome.";installBtn.textContent="📲 Instalar mi ClickOnMe";}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();if(runningAsApp())return;deferredInstallPrompt=e;if(false&&installPanel&&window.__CLICKONME_IS_OWNER===true){installPanel.style.display="block";installPanel.setAttribute("aria-hidden","false");installBtn.textContent="📲 Instalar mi ClickOnMe";}});
 function closeInstallGuide(){if(typeof installGuide?.close==="function")installGuide.close();else if(installGuide){installGuide.removeAttribute("open");installGuide.style.display="none";}}
 document.getElementById("installGuideClose")?.addEventListener("click",closeInstallGuide);
 installGuide?.addEventListener("click",e=>{if(e.target===installGuide)closeInstallGuide();});
