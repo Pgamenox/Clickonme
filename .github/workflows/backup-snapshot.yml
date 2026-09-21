@@ -1,6 +1,10 @@
 name: ClickOnMe Source Backup
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/backup-snapshot.yml"
   workflow_dispatch:
   schedule:
     - cron: "17 7 * * 1"
