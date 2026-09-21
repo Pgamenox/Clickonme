@@ -109,7 +109,7 @@ jobs:
             "service worker network-first profile/home": 'isProfile||isHomepage' in sw and "fetch(event.request)" in sw,
             "individual manifest wired": "profile-manifest" in profile and "dynamicManifest" in profile,
             "manifest opens exact profile": '"/crear/perfil.html?u="' in manifest and '"&source=pwa"' in manifest,
-            "install state handled": "beforeinstallprompt" in profile and "appinstalled" in profile and "runningAsApp" in profile,
+            "public install UI removed": 'id="installPanel"' not in profile and 'id="installBtn"' not in profile and "beforeinstallprompt" not in profile and "appinstalled" not in profile,
           }
           for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
           if not all(checks.values()): sys.exit(1)
@@ -236,6 +236,10 @@ jobs:
           grep -q 'shareBtn' crear/perfil.html
           grep -q 'copyBtn' crear/perfil.html
           grep -q 'qrBtn' crear/perfil.html
-          grep -q 'installBtn' crear/perfil.html
+          ! grep -q 'id="installPanel"' crear/perfil.html
+          ! grep -q 'id="installBtn"' crear/perfil.html
+          ! grep -q 'beforeinstallprompt' crear/perfil.html
+          ! grep -q 'appinstalled' crear/perfil.html
+          ! grep -q 'Esta demo se abrió dentro de tu ClickOnMe instalado' crear/perfil.html
           grep -q 'profile-manifest' crear/perfil.html
           grep -q 'startupGuard' crear/perfil.html
