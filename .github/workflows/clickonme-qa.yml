@@ -133,19 +133,27 @@ jobs:
           if not all(checks.values()): sys.exit(1)
           PY
 
-      - name: Homepage premium coherence contract
+      - name: Homepage real designer demos contract
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import sys
           s=Path("index.html").read_text()
+          demo_slugs=[
+            "demo-clickonme-free",
+            "demo-clickonme-personal",
+            "demo-clickonme-business",
+            "demo-clickonme-artista",
+            "demo-clickonme-creator",
+          ]
           checks={
             "old example cards removed": all(x not in s for x in ("La Mesa Norteña","Valeria Luna","Daniel Ríos","Nico Sol")),
-            "premium showcase exists": 'id="premiumShowcaseGrid"' in s and "PREMIUM EXAMPLES V5" in s,
-            "showcase uses same demo source": "showcase.innerHTML=demos.map" in s,
-            "five plans present": all(x in s for x in ("plan:'FREE'","plan:'PERSONAL'","plan:'BUSINESS'","plan:'ARTISTA'","plan:'CREATOR'")),
-            "premium remote photography": s.count("images.unsplash.com/photo-") >= 5,
-            "no legacy homepage example assets": all(x not in s for x in ('src="/assets/examples/chef.jpg"','src="/assets/examples/architect.jpg"','src="/assets/examples/artist.jpg"','src="/assets/examples/creator.jpg"')),
+            "real demo section exists": 'class="examples real-demo-examples"' in s and "Ejemplos reales creados con ClickOnMe" in s,
+            "five real public profiles wired": all(x in s for x in demo_slugs),
+            "five iframe previews": s.count('class="real-phone-frame"') == 5 and s.count('title="Demo real ') == 5,
+            "real profile open actions": s.count("Abrir tarjeta real") == 5,
+            "legacy showcase generator removed": 'id="premiumShowcaseGrid"' not in s and "showcase.innerHTML=demos.map" not in s,
+            "five hero plans preserved": all(x in s for x in ("plan:'FREE'","plan:'PERSONAL'","plan:'BUSINESS'","plan:'ARTISTA'","plan:'CREATOR'")),
           }
           for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
           if not all(checks.values()): sys.exit(1)
