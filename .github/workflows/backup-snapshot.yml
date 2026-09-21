@@ -1,0 +1,37 @@
+name: ClickOnMe Source Backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  source-backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout production source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Build restore archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          stamp="$(date -u +%Y-%m-%dT%H%M%SZ)"
+          mkdir -p backup-out
+          printf '%s\n' "$(git rev-parse HEAD)" > backup-out/COMMIT_SHA.txt
+          git archive --format=zip --output="backup-out/ClickOnMe-source-${stamp}.zip" HEAD
+          sha256sum "backup-out/ClickOnMe-source-${stamp}.zip" > backup-out/SHA256SUMS.txt
+
+      - name: Store encrypted-at-rest GitHub Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: clickonme-source-backup
+          path: backup-out/
+          retention-days: 90
+          if-no-files-found: error
