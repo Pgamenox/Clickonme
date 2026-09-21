@@ -2863,6 +2863,156 @@ margin-top:5px;
 }
 
 </style>
+
+<style>
+/* PREMIUM HOMEPAGE V7 — final first-impression polish */
+.main-nav{
+  border-bottom:1px solid rgba(255,255,255,.055);
+  background:rgba(6,8,18,.78);
+  backdrop-filter:blur(22px) saturate(135%);
+  -webkit-backdrop-filter:blur(22px) saturate(135%);
+}
+.main-nav .logo img{filter:saturate(.96)}
+.top-links a{
+  position:relative;
+  color:#9ca7bb;
+  transition:color .16s ease;
+}
+.top-links a::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:100%;
+  bottom:-6px;
+  height:1px;
+  background:linear-gradient(90deg,#39dcff,#9b63ff);
+  transition:right .18s ease;
+}
+.top-links a:hover{color:#fff}
+.top-links a:hover::after{right:0}
+.nav-actions .btn{min-height:43px;border-radius:13px}
+.hero{
+  position:relative;
+  isolation:isolate;
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:3% 5% auto;
+  height:300px;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 25% 30%,rgba(57,220,255,.055),transparent 28%),
+    radial-gradient(circle at 72% 25%,rgba(155,99,255,.07),transparent 30%);
+  filter:blur(10px);
+}
+.hero>.badge{
+  border:1px solid rgba(57,220,255,.16);
+  background:linear-gradient(90deg,rgba(57,220,255,.055),rgba(155,99,255,.055));
+  box-shadow:0 10px 28px rgba(0,0,0,.10);
+  letter-spacing:.145em;
+}
+.hero h1{
+  text-wrap:balance;
+  letter-spacing:-.055em;
+}
+.hero>p{
+  max-width:620px;
+  color:#9faabd;
+  line-height:1.7;
+  text-wrap:pretty;
+}
+.hero .actions{gap:10px}
+.hero .actions .btn{
+  min-height:52px;
+  padding:14px 22px;
+  border-radius:15px;
+  box-shadow:0 14px 30px rgba(0,0,0,.12);
+}
+.hero-float{
+  min-width:190px;
+  padding:12px 14px!important;
+  border-radius:16px!important;
+  background:linear-gradient(145deg,rgba(17,23,42,.88),rgba(8,11,23,.86))!important;
+  border:1px solid rgba(255,255,255,.085)!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.22)!important;
+  color:#eff5ff!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  letter-spacing:.015em;
+}
+.hero-float::before{
+  content:"";
+  display:inline-block;
+  width:6px;
+  height:6px;
+  margin-right:7px;
+  border-radius:50%;
+  background:#55e6ae;
+  box-shadow:0 0 10px rgba(85,230,174,.55);
+  vertical-align:1px;
+}
+.hero-float small{
+  display:block;
+  margin:5px 0 0 13px!important;
+  color:#77849c!important;
+  font-size:8.5px!important;
+  font-weight:500!important;
+  letter-spacing:0!important;
+}
+.audience-strip{
+  max-width:940px;
+  margin-left:auto;
+  margin-right:auto;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:999px;
+  background:rgba(255,255,255,.025);
+  box-shadow:0 12px 34px rgba(0,0,0,.10);
+}
+.audience-strip strong{
+  color:#7eeaff;
+  letter-spacing:.13em;
+}
+.audience-strip span{color:#8f9bb0}
+.cta-box{
+  border:1px solid rgba(102,202,255,.13);
+  background:
+    radial-gradient(circle at 80% 0,rgba(155,99,255,.08),transparent 30%),
+    linear-gradient(145deg,rgba(18,24,43,.90),rgba(8,11,23,.90));
+  box-shadow:0 28px 70px rgba(0,0,0,.22);
+}
+.cta-box h2{letter-spacing:-.04em;text-wrap:balance}
+.cta-box p{color:#9ea9bd;line-height:1.65}
+.btn:focus-visible,.top-links a:focus-visible,.real-demo-card>a:focus-visible{
+  outline:2px solid #39dcff;
+  outline-offset:3px;
+}
+@media(max-width:900px){
+  .top-links{display:none}
+  .hero::before{height:220px}
+  .hero-float{display:none!important}
+  .audience-strip{
+    margin-left:14px;
+    margin-right:14px;
+    border-radius:20px;
+  }
+}
+@media(max-width:520px){
+  .main-nav{padding-left:12px;padding-right:12px}
+  .nav-actions .btn-secondary{display:none}
+  .nav-actions .btn-primary{min-height:40px;padding:10px 12px}
+  .hero h1{letter-spacing:-.045em}
+  .hero>p{font-size:13px;line-height:1.6}
+  .hero .actions{display:grid;grid-template-columns:1fr}
+  .hero .actions .btn{width:100%;text-align:center}
+  .audience-strip{gap:8px;padding:10px 12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .top-links a::after,.top-links a{transition:none!important}
+}
+</style>
+
 </head>
 
 <body>
@@ -2898,7 +3048,7 @@ href="#ejemplos">
 Ver ejemplos
 </a>
 
-</div><div class="hero-float one">📲 Tu tarjeta siempre a la mano<small>Instálala, ábrela y compártela</small></div><div class="hero-float two">🔗 Un clic para abrir y compartir<small>Todo en un solo enlace</small></div><div class="phone-demo" aria-label="Ejemplos de tarjetas ClickOnMe">
+</div><div class="hero-float one">Siempre a la mano<small>Instálala, ábrela y compártela</small></div><div class="hero-float two">Un solo enlace<small>Abre, conecta y comparte</small></div><div class="phone-demo" aria-label="Ejemplos de tarjetas ClickOnMe">
 <div class="demo-card" id="heroDemoCard">
 <img class="demo-brand" src="/logo-clickonme.png" alt="ClickOnMe">
 <div class="demo-plan" id="heroDemoPlan">CREATOR</div>
