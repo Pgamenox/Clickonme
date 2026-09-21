@@ -112,6 +112,24 @@ jobs:
           if not all(checks.values()): sys.exit(1)
           PY
 
+      - name: Homepage premium visual contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          s=Path("index.html").read_text()
+          checks={
+            "premium v4 marker": "V4 LIVE PREMIUM CARDS 2026-09-21" in s,
+            "live premium data marker": "premium-v4" in s,
+            "Ana placeholder removed": "ana-perez.svg" not in s,
+            "Ana uses real photo": "images.unsplash.com/photo-1765648636065-fd5c0884b629" in s,
+            "Ana has local fallback": "fallback:'/assets/examples/creator.jpg'" in s,
+            "five plan styles": all(x in s for x in ("demo-free[data-visual=\"premium-v4\"]","demo-personal[data-visual=\"premium-v4\"]","demo-business[data-visual=\"premium-v4\"]","demo-artista[data-visual=\"premium-v4\"]","demo-creator[data-visual=\"premium-v4\"]")),
+          }
+          for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
+          if not all(checks.values()): sys.exit(1)
+          PY
+
       - name: Public profile contract
         run: |
           grep -q 'profile_view' crear/perfil.html
