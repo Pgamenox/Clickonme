@@ -130,6 +130,24 @@ jobs:
           if not all(checks.values()): sys.exit(1)
           PY
 
+      - name: Homepage premium coherence contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          s=Path("index.html").read_text()
+          checks={
+            "old example cards removed": all(x not in s for x in ("La Mesa Norteña","Valeria Luna","Daniel Ríos","Nico Sol")),
+            "premium showcase exists": 'id="premiumShowcaseGrid"' in s and "PREMIUM EXAMPLES V5" in s,
+            "showcase uses same demo source": "showcase.innerHTML=demos.map" in s,
+            "five plans present": all(x in s for x in ("plan:'FREE'","plan:'PERSONAL'","plan:'BUSINESS'","plan:'ARTISTA'","plan:'CREATOR'")),
+            "premium remote photography": s.count("images.unsplash.com/photo-") >= 5,
+            "no legacy homepage example assets": all(x not in s for x in ('src="/assets/examples/chef.jpg"','src="/assets/examples/architect.jpg"','src="/assets/examples/artist.jpg"','src="/assets/examples/creator.jpg"')),
+          }
+          for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
+          if not all(checks.values()): sys.exit(1)
+          PY
+
       - name: Public profile contract
         run: |
           grep -q 'profile_view' crear/perfil.html
