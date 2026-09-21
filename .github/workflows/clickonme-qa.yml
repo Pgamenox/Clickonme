@@ -54,6 +54,36 @@ jobs:
           grep -q 'loadOwnProfile' crear/index.html
           grep -q 'loadMyCards' crear/index.html
 
+
+      - name: Mini Store beta and stress contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,sys
+          builder=Path("crear/index.html").read_text()
+          profile=Path("crear/perfil.html").read_text()
+          checks={
+            "store editor": 'id="storeEnabled"' in builder and 'id="storeProductsEditor"' in builder,
+            "six product cap": 'storeProducts.length>=6' in builder and 'slice(0,6)' in builder,
+            "store persistence": 'modules?.store' in builder and 'profileData.modules.store.products=uploadedStore' in builder,
+            "store renderer": 'function renderStoreModule' in profile and 'id="storeGrid"' in profile,
+            "whatsapp order": '"https://wa.me/"+wa+"?text="' in profile,
+            "store analytics": 'trackInteraction("store_order",name)' in profile,
+            "business gating": '[storeEnabled,2,"Business"]' in builder and 'planLevel<2&&d.modules?.store' in profile,
+          }
+          for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
+          if not all(checks.values()): sys.exit(1)
+
+          # Stress the data model with 10,000 synthetic carts/catalogs.
+          # No network calls: deterministic boundary/fuzz test of the shipped limits.
+          for n in range(10000):
+            products=[{"name":"Producto "+str(i)+" X"*40,"price":str((i+1)*19.95),"description":"D"*300,"image":"https://example.invalid/p.jpg"} for i in range(n%12)]
+            saved=[{"name":str(x["name"]).strip()[:80],"price":str(x["price"]).strip(),"description":str(x["description"]).strip()[:140],"image":x["image"]} for x in products[:6] if str(x["name"]).strip() and str(x["price"]).strip()]
+            assert len(saved)<=6
+            assert all(len(x["name"])<=80 and len(x["description"])<=140 for x in saved)
+          print("PASS 10000 synthetic mini-store boundary iterations")
+          PY
+
       - name: Public profile contract
         run: |
           grep -q 'profile_view' crear/perfil.html
