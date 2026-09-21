@@ -42,8 +42,8 @@ jobs:
           from pathlib import Path
           import re
           s=Path("crear/perfil.html").read_text()
-          blocks=re.findall(r"<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)</script>",s,re.I)
-          Path("/tmp/profile-inline.js").write_text("\\n;\\n".join(blocks))
+          blocks=re.findall(r"<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)</script>",s,re.I)
+          Path("/tmp/profile-inline.js").write_text("\n;\n".join(blocks))
           PY
           node --check /tmp/profile-inline.js
       - name: Critical auth contract
