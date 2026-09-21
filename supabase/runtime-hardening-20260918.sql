@@ -113,3 +113,52 @@ grant execute on function public.admin_create_card(text,text,text,text) to authe
 
 -- 2026-09-19: dedupe_rejected_payment_events
 -- Runtime function updated so repeated provider notifications for an already-rejected payment do not create duplicate payment_rejected business events. The live migration is recorded in Supabase migration history. Keep private.apply_verified_payment EXECUTE restricted to service_role.
+
+
+-- 2026-09-20: persist purchased subscription plan during verified payment activation.
+alter table public.profiles
+  add column if not exists subscription_plan text not null default 'free'
+  check (subscription_plan in ('free','personal','business','artist','creator'));
+
+create or replace function private.apply_verified_payment(p_payment_id uuid,p_provider_payment_id text,p_status text,p_provider_payload jsonb)
+returns table(status text,current_period_end timestamptz,activation_applied boolean)
+language plpgsql security definer set search_path=''
+as $$
+declare
+ v_payment public.payments%rowtype; v_profile public.profiles%rowtype; v_new_end timestamptz;
+ v_claimed boolean:=false; v_plan text;
+begin
+ if p_status not in ('pending','approved','rejected','cancelled','refunded') then raise exception 'invalid payment status'; end if;
+ select * into v_payment from public.payments where id=p_payment_id for update;
+ if not found then raise exception 'payment not found'; end if;
+ v_plan:=coalesce(v_payment.provider_payload->>'plan','personal');
+ if v_plan not in ('personal','business','artist','creator') then raise exception 'invalid subscription plan'; end if;
+ if v_payment.status='approved' then
+   select * into v_profile from public.profiles where id=v_payment.profile_id and user_id=v_payment.user_id;
+   return query select v_payment.status,v_profile.current_period_end,false; return;
+ end if;
+ update public.payments
+ set provider_payment_id=p_provider_payment_id,status=p_status,
+     provider_payload=coalesce(v_payment.provider_payload,'{}'::jsonb)||coalesce(p_provider_payload,'{}'::jsonb),
+     updated_at=now()
+ where id=v_payment.id;
+ if p_status='approved' then
+   select * into v_profile from public.profiles where id=v_payment.profile_id and user_id=v_payment.user_id for update;
+   if not found then raise exception 'profile not found'; end if;
+   v_new_end=(case when v_profile.current_period_end is not null and v_profile.current_period_end>now() then v_profile.current_period_end else now() end)+interval '1 year';
+   update public.profiles
+   set status='active',subscription_plan=v_plan,current_period_end=v_new_end,updated_at=now()
+   where id=v_profile.id;
+   v_claimed:=true;
+   insert into public.business_events(user_id,profile_id,event_type,metadata)
+   values(v_payment.user_id,v_payment.profile_id,'payment_approved',
+     jsonb_build_object('payment_id',v_payment.id,'provider_payment_id',p_provider_payment_id,'environment',v_payment.environment,'plan',v_plan));
+ elsif p_status='rejected' then
+   insert into public.business_events(user_id,profile_id,event_type,metadata)
+   values(v_payment.user_id,v_payment.profile_id,'payment_rejected',
+     jsonb_build_object('payment_id',v_payment.id,'provider_payment_id',p_provider_payment_id,'environment',v_payment.environment,'plan',v_plan));
+ end if;
+ return query select p_status,case when p_status='approved' then v_new_end else v_profile.current_period_end end,v_claimed;
+end; $$;
+revoke all on function private.apply_verified_payment(uuid,text,text,jsonb) from public,anon,authenticated;
+grant execute on function private.apply_verified_payment(uuid,text,text,jsonb) to service_role;
