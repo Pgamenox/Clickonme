@@ -193,10 +193,10 @@ jobs:
           import sys
           s=Path("index.html").read_text()
           checks={
-            "no opacity flash": "demoFade" not in s and "opacity:.45" not in s,
+            "no opacity flash": "demoFade" not in s and "@keyframes demoShift" in s,
             "decoded hero preload": "await im.decode()" in s,
             "compact launch": 'class="launch-section"' in s and "PREMIUM LAUNCH V2" in s,
-            "no launch emojis placeholder": True,
+            "no launch emojis": all(x not in s[s.find('<section class="launch-section"'):s.find("</section>",s.find('<section class="launch-section"'))+10] for x in ("📲","📈")),
             "mobile gap reduced": ".cta{margin-bottom:34px}" in s and ".launch-section{padding:0 15px 38px}" in s,
             "compact launch rows": ".launch-strip article{min-height:0" in s,
           }
