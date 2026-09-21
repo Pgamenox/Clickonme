@@ -213,6 +213,207 @@ h1{font-size:30px;line-height:1.12;letter-spacing:-.035em;margin-bottom:8px}.rol
 <style id="miniStoreV2">
 .module-store{display:none;margin:22px 0 18px;text-align:left}.module-store h2{font-size:18px;margin:0 0 12px;letter-spacing:-.02em}.store-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.store-product{overflow:hidden;position:relative;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035));box-shadow:0 12px 28px rgba(0,0,0,.18);backdrop-filter:blur(10px);transition:transform .18s ease,border-color .18s ease}.store-product:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.28)}.store-product img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:rgba(255,255,255,.06)}.store-product-body{padding:11px}.store-product strong{display:block;font-size:14px;line-height:1.2}.store-price{font-size:17px;font-weight:900;margin:6px 0}.store-desc{font-size:11px;opacity:.78;line-height:1.4;min-height:31px}.store-order{display:block;margin-top:9px;padding:10px;text-align:center;border-radius:11px;background:linear-gradient(135deg,var(--store-accent,#7c3cff),var(--store-accent2,#d426ff));box-shadow:0 7px 18px rgba(0,0,0,.20);color:#fff!important;text-decoration:none;font-size:11px;font-weight:900}.card[data-store-theme="business"] .module-store{padding-top:4px;border-top:1px solid rgba(218,181,102,.25)}.card[data-store-theme="business"] .store-product{border-color:rgba(218,181,102,.24);background:linear-gradient(145deg,rgba(218,181,102,.10),rgba(20,15,10,.30))}.card[data-store-theme="business"] .store-order{--store-accent:#8c692a;--store-accent2:#d6b15f}.card[data-store-theme="creator"] .store-order{--store-accent:#7046ff;--store-accent2:#e327ff}.card[data-store-theme="artist"] .store-order{--store-accent:#b10c4f;--store-accent2:#ff315f}.card[data-store-theme="personal"] .store-order{--store-accent:#00a7b7;--store-accent2:#1c73ff}@media(max-width:430px){.store-grid{grid-template-columns:1fr 1fr;gap:8px}.store-product{border-radius:15px}.store-product-body{padding:9px}.store-price{font-size:15px}.store-order{padding:9px 6px;font-size:10px}}
 </style>
+
+<style id="teamCorporateTemplateV1">
+/* Internal ClickOnMe team corporate template. Does not alter customer cards. */
+.team-corporate-brand,.team-corporate-highlights,.team-corporate-quote{display:none}
+body.team-corporate-page{
+  --team-cyan:#00c7e6;
+  --team-violet:#8b2cff;
+  --team-ink:#050916;
+  background:#050916;
+}
+body.team-corporate-page::after{
+  background:
+    radial-gradient(circle at 85% 8%,rgba(0,199,230,.16),transparent 28%),
+    radial-gradient(circle at 8% 22%,rgba(139,44,255,.18),transparent 30%),
+    linear-gradient(180deg,rgba(3,6,15,.12),rgba(3,6,15,.64));
+}
+body.team-corporate-page>.com-brandbar{display:none}
+.card.team-corporate{
+  max-width:520px;
+  padding:22px 24px 28px;
+  border-radius:34px;
+  background:
+    linear-gradient(160deg,rgba(9,15,35,.94),rgba(3,8,20,.96));
+  border:1px solid rgba(122,205,255,.18);
+  box-shadow:
+    0 34px 90px rgba(0,0,0,.48),
+    0 0 0 1px rgba(137,44,255,.08) inset,
+    0 0 58px rgba(0,199,230,.07);
+  overflow:hidden;
+}
+.card.team-corporate::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:3px;
+  background:linear-gradient(90deg,var(--team-violet),#4f6dff,var(--team-cyan));
+  opacity:.95;
+}
+.card.team-corporate .team-corporate-brand{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin:0 0 18px;
+}
+.card.team-corporate .team-corporate-brand img{
+  width:150px;
+  max-width:46%;
+  height:auto;
+  object-fit:contain;
+}
+.card.team-corporate .team-corporate-kicker{
+  max-width:44%;
+  color:#c7d1e4;
+  font-size:8.5px;
+  line-height:1.65;
+  letter-spacing:.18em;
+  text-align:left;
+}
+.card.team-corporate .avatar{
+  width:100%;
+  height:286px;
+  margin:0 0 20px;
+  border-radius:26px;
+  border:1px solid rgba(255,255,255,.17);
+  box-shadow:0 20px 44px rgba(0,0,0,.34),0 0 0 1px rgba(0,199,230,.06);
+  background:#0a1020;
+}
+.card.team-corporate .avatar img{
+  object-position:center 24%;
+}
+.card.team-corporate h1{
+  font-size:clamp(28px,7vw,38px);
+  line-height:1.02;
+  letter-spacing:-.045em;
+  margin:0 0 8px;
+}
+.card.team-corporate .role{
+  color:#d6def0;
+  font-size:14px;
+  line-height:1.35;
+  margin-bottom:13px;
+}
+.card.team-corporate .com-brand-tagline{
+  font-size:9px;
+  letter-spacing:.20em;
+  color:#aebbd1;
+  text-transform:uppercase;
+}
+.card.team-corporate .com-brand-rule{
+  width:74px;
+  height:3px;
+  margin:11px auto 18px;
+  background:linear-gradient(90deg,var(--team-violet),var(--team-cyan));
+  border-radius:999px;
+}
+.card.team-corporate .description{
+  max-width:430px;
+  margin:0 auto 20px;
+  color:#c8d1e2;
+  font-size:14px;
+  line-height:1.65;
+}
+.card.team-corporate .share-actions{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin:18px 0 18px;
+}
+.card.team-corporate .share-action{
+  min-height:54px;
+  border-radius:16px;
+  background:rgba(13,24,45,.72);
+  border:1px solid rgba(87,165,225,.22);
+}
+.card.team-corporate .links{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px;
+}
+.card.team-corporate .btn{
+  min-height:58px;
+  border-radius:17px!important;
+  justify-content:flex-start;
+  padding:13px 15px;
+  background:linear-gradient(135deg,rgba(16,25,47,.92),rgba(9,17,34,.90))!important;
+  border:1px solid rgba(74,191,255,.26)!important;
+  box-shadow:inset 0 0 0 1px rgba(139,44,255,.05);
+}
+.card.team-corporate .btn:nth-child(even){
+  border-color:rgba(139,44,255,.30)!important;
+}
+.card.team-corporate .extra-custom-btn,
+.card.team-corporate #customButtonBtn{
+  grid-column:span 2;
+  justify-content:center;
+}
+.card.team-corporate #customButtonBtn{
+  background:linear-gradient(90deg,rgba(80,26,190,.84),rgba(0,151,203,.82))!important;
+  border-color:rgba(128,228,255,.32)!important;
+}
+.card.team-corporate .team-corporate-highlights{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;
+  margin:22px 0 16px;
+  padding:18px 0;
+  border-top:1px solid rgba(101,202,255,.22);
+  border-bottom:1px solid rgba(139,44,255,.20);
+}
+.card.team-corporate .team-corporate-highlights div{
+  padding:0 7px;
+  text-align:center;
+  border-right:1px solid rgba(255,255,255,.10);
+}
+.card.team-corporate .team-corporate-highlights div:last-child{border-right:0}
+.card.team-corporate .team-corporate-highlights b,
+.card.team-corporate .team-corporate-highlights span{
+  display:block;
+}
+.card.team-corporate .team-corporate-highlights b{
+  color:#f3f7ff;
+  font-size:10px;
+}
+.card.team-corporate .team-corporate-highlights span{
+  margin-top:3px;
+  color:#94a7c3;
+  font-size:8.5px;
+}
+.card.team-corporate .team-corporate-quote{
+  display:block;
+  margin:16px auto 20px;
+  max-width:360px;
+  color:#e6eaf3;
+  font-family:Georgia,serif;
+  font-size:15px;
+  font-style:italic;
+  line-height:1.5;
+}
+.card.team-corporate .footer{
+  margin-top:15px;
+  padding-top:15px;
+}
+.card.team-corporate .footer img{
+  width:116px;
+  max-width:42%;
+}
+@media(max-width:520px){
+  body.team-corporate-page{padding:10px 8px 26px}
+  .card.team-corporate{padding:16px 14px 22px;border-radius:27px}
+  .card.team-corporate .team-corporate-brand{margin-bottom:13px}
+  .card.team-corporate .team-corporate-brand img{width:128px}
+  .card.team-corporate .team-corporate-kicker{font-size:7px}
+  .card.team-corporate .avatar{height:235px;border-radius:21px}
+  .card.team-corporate .share-actions{gap:7px}
+  .card.team-corporate .share-action{font-size:10px;padding:9px 5px}
+  .card.team-corporate .links{gap:9px}
+  .card.team-corporate .btn{min-height:54px;font-size:12px;padding:11px}
+  .card.team-corporate .team-corporate-highlights{padding:14px 0}
+  .card.team-corporate .team-corporate-highlights div{padding:0 4px}
+}
+</style>
 <style id="startupGuard">body{visibility:hidden;background:#090b18!important}</style>
 </head>
 
@@ -223,6 +424,11 @@ h1{font-size:30px;line-height:1.12;letter-spacing:-.035em;margin-bottom:8px}.rol
 </a>
 
 <div class="card">
+
+  <div class="team-corporate-brand" id="teamCorporateBrand" aria-hidden="true">
+    <div class="team-corporate-kicker">CONECTA · PRESENTA · COMPARTE · CRECE</div>
+    <img src="../logo-clickonme.png" alt="ClickOnMe">
+  </div>
 
   <div class="avatar" id="avatar">
     CM
@@ -277,6 +483,14 @@ h1{font-size:30px;line-height:1.12;letter-spacing:-.035em;margin-bottom:8px}.rol
   🌐 Sitio web
 </a> <a class="btn" id="customButtonBtn" href="#" style="display:none;"></a>
   </div>
+
+  <section class="team-corporate-highlights" id="teamCorporateHighlights" aria-hidden="true">
+    <div><b>Soluciones</b><span>Digitales</span></div>
+    <div><b>Impulsa</b><span>tu marca</span></div>
+    <div><b>Más</b><span>oportunidades</span></div>
+    <div><b>Resultados</b><span>reales</span></div>
+  </section>
+  <div class="team-corporate-quote" id="teamCorporateQuote" aria-hidden="true">Las grandes conexiones generan grandes oportunidades.</div>
 
   <div class="footer"><span>Mi tarjeta digital con</span><img src="../logo-clickonme.png" alt="ClickOnMe — Un clic y listo"></div>
 
@@ -374,7 +588,15 @@ async function loadProfile(){
    document.getElementById("profileDescription").textContent="";
    revealProfile(); return;
  }
- const d={...row,...(row.data||{})}; document.querySelector(".card").dataset.storeTheme=String(d.profileType||row.subscription_plan||"personal").toLowerCase();
+ const d={...row,...(row.data||{})};
+ const profileCard=document.querySelector(".card");
+ profileCard.dataset.storeTheme=String(d.profileType||row.subscription_plan||"personal").toLowerCase();
+ const isTeamCorporate=d.corporateTemplate==="clickonme-team";
+ profileCard.classList.toggle("team-corporate",isTeamCorporate);
+ document.body.classList.toggle("team-corporate-page",isTeamCorporate);
+ document.getElementById("teamCorporateBrand")?.setAttribute("aria-hidden",isTeamCorporate?"false":"true");
+ document.getElementById("teamCorporateHighlights")?.setAttribute("aria-hidden",isTeamCorporate?"false":"true");
+ document.getElementById("teamCorporateQuote")?.setAttribute("aria-hidden",isTeamCorporate?"false":"true");
  let isOwner=false;
  try{
    const {data:{session}}=await client.auth.getSession();
