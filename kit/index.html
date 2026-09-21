@@ -8,10 +8,10 @@
 <meta name="theme-color" content="#090b18">
 <script>
 (function(){
- const q=new URLSearchParams(location.search),u=(q.get("u")||"").toLowerCase();
- if(false && u.startsWith("demo-") && (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true)){
-   const clean=location.origin+location.pathname+"?u="+encodeURIComponent(u)+"&browser=1";
-   document.addEventListener("DOMContentLoaded",()=>{const n=document.createElement("div");n.style.cssText="position:fixed;z-index:99999;inset:0;background:#090b18;color:white;display:grid;place-items:center;padding:28px;font-family:Arial;text-align:center";n.innerHTML='<div><h2>Kit Comercial ClickOnMe</h2><p style="margin:14px 0 22px">Esta demo se abrió dentro de tu ClickOnMe instalado. Para verla e instalarla por separado, ábrela en el navegador.</p><a href="'+clean+'" target="_blank" rel="noopener" style="display:inline-block;padding:15px 22px;border-radius:14px;background:#13b9ff;color:#00111a;font-weight:800;text-decoration:none">Abrir demo en navegador</a></div>';document.body.appendChild(n);});
+ const q=new URLSearchParams(location.search);
+ const u=(q.get("u")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
+ if(u.startsWith("demo-")){
+   location.replace("/crear/perfil.html?u="+encodeURIComponent(u)+"&from=kit");
  }
 })();
 </script>
