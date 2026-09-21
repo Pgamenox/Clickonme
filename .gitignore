@@ -1,0 +1,29 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Local backups / database exports
+backups/
+backup/
+*.sql.gz
+*.dump
+*.backup
+
+# Local tooling
+.DS_Store
+Thumbs.db
+node_modules/
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.swp
+*.log
