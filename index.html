@@ -515,6 +515,73 @@ margin-top:5px;
   .demo-card[data-visual="premium-v4"] .demo-mini{font-size:8px!important;margin-top:6px!important}
 }
 
+
+/* PREMIUM EXAMPLES V5 — same visual family as the hero carousel */
+.premium-examples{position:relative;overflow:hidden}
+.premium-examples::before{content:"";position:absolute;inset:6% auto auto -12%;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(46,207,255,.11),transparent 68%);pointer-events:none}
+.premium-examples::after{content:"";position:absolute;right:-12%;bottom:2%;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(160,69,255,.12),transparent 68%);pointer-events:none}
+.premium-showcase-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(12,1fr);gap:22px;max-width:1180px;margin:34px auto 0}
+.premium-showcase-card{position:relative;overflow:hidden;min-height:470px;border-radius:30px;border:1px solid rgba(255,255,255,.12);box-shadow:0 28px 70px rgba(0,0,0,.28);isolation:isolate}
+.premium-showcase-card:nth-child(1),.premium-showcase-card:nth-child(2),.premium-showcase-card:nth-child(3){grid-column:span 4}
+.premium-showcase-card:nth-child(4),.premium-showcase-card:nth-child(5){grid-column:span 6}
+.showcase-photo-wrap{position:relative;height:235px;overflow:hidden;background:linear-gradient(135deg,#16203a,#0b1020)}
+.showcase-photo{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block;filter:saturate(.96) contrast(1.02)}
+.showcase-photo-wrap::after{content:"";position:absolute;inset:auto 0 0;height:58%;background:linear-gradient(transparent,rgba(5,8,18,.72))}
+.showcase-plan{position:absolute;z-index:2;left:18px;top:18px;padding:6px 10px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:1.35px;border:1px solid rgba(255,255,255,.34);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.showcase-body{padding:22px 21px 24px}
+.showcase-body small{display:block;font-size:9px;font-weight:900;letter-spacing:1.1px;line-height:1.5;margin-bottom:9px}
+.showcase-body h3{font-size:25px;letter-spacing:-.6px;margin:0 0 4px}
+.showcase-role{font-size:12px;margin:0 0 13px;opacity:.78}
+.showcase-pitch{font-size:12px;line-height:1.55;margin:0 0 17px;opacity:.86}
+.showcase-links{display:flex;flex-wrap:wrap;gap:8px}
+.showcase-links span{padding:8px 10px;border-radius:12px;font-size:10px;font-weight:800;border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+/* FREE */
+.showcase-free{background:radial-gradient(circle at 92% 8%,rgba(83,215,255,.21),transparent 25%),linear-gradient(160deg,#ffffff,#f6f9ff 54%,#eaf1ff);color:#14213a;border-color:#dce6f5}
+.showcase-free .showcase-plan{background:rgba(255,255,255,.78);color:#38506e;border-color:#c8d5e7}
+.showcase-free .showcase-body small{color:#58709a}
+.showcase-free .showcase-links span{background:rgba(255,255,255,.8);border-color:#d8e5f2;color:#263a56}
+
+/* PERSONAL */
+.showcase-personal{background:radial-gradient(circle at 8% 0,rgba(255,255,255,.24),transparent 27%),linear-gradient(155deg,#063d58,#087f8f 52%,#55c6b8);color:#fff}
+.showcase-personal .showcase-plan{background:rgba(4,69,84,.30);color:#fff}
+.showcase-personal .showcase-body small{color:#d8ffff}
+.showcase-personal .showcase-links span{background:rgba(3,54,69,.34)}
+
+/* BUSINESS */
+.showcase-business{background:radial-gradient(circle at 95% 4%,rgba(224,180,91,.22),transparent 27%),linear-gradient(160deg,#060606,#15110a 55%,#211606);color:#fff;border-color:rgba(220,177,86,.35)}
+.showcase-business .showcase-plan{background:rgba(218,173,78,.16);color:#ffd98d;border-color:rgba(224,180,91,.38)}
+.showcase-business .showcase-body small{color:#e4ba67}
+.showcase-business .showcase-body h3{font-family:Georgia,serif}
+.showcase-business .showcase-links span{background:rgba(220,174,80,.12);border-color:rgba(220,174,80,.22);color:#ffe0a3}
+
+/* ARTIST */
+.showcase-artista{background:radial-gradient(circle at 50% 8%,rgba(255,45,110,.34),transparent 28%),linear-gradient(165deg,#08060a,#280812 55%,#050407);color:#fff;border-color:rgba(255,58,118,.32)}
+.showcase-artista .showcase-photo-wrap{height:270px}
+.showcase-artista .showcase-plan{background:rgba(255,54,119,.14);color:#ffb9d0;border-color:rgba(255,67,128,.40)}
+.showcase-artista .showcase-body small{color:#ff77aa}
+.showcase-artista .showcase-links span{background:linear-gradient(90deg,rgba(255,44,111,.24),rgba(111,40,255,.20));border-color:rgba(255,83,151,.22)}
+
+/* CREATOR */
+.showcase-creator{background:radial-gradient(circle at 90% 9%,rgba(255,103,232,.54),transparent 25%),radial-gradient(circle at 7% 72%,rgba(49,225,255,.30),transparent 28%),linear-gradient(150deg,#1d0d58,#6e30cf 51%,#c82ab7);color:#fff;border-color:rgba(255,255,255,.28)}
+.showcase-creator .showcase-photo-wrap{height:270px}
+.showcase-creator .showcase-plan{background:rgba(255,255,255,.15);color:#fff}
+.showcase-creator .showcase-body small{color:#fff0a8}
+.showcase-creator .showcase-links span{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.24)}
+
+@media(max-width:900px){
+  .premium-showcase-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .premium-showcase-card:nth-child(n){grid-column:auto}
+  .premium-showcase-card{min-height:440px}
+}
+@media(max-width:620px){
+  .premium-showcase-grid{grid-template-columns:1fr;gap:18px;margin-top:26px}
+  .premium-showcase-card{min-height:0;border-radius:26px}
+  .showcase-photo-wrap,.showcase-artista .showcase-photo-wrap,.showcase-creator .showcase-photo-wrap{height:250px}
+  .showcase-body{padding:20px 18px 22px}
+  .showcase-body h3{font-size:24px}
+}
+
 </style>
 </head>
 
@@ -606,96 +673,21 @@ Conoce las interacciones de tu tarjeta y mantén tu información protegida.
 </section>
 
 
-<section class="examples" id="ejemplos">
+<section class="examples premium-examples" id="ejemplos">
 
 <h2 class="section-title">
-Crea tu ClickOnMe como tú lo imaginas
+Ejemplos Premium ClickOnMe
 </h2>
 
 <p class="section-subtitle">
-Conoce algunos ejemplos de lo que puedes lograr. Todos personalizables.
+Los mismos cinco estilos del carrusel, ahora en una vista más completa. Cada plan tiene una identidad visual propia y todos mantienen la misma línea premium.
 </p>
 
-<div class="profile-grid">
+<div class="premium-showcase-grid" id="premiumShowcaseGrid" aria-label="Ejemplos premium de ClickOnMe"></div>
 
-<article class="profile negocio">
-<div class="profile-cover"><img class="cover-photo" src="/assets/examples/chef.jpg" alt="Imagen ilustrativa de un propietario de restaurante"></div>
-<div class="profile-content">
-
-<small>Negocio local</small>
-
-<h3>La Mesa Norteña</h3>
-
-<p>
-Menú, reservaciones, ubicación, promociones y pedidos por WhatsApp en un mismo espacio.
-</p>
-
-<div class="mini-socials"><span>f</span><span>◎</span><span>▶</span></div>
-<div class="mini-actions"><div class="mini-action">🍽️ Ver menú <b>›</b></div><div class="mini-action">💬 Pedir por WhatsApp <b>›</b></div><div class="mini-action">📍 Cómo llegar <b>›</b></div></div>
-</div>
-
-</article>
-
-
-<article class="profile creadora">
-<div class="profile-cover"></div>
-<div class="avatar"><img class="profile-photo" src="/assets/examples/creator.jpg" alt="Imagen ilustrativa de una creadora de contenido"></div>
-<div class="profile-content">
-
-<small>Creadora de contenido</small>
-
-<h3>Valeria Luna</h3>
-
-<p>
-Videos, redes, colaboraciones, comunidad y productos con una estética completamente personal.
-</p>
-
-<div class="mini-socials"><span>◎</span><span>♪</span><span>▶</span></div>
-<div class="mini-actions"><div class="mini-action">✨ Mi contenido nuevo <b>›</b></div><div class="mini-action">🛍️ Colección personal <b>›</b></div><div class="mini-action">🤝 Colaboraciones <b>›</b></div></div>
-</div>
-
-</article>
-
-
-<article class="profile profesional">
-<div class="professional-head"><img class="professional-photo" src="/assets/examples/architect.jpg" alt="Imagen ilustrativa de un profesionista"><div><small>Servicios profesionales</small><h3>Daniel Ríos</h3></div></div>
-<div class="profile-content">
-
-<p>
-Presentación, servicios, agenda, testimonios y contacto directo con una imagen sobria y confiable.
-</p>
-
-<div class="mini-socials"><span>in</span><span>✉</span><span>☎</span></div>
-<div class="mini-actions"><div class="mini-action">📅 Agendar una consulta <b>›</b></div><div class="mini-action">📐 Ver proyectos <b>›</b></div><div class="mini-action">⭐ Testimonios <b>›</b></div></div>
-</div>
-
-</article>
-
-
-<article class="profile artista">
-<div class="profile-cover"><img class="cover-photo" src="/assets/examples/artist.jpg" alt="Imagen ilustrativa de un artista independiente"></div>
-<div class="profile-content">
-
-<small>Artista independiente</small>
-
-<h3>Nico Sol</h3>
-
-<p>
-Música, próximos eventos, contenido exclusivo y contratación reunidos en una experiencia visual propia.
-</p>
-
-<div class="mini-socials"><span>♫</span><span>▶</span><span>◎</span></div>
-<div class="mini-actions"><div class="mini-action">▶ Reproducir nuevo sencillo <b>›</b></div><div class="mini-action">🎟️ Próximas fechas <b>›</b></div><div class="mini-action">🎤 Contratación <b>›</b></div></div>
-</div>
-
-</article>
-
-</div>
-
-<p class="demo-note">Ejemplos ficticios para mostrar cómo una misma plataforma puede adaptarse a negocios, creadores, profesionistas y artistas.</p>
+<p class="demo-note">Ejemplos ficticios creados únicamente para mostrar la apariencia y posibilidades de cada plan.</p>
 
 </section>
-
 
 <section class="cta">
 
@@ -732,17 +724,28 @@ Tu mundo, en un solo enlace.
 <script>
 (function(){
 const demos=[
-{plan:'FREE',name:'Ana Pérez',role:'Estudiante · Vida en movimiento',img:'https://images.unsplash.com/photo-1765648636065-fd5c0884b629?auto=format&fit=crop&crop=faces&w=900&h=1100&q=82',fallback:'/assets/examples/creator.jpg',tag:'SENCILLO · ESENCIAL · TU PUNTO DE PARTIDA',links:[['👤','Sobre mí'],['◎','Mis redes'],['✉','Contacto']]},
-{plan:'PERSONAL',name:'Carlos Mendoza',role:'Viajero · Fotógrafo · Explorador',img:'/assets/examples/architect.jpg',tag:'TU HISTORIA · TU ESTILO',links:[['▣','Mis fotos'],['✈','Mis viajes'],['📍','Recomendaciones'],['✉','Contacto']]},
-{plan:'BUSINESS',name:'Lorenzo Rivas',role:'Arquitecto · Estudio',img:'/assets/examples/chef.jpg',tag:'DISEÑO · FUNCIONALIDAD · VALOR',links:[['▥','Nuestros proyectos'],['⚙','Servicios'],['📍','Ubicación'],['✉','Contáctanos']]},
-{plan:'ARTISTA',name:'Diego Luna',role:'Cantautor · Músico',img:'/assets/examples/artist.jpg',tag:'MÚSICA QUE CONECTA',links:[['▶','Escucha mi música'],['🎟','Próximos conciertos'],['▣','Galería'],['✉','Contacto']]},
-{plan:'CREATOR',name:'Valeria Torres',role:'Creadora de contenido',img:'/assets/examples/creator.jpg',tag:'IDEAS · ESTILO · COMUNIDAD',links:[['◎','Mi contenido'],['✦','Colaboraciones'],['🛍','Tienda'],['✉','Contacto']]}
-];
+{plan:'FREE',name:'Ana Pérez',role:'Estudiante · Vida en movimiento',img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',tag:'SENCILLO · ESENCIAL · TU PUNTO DE PARTIDA',pitch:'Una presencia limpia, fresca y elegante para empezar.',links:[['👤','Sobre mí'],['◎','Mis redes'],['✉','Contacto']]},
+{plan:'PERSONAL',name:'Carlos Mendoza',role:'Viajero · Fotógrafo · Explorador',img:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',tag:'TU HISTORIA · TU ESTILO',pitch:'Fotografía protagonista, personalidad y enlaces que se sienten tuyos.',links:[['▣','Mis fotos'],['✈','Mis viajes'],['📍','Recomendaciones'],['✉','Contacto']]},
+{plan:'BUSINESS',name:'Lorenzo Rivas',role:'Arquitecto · Estudio',img:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',tag:'DISEÑO · FUNCIONALIDAD · VALOR',pitch:'Negro, oro y estructura editorial para una presencia corporativa premium.',links:[['▥','Nuestros proyectos'],['⚙','Servicios'],['📍','Ubicación'],['✉','Contáctanos']]},
+{plan:'ARTISTA',name:'Diego Luna',role:'Cantautor · Músico',img:'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1000&h=1200&q=88',tag:'MÚSICA QUE CONECTA',pitch:'Una experiencia de escenario para música, fechas, galería y contratación.',links:[['▶','Escucha mi música'],['🎟','Próximos conciertos'],['▣','Galería'],['✉','Contacto']]},
+{plan:'CREATOR',name:'Valeria Torres',role:'Creadora de contenido',img:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&crop=faces&w=1000&h=1200&q=88',tag:'IDEAS · ESTILO · COMUNIDAD',pitch:'Color, energía y módulos visuales para contenido, colaboraciones y tienda.',links:[['◎','Mi contenido'],['✦','Colaboraciones'],['🛍','Tienda'],['✉','Contacto']]}
+]
+const showcase=document.getElementById('premiumShowcaseGrid');
+if(showcase){
+  showcase.innerHTML=demos.map((d,n)=>{
+    const cls=d.plan.toLowerCase();
+    const links=d.links.slice(0,3).map(x=>'<span>'+x[0]+' '+x[1]+'</span>').join('');
+    return '<article class="premium-showcase-card showcase-'+cls+'">'+
+      '<div class="showcase-photo-wrap"><img class="showcase-photo" src="'+d.img+'" alt="Ejemplo '+d.plan+' de ClickOnMe" loading="lazy" onerror="this.style.display=\'none\'"><span class="showcase-plan">'+d.plan+'</span></div>'+
+      '<div class="showcase-body"><small>'+d.tag+'</small><h3>'+d.name+'</h3><p class="showcase-role">'+d.role+'</p><p class="showcase-pitch">'+d.pitch+'</p><div class="showcase-links">'+links+'</div></div>'+
+    '</article>';
+  }).join('');
+}
 let i=4,timer;
 const card=document.getElementById('heroDemoCard'),plan=document.getElementById('heroDemoPlan'),avatar=document.getElementById('heroDemoAvatar'),name=document.getElementById('heroDemoName'),role=document.getElementById('heroDemoRole'),links=document.getElementById('heroDemoLinks'),tag=document.getElementById('heroDemoTagline'),dots=document.getElementById('heroDemoDots');
 if(!card)return;
 demos.forEach((d,n)=>{const b=document.createElement('button');b.type='button';b.className='demo-dot';b.setAttribute('aria-label','Ver '+d.plan);b.onclick=()=>{show(n);restart()};dots.appendChild(b)});
-function show(n){i=n;const d=demos[n];card.className='demo-card demo-'+d.plan.toLowerCase();card.dataset.visual='premium-v4';void card.offsetWidth;card.classList.add('demo-changing');plan.textContent=d.plan;avatar.onerror=()=>{if(d.fallback&&avatar.src!==d.fallback)avatar.src=d.fallback};avatar.src=d.img;name.textContent=d.name;role.textContent=d.role;tag.textContent=d.tag;links.innerHTML=d.links.map((x,k)=>'<div class="demo-link demo-link-'+k+'">'+x[0]+' '+x[1]+'</div>').join('');[...dots.children].forEach((b,k)=>b.classList.toggle('active',k===n))}
+function show(n){i=n;const d=demos[n];card.className='demo-card demo-'+d.plan.toLowerCase();card.dataset.visual='premium-v4';void card.offsetWidth;card.classList.add('demo-changing');plan.textContent=d.plan;avatar.style.display='block';avatar.onerror=()=>{avatar.style.display='none'};avatar.src=d.img;name.textContent=d.name;role.textContent=d.role;tag.textContent=d.tag;links.innerHTML=d.links.map((x,k)=>'<div class="demo-link demo-link-'+k+'">'+x[0]+' '+x[1]+'</div>').join('');[...dots.children].forEach((b,k)=>b.classList.toggle('active',k===n))}
 function restart(){clearInterval(timer);timer=setInterval(()=>show((i+1)%demos.length),4200)}
 show(i);restart();
 let sx=0;card.addEventListener('touchstart',e=>{sx=e.changedTouches[0].clientX},{passive:true});card.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>45){show((i+(dx<0?1:-1)+demos.length)%demos.length);restart()}},{passive:true});
