@@ -84,6 +84,34 @@ jobs:
           print("PASS 10000 synthetic mini-store boundary iterations")
           PY
 
+      - name: Consolidated sales-readiness regression contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          builder=Path("crear/index.html").read_text()
+          profile=Path("crear/perfil.html").read_text()
+          sw=Path("sw.js").read_text()
+          manifest=Path("supabase/functions/profile-manifest/index.ts").read_text()
+          auth=Path("crear/auth-bridge.js").read_text()
+          checks={
+            "login validates persisted session": "signInWithPassword" in auth and "auth.getSession()" in auth and "clickonme_auth_handoff" in auth,
+            "builder restores auth handoff": "clickonme_auth_handoff" in builder and "auth.setSession" in builder,
+            "publish create/update paths": '.insert(payload)' in builder and '.update(payload)' in builder and "loadOwnProfile" in builder,
+            "single customer card guard": "Tu cuenta ya tiene una tarjeta ClickOnMe" in builder,
+            "public URL after save": "crear/perfil.html?u=" in builder and "updateProfileLink" in builder,
+            "mobile preview/save controls": "mobilePreviewBtn" in builder and "mobileSaveButton" in builder,
+            "share copy qr": all(x in profile for x in ("shareBtn","copyBtn","qrBtn","navigator.share","navigator.clipboard")),
+            "service worker registered": 'navigator.serviceWorker.register("/sw.js"' in profile,
+            "service worker network-first profile/home": 'isProfile||isHomepage' in sw and "fetch(event.request)" in sw,
+            "individual manifest wired": "profile-manifest" in profile and "dynamicManifest" in profile,
+            "manifest opens exact profile": '"/crear/perfil.html?u="' in manifest and '"&source=pwa"' in manifest,
+            "install state handled": "beforeinstallprompt" in profile and "appinstalled" in profile and "runningAsApp" in profile,
+          }
+          for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
+          if not all(checks.values()): sys.exit(1)
+          PY
+
       - name: Public profile contract
         run: |
           grep -q 'profile_view' crear/perfil.html
