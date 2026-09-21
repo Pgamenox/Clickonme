@@ -455,6 +455,263 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 @media(max-width:760px){.builder-demo-grid{grid-template-columns:1fr 1fr}.builder-demo-grid a:last-child{grid-column:1/-1}.builder-demo-head p{font-size:10px}}
 @media(max-width:430px){.builder-demo-library{padding:13px;border-radius:17px}.builder-demo-grid{grid-template-columns:1fr}.builder-demo-grid a:last-child{grid-column:auto}.builder-demo-grid a{min-height:52px}.builder-demo-head>span{display:none}}
 </style>
+
+<style id="premiumBuilderV3">
+/* ClickOnMe Premium Builder v3 — visual refinement, no business logic changes */
+:root{
+  --builder-cyan:#39dcff;
+  --builder-violet:#9b63ff;
+  --builder-success:#55e6ae;
+  --builder-line:rgba(255,255,255,.095);
+  --builder-soft:rgba(255,255,255,.045);
+}
+#editorPanel>.intro{max-width:720px;font-size:12.5px;line-height:1.65}
+.section-title{
+  position:relative;
+  margin-bottom:14px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+  color:#eaf2ff;
+}
+.section-title::after{
+  content:"";
+  display:block;
+  width:100%;
+  height:1px;
+  margin-top:10px;
+  background:linear-gradient(90deg,rgba(57,220,255,.18),rgba(155,99,255,.10),transparent 78%);
+}
+.field{position:relative}
+.field>label{
+  display:flex;
+  align-items:center;
+  min-height:17px;
+  color:#b9c4d8;
+}
+input,textarea,select{
+  color-scheme:dark;
+  font-family:inherit;
+}
+input::placeholder,textarea::placeholder{color:#58637a;opacity:1}
+select{
+  cursor:pointer;
+  background-image:
+    linear-gradient(45deg,transparent 50%,#8390a8 50%),
+    linear-gradient(135deg,#8390a8 50%,transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+  background-size:5px 5px,5px 5px;
+  background-repeat:no-repeat;
+  padding-right:38px;
+  appearance:none;
+}
+input[type="color"]{
+  min-height:50px;
+  padding:6px;
+  cursor:pointer;
+  overflow:hidden;
+}
+input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
+input[type="color"]::-webkit-color-swatch{
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:9px;
+}
+input[type="range"]{
+  min-height:28px;
+  padding:4px 0;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  accent-color:#6e7cff;
+}
+input[type="checkbox"]{
+  accent-color:#6f72ff;
+}
+.photo-input{
+  min-height:54px;
+  padding:7px 8px;
+  cursor:pointer;
+}
+.photo-input::file-selector-button,
+input[type="file"]::file-selector-button{
+  min-height:38px;
+  margin-right:10px;
+  padding:0 13px;
+  border:1px solid rgba(57,220,255,.16);
+  border-radius:10px;
+  background:linear-gradient(135deg,rgba(57,220,255,.08),rgba(155,99,255,.09));
+  color:#dff8ff;
+  font:inherit;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+.slug-prefix{
+  min-height:50px;
+  background:rgba(5,8,19,.64);
+  border-color:var(--builder-line);
+  box-shadow:0 1px 0 rgba(255,255,255,.02) inset;
+}
+.slug-prefix:focus-within{
+  border-color:rgba(57,220,255,.48);
+  box-shadow:0 0 0 3px rgba(57,220,255,.07);
+}
+.slug-prefix span{color:#738099}
+.slug-prefix input{background:transparent!important;box-shadow:none!important}
+
+.plus-box{
+  position:relative;
+  padding:17px;
+  border-color:rgba(255,255,255,.085);
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+  box-shadow:0 12px 32px rgba(0,0,0,.10);
+}
+.plus-box>strong{
+  color:#f2f6ff;
+  font-size:13px;
+  letter-spacing:-.01em;
+}
+.control-help{line-height:1.55}
+#moduleProgress{
+  overflow:hidden;
+  border-color:rgba(85,230,174,.13);
+  background:linear-gradient(145deg,rgba(85,230,174,.045),rgba(57,220,255,.025));
+}
+#moduleProgress::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:3px;
+  background:linear-gradient(180deg,var(--builder-success),var(--builder-cyan));
+}
+#moduleProgressBar{
+  background:linear-gradient(90deg,#4fe4ad,#39dcff,#8b67ff)!important;
+  box-shadow:0 0 18px rgba(57,220,255,.24);
+}
+#quickStart{
+  background:linear-gradient(145deg,rgba(15,22,42,.66),rgba(8,12,25,.60));
+}
+#quickStartSteps>div{
+  min-height:38px;
+  padding:8px 10px!important;
+  border:1px solid rgba(255,255,255,.055);
+  background:rgba(255,255,255,.028)!important;
+  color:#aab6ca;
+}
+#quickStartSteps>div span{
+  display:inline-grid;
+  width:19px;
+  height:19px;
+  place-items:center;
+  border-radius:50%;
+  background:rgba(85,230,174,.08);
+  color:#77ebbe;
+}
+#smartGuide{
+  background:linear-gradient(145deg,rgba(17,35,52,.60),rgba(27,18,55,.55))!important;
+  border-color:rgba(72,204,255,.20)!important;
+}
+#smartSetupBtn{
+  background:linear-gradient(120deg,#0b7cff,#7861ff 58%,#a151ff)!important;
+  color:#fff!important;
+  box-shadow:0 10px 24px rgba(73,80,255,.18);
+  transition:transform .16s ease,filter .16s ease;
+}
+#smartSetupBtn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+#appIconBox img{
+  box-shadow:0 10px 24px rgba(0,0,0,.22),0 0 0 1px rgba(57,220,255,.06);
+}
+.icon-upload{
+  border-radius:14px;
+  background:rgba(255,255,255,.025);
+  border-color:rgba(255,255,255,.075);
+  transition:border-color .16s ease,background .16s ease;
+}
+.icon-upload:hover{
+  border-color:rgba(57,220,255,.16);
+  background:rgba(57,220,255,.025);
+}
+.advanced-toggle{
+  box-shadow:0 14px 34px rgba(0,0,0,.12);
+}
+.advanced-toggle[aria-expanded="true"]{
+  border-color:rgba(57,220,255,.30);
+  background:linear-gradient(135deg,rgba(57,220,255,.085),rgba(155,99,255,.085));
+}
+.builder-demo-library{
+  box-shadow:0 18px 44px rgba(0,0,0,.15),0 0 0 1px rgba(57,220,255,.02) inset;
+}
+.builder-demo-grid a{
+  position:relative;
+  overflow:hidden;
+}
+.builder-demo-grid a::after{
+  content:"↗";
+  position:absolute;
+  top:8px;
+  right:9px;
+  color:#64718a;
+  font-size:9px;
+}
+.builder-demo-grid a:hover::after{color:#8cecff}
+.preview-area{filter:drop-shadow(0 22px 55px rgba(0,0,0,.16))}
+.preview-status{
+  border-color:rgba(85,230,174,.10);
+  background:linear-gradient(90deg,rgba(85,230,174,.025),rgba(57,220,255,.02));
+}
+.phone{
+  box-shadow:
+    0 42px 95px rgba(0,0,0,.52),
+    0 0 0 1px rgba(255,255,255,.02),
+    0 0 52px rgba(57,220,255,.035);
+}
+.phone .card{
+  box-shadow:0 24px 64px rgba(0,0,0,.34),0 0 0 1px rgba(255,255,255,.015) inset;
+}
+.preview-btn{
+  position:relative;
+  overflow:hidden;
+}
+.preview-btn::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(110deg,transparent 15%,rgba(255,255,255,.055) 50%,transparent 82%);
+  transform:translateX(-115%);
+  transition:transform .45s ease;
+}
+.preview-btn:hover::before{transform:translateX(115%)}
+.publish-zone{
+  box-shadow:0 22px 48px rgba(0,0,0,.18),0 0 0 1px rgba(57,220,255,.02) inset;
+}
+#publishButton:focus-visible,
+#smartSetupBtn:focus-visible,
+.journey-step:focus-visible,
+.advanced-toggle:focus-visible,
+.auth-actions button:focus-visible,
+.account-tools button:focus-visible,
+.account-tools a:focus-visible{
+  outline:2px solid var(--builder-cyan);
+  outline-offset:3px;
+}
+@media(max-width:600px){
+  .section-title{font-size:10.5px;letter-spacing:.045em}
+  .section-title::after{margin-top:8px}
+  .plus-box{padding:15px}
+  input,textarea,select{font-size:16px}
+  .photo-input::file-selector-button,input[type="file"]::file-selector-button{padding:0 10px}
+  #quickStartSteps>div{font-size:10.5px!important}
+  .builder-demo-grid a::after{top:7px;right:8px}
+  .preview-area{filter:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .preview-btn::before,#smartSetupBtn,.icon-upload,.builder-demo-grid a{transition:none!important}
+}
+</style>
+
 </head>
 
 
@@ -508,7 +765,7 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 
 <section class="panel" id="editorPanel">
 
-  <div class="mobile-preview-notice" id="mobilePreviewNotice"><strong>👀 Tu tarjeta se está creando en tiempo real</strong>En celular, toca <b>Vista previa</b> o desliza hasta abajo para ver cómo va quedando. Puedes regresar y seguir editando.<button type="button" id="mobilePreviewHintBtn" style="display:block;margin-top:9px;width:100%;min-height:40px;border:0;border-radius:10px;font-weight:800;cursor:pointer">👁 Ver vista previa ahora</button></div>
+  <div class="mobile-preview-notice" id="mobilePreviewNotice"><strong>👀 Tu tarjeta se está creando en tiempo real</strong>En celular, toca <b>Vista previa</b> o desliza hasta abajo para ver cómo va quedando. Puedes regresar y seguir editando.<button type="button" id="mobilePreviewHintBtn" style="display:block;margin-top:9px;width:100%;min-height:40px;border:0;border-radius:10px;font-weight:800;cursor:pointer">Ver vista previa ahora</button></div>
   <div class="mobile-auth-gate" id="mobileAuthGate"><strong>Antes de crear tu tarjeta</strong><p><b>Regístrate o inicia sesión primero.</b> Necesitas una cuenta para crear, guardar y publicar tu tarjeta ClickOnMe.</p><button type="button" id="mobileAuthButton">Crear cuenta o iniciar sesión</button></div><h1>Crea tu ClickOnMe</h1>
 
   <p class="intro">
@@ -1098,7 +1355,7 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 
 </main>
 
-<nav class="mobile-actionbar" aria-label="Acciones rápidas"><button type="button" id="mobilePreviewBtn">👁 Vista previa</button><button type="button" class="primary" id="mobileSaveBtn">Guardar cambios</button></nav>
+<nav class="mobile-actionbar" aria-label="Acciones rápidas"><button type="button" id="mobilePreviewBtn">Vista previa</button><button type="button" class="primary" id="mobileSaveBtn">Guardar cambios</button></nav>
 
 
 
