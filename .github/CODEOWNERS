@@ -1,0 +1,8 @@
+# ClickOnMe code owner
+* @Pgamenox
+
+# Sensitive areas
+/.github/ @Pgamenox
+/supabase/ @Pgamenox
+/admin/ @Pgamenox
+/crear/ @Pgamenox
