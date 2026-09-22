@@ -4,6 +4,7 @@
 -- The legacy suspension RPC performs its own admin check, but anonymous callers
 -- do not need EXECUTE permission at all.
 revoke execute on function public.admin_suspend_profile(bigint) from anon;
+revoke execute on function public.admin_suspend_profile(bigint) from authenticated;
 
 -- Public profile visitors only need fields rendered by the public card, kit,
 -- and dynamic manifest. Internal ownership and sales metadata stay private.
