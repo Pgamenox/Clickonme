@@ -58,18 +58,19 @@ Rate limit de sign-in/sign-up verificado en 20 solicitudes por 5 minutos por IP.
 - La comprobación `health` fue confirmada desde una sesión administrativa real: `Canal administrativo seguro` mostró `Listo`.
 - El panel Admin ya enruta autorizar plan, suspender y eliminar por `admin-profile-actions` cuando el canal seguro está disponible.
 - Las RPC antiguas permanecen temporalmente como respaldo solo si el canal seguro no queda disponible al abrir el Admin.
-- No revocar en bloque las RPC antiguas: retirar permisos una por una después de verificar uso y mantener QA/Security en verde.
+- No revocar en bloque las RPC antiguas: `admin_suspend_profile` ya fue cerrada para usuarios autenticados; las tres restantes se retirarán después de confirmar una acción administrativa real por la Edge Function y mantener QA/Security en verde.
 
 ## Advertencia actual del asesor de Supabase
 
-Supabase marca cuatro funciones `SECURITY DEFINER` ejecutables por usuarios autenticados:
+Supabase marca tres funciones `SECURITY DEFINER` todavía ejecutables por usuarios autenticados:
 
 - `admin_authorize_plan`
 - `admin_delete_profile`
 - `admin_set_profile_suspension`
-- `admin_suspend_profile`
 
-Las cuatro comprueban internamente que `auth.uid()` pertenezca a `admin_users`. Las tres primeras son usadas por el Admin actual; `admin_suspend_profile` parece heredada, pero no se eliminará sin una comprobación completa.
+`admin_suspend_profile` fue verificada contra una copia completa del código: no tenía consumidores de aplicación, solo referencias de documentación. Su permiso para `authenticated` ya fue revocado; conserva acceso de backend mediante `service_role`.
+
+Las tres advertencias restantes se mantienen temporalmente como respaldo mientras confirmamos la primera acción administrativa real por `admin-profile-actions`.
 
 Siguiente endurecimiento recomendado:
 - mover acciones administrativas a una Edge Function administrativa o a un esquema no expuesto,
