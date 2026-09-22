@@ -2423,7 +2423,10 @@ async function loadMyCards(){
     const edit=document.createElement("a"); edit.href="/crear/?id="+encodeURIComponent(c.id); edit.textContent="Editar";
     const stats=document.createElement("button"); stats.type="button"; stats.textContent="Métricas"; stats.style.cursor="pointer"; stats.addEventListener("click",()=>showProfileAnalytics(c.slug,c.name||c.slug,stats));
     
-    actions.append(view,edit,stats);
+    const teamKitRoutes={"pablo-garza":"/kit/pablo/","andrea-garza":"/kit/andrea/","anapaula":"/kit/anapaula/","francisco-aguilar":"/kit/francisco/","rafael-orta":"/kit/rafael/","claudia-almaraz":"/kit/claudia/"};
+    const kitRoute=teamKitRoutes[c.slug];
+    if(kitRoute){const kit=document.createElement("a");kit.href=kitRoute;kit.target="_blank";kit.rel="noopener";kit.textContent="Mi Kit";actions.append(view,edit,stats,kit)}
+    else actions.append(view,edit,stats);
     if(!active&&!trial){const activate=document.createElement("a");activate.href="/crear/?id="+encodeURIComponent(c.id)+"&activate=1";activate.textContent="Mejorar plan";activate.className="activate-plan";actions.append(activate)}
     top.append(info,actions); row.append(top); list.append(row);
   }
