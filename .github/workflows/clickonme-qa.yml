@@ -257,6 +257,26 @@ jobs:
             checks[f"{folder} five plan demos"]=all(f"demo-{prefix}-{plan}" in src for plan in ("free","personal","business","artista","creator"))
             checks[f"{folder} clean route"]=("/kit/?u=" not in src and 'rel="manifest"' not in src and "serviceWorker" not in src)
             checks[f"{folder} official logo"]=('/logo-clickonme.png' in src)
+          kit_people={
+            "pablo":"pablo",
+            "andrea":"andrea",
+            "anapaula":"anapaula",
+            "francisco":"francisco",
+            "rafael":"rafael",
+            "claudia":"claudia",
+          }
+          for folder,prefix in kit_people.items():
+            p=Path("kit")/folder/"index.html"
+            exists=p.exists()
+            checks[f"{folder} sales kit exists"]=exists
+            if not exists:
+              continue
+            src=p.read_text()
+            checks[f"{folder} five kit demos"]=all(f"demo-{prefix}-{plan}" in src for plan in ("free","personal","business","artista","creator"))
+            checks[f"{folder} personal card link"]="/crear/perfil.html?u=" in src
+            checks[f"{folder} official logo"]='/logo-clickonme.png' in src
+          builder=Path("crear/index.html").read_text()
+          checks["team kit account access"]='"claudia-almaraz":"/kit/claudia/"' in builder and 'kit.textContent="Mi Kit"' in builder
           for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
           if not all(checks.values()): sys.exit(1)
           PY
