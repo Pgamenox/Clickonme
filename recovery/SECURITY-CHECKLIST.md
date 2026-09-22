@@ -1,4 +1,4 @@
-# ClickOnMe — Checklist de seguridad pendiente
+# ClickOnMe — Checklist de seguridad y recuperación
 
 Estado verificado: 2026-09-21
 
@@ -8,62 +8,83 @@ Estado verificado: 2026-09-21
 - Security Gate automático activo.
 - Backup automático de código activo.
 - Punto de restauración: `restore-point-2026-09-21`.
+- Rama `main` protegida por ruleset activo `Protect ClickOnMe main`.
+- Borrado de `main` bloqueado.
+- Force push sobre `main` bloqueado.
 - `.gitignore` bloquea secretos y llaves privadas comunes.
 - `CODEOWNERS` define propietario de código.
 - Política `SECURITY.md` creada.
 - Scripts externos restringidos a hosts aprobados.
 - RLS activo en tablas críticas revisadas.
 - Código fuente de Edge Functions versionado en GitHub.
-- ZIP físico de contingencia generado.
+- ZIP físico de contingencia generado previamente.
+- Lectura anónima de `profiles` restringida a las columnas necesarias para la tarjeta pública.
+- `anon` ya no puede leer `user_id`, `created_by`, `sales_rep_code`, `id`, `created_at` ni `updated_at` de perfiles.
+- `anon` ya no puede ejecutar `admin_suspend_profile`.
+- `profile-analytics` endurecida en producción (v3): sesión UUID obligatoria, payload limitado y frenos anti-spam.
+- Storage `profile-assets` revisado: escrituras limitadas por carpeta UUID del usuario.
+- El secreto del cron de renovaciones fue retirado del comando programado y guardado cifrado en Supabase Vault.
+- Cron `clickonme-renewal-reminders` activo; sus últimas ejecuciones revisadas terminaron correctamente.
 
-## Falta hacer manualmente en GitHub
+## GitHub — pendiente para una etapa posterior
 
-La rama `main` sigue sin protección administrativa.
+No activar todavía requisitos de Pull Request / status checks obligatorios mientras el flujo de trabajo siga haciendo cambios directos sobre `main`.
 
-Configurar en GitHub:
-1. Settings → Rules → Rulesets / Branch protection.
-2. Proteger la rama `main`.
-3. Bloquear force push.
-4. Bloquear borrado de rama.
-5. Exigir checks exitosos antes de aceptar cambios.
-6. Exigir:
-   - ClickOnMe QA Gate
-   - ClickOnMe Security Gate
-7. Mantener solo colaboradores estrictamente necesarios.
-8. Activar 2FA en la cuenta propietaria y cuentas con escritura.
+Cuando migremos a trabajo por ramas + Pull Request:
+1. Exigir los checks `constructor-integrity` y `security-scan`.
+2. Exigir Pull Request antes de fusionar a `main`.
+3. Mantener solo colaboradores estrictamente necesarios.
+4. Verificar 2FA de todas las cuentas con permiso de escritura.
 
-## Falta hacer manualmente en Supabase
+## Supabase Auth — cambios intencionalmente aplazados
 
-1. Auth → Password Security:
-   - activar protección contra contraseñas filtradas.
-2. Mantener 2FA en la cuenta de Supabase.
-3. Confirmar plan de backups:
-   - Pro/Team/Enterprise: revisar Database → Backups.
-   - Free: ejecutar periódicamente `recovery/backup-database.ps1` o `.sh`.
-4. Copiar Storage por separado del backup SQL.
+No modificar estos puntos sin adaptar y probar primero el frontend:
+
+- CAPTCHA: sigue apagado porque el cliente actual todavía no envía `captchaToken`.
+- Secure password change / requerir contraseña actual: no activar hasta adaptar el flujo `PASSWORD_RECOVERY`.
+- MFA de la cuenta administrativa: el intento manual falló; no volver a forzarlo hasta resolver el método de autenticador con seguridad.
+- Protección contra contraseñas filtradas: el asesor la marca desactivada y el Dashboard actual la muestra como función de plan superior.
+- Redirect wildcard `https://clickonme.pro/crear/**`: mantener hasta probar confirmación de correo, Google OAuth y recuperación de contraseña con los redirects exactos ya añadidos.
+
+Rate limit de sign-in/sign-up verificado en 20 solicitudes por 5 minutos por IP.
 
 ## Advertencia actual del asesor de Supabase
 
-Supabase marca tres funciones `SECURITY DEFINER` ejecutables por usuarios autenticados:
+Supabase marca cuatro funciones `SECURITY DEFINER` ejecutables por usuarios autenticados:
 
 - `admin_authorize_plan`
 - `admin_delete_profile`
 - `admin_set_profile_suspension`
+- `admin_suspend_profile`
 
-Actualmente las tres funciones verifican internamente que `auth.uid()` pertenezca a `admin_users`. Por eso NO se revocaron permisos automáticamente: hacerlo sin migrar el Admin rompería funciones administrativas.
+Las cuatro comprueban internamente que `auth.uid()` pertenezca a `admin_users`. Las tres primeras son usadas por el Admin actual; `admin_suspend_profile` parece heredada, pero no se eliminará sin una comprobación completa.
 
 Siguiente endurecimiento recomendado:
-- mover estas acciones a una Edge Function administrativa o a un esquema no expuesto,
+- mover acciones administrativas a una Edge Function administrativa o a un esquema no expuesto,
 - verificar JWT y rol de administrador en servidor,
 - después revocar ejecución directa desde `authenticated`.
+
+## Backups aún pendientes
+
+El respaldo ZIP de código NO sustituye un backup completo de Supabase.
+
+Todavía falta mantener periódicamente:
+
+- dump real de la base de datos;
+- copia física de los archivos de Storage;
+- copia fuera de línea en USB/disco externo.
+
+En plan Free, usar los scripts de `recovery/` con una conexión de base de datos válida. Los backups SQL de Supabase no incluyen el contenido físico de Storage.
+
+El secreto `clickonme_reminder_cron_secret` vive en Vault y nunca debe copiarse al repositorio. Una restauración de base de datos debe conservar/restaurar Vault antes de habilitar el cron de recordatorios.
 
 ## Regla de recuperación
 
 Nunca depender de una sola copia. Mantener:
 
-- GitHub
-- rama/punto de restauración
-- backup automático
-- ZIP físico desconectado
-- backup de base de datos
-- copia de Storage
+- GitHub;
+- rama/punto de restauración;
+- backup automático;
+- ZIP físico desconectado;
+- backup de base de datos;
+- copia de Storage.
