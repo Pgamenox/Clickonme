@@ -55,9 +55,10 @@ Rate limit de sign-in/sign-up verificado en 20 solicitudes por 5 minutos por IP.
 - RPC servidor `admin_profile_action_server` creada para `service_role` exclusivamente.
 - `anon` y `authenticated` NO pueden ejecutar esa RPC.
 - Self-test transaccional de autorizar/suspender/reactivar/eliminar pasó y terminó con `ROLLBACK`, sin cambios reales.
-- El Admin hace únicamente una comprobación pasiva `health` contra la nueva Edge Function y muestra `Canal administrativo seguro`.
-- Las acciones reales del Admin todavía usan las RPC anteriores. Esto es intencional hasta confirmar una sesión administrativa real contra el nuevo canal.
-- No revocar las RPC antiguas hasta completar esa comprobación y migrar las llamadas del panel.
+- La comprobación `health` fue confirmada desde una sesión administrativa real: `Canal administrativo seguro` mostró `Listo`.
+- El panel Admin ya enruta autorizar plan, suspender y eliminar por `admin-profile-actions` cuando el canal seguro está disponible.
+- Las RPC antiguas permanecen temporalmente como respaldo solo si el canal seguro no queda disponible al abrir el Admin.
+- No revocar en bloque las RPC antiguas: retirar permisos una por una después de verificar uso y mantener QA/Security en verde.
 
 ## Advertencia actual del asesor de Supabase
 
