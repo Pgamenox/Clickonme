@@ -48,6 +48,17 @@ No modificar estos puntos sin adaptar y probar primero el frontend:
 
 Rate limit de sign-in/sign-up verificado en 20 solicitudes por 5 minutos por IP.
 
+## Migración administrativa segura en curso
+
+- Edge Function `admin-profile-actions` desplegada en producción con `verify_jwt=true`.
+- Prueba sin sesión verificada: responde 401 antes de ejecutar código.
+- RPC servidor `admin_profile_action_server` creada para `service_role` exclusivamente.
+- `anon` y `authenticated` NO pueden ejecutar esa RPC.
+- Self-test transaccional de autorizar/suspender/reactivar/eliminar pasó y terminó con `ROLLBACK`, sin cambios reales.
+- El Admin hace únicamente una comprobación pasiva `health` contra la nueva Edge Function y muestra `Canal administrativo seguro`.
+- Las acciones reales del Admin todavía usan las RPC anteriores. Esto es intencional hasta confirmar una sesión administrativa real contra el nuevo canal.
+- No revocar las RPC antiguas hasta completar esa comprobación y migrar las llamadas del panel.
+
 ## Advertencia actual del asesor de Supabase
 
 Supabase marca cuatro funciones `SECURITY DEFINER` ejecutables por usuarios autenticados:
