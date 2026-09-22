@@ -1,6 +1,6 @@
 # ClickOnMe — Checklist de seguridad y recuperación
 
-Estado verificado: 2026-09-21
+Estado verificado: 2026-09-22
 
 ## Ya protegido
 
@@ -48,34 +48,24 @@ No modificar estos puntos sin adaptar y probar primero el frontend:
 
 Rate limit de sign-in/sign-up verificado en 20 solicitudes por 5 minutos por IP.
 
-## Migración administrativa segura en curso
+## Canal administrativo seguro — cerrado
 
 - Edge Function `admin-profile-actions` desplegada en producción con `verify_jwt=true`.
 - Prueba sin sesión verificada: responde 401 antes de ejecutar código.
-- RPC servidor `admin_profile_action_server` creada para `service_role` exclusivamente.
+- RPC servidor `admin_profile_action_server` reservada a `service_role`.
 - `anon` y `authenticated` NO pueden ejecutar esa RPC.
 - Self-test transaccional de autorizar/suspender/reactivar/eliminar pasó y terminó con `ROLLBACK`, sin cambios reales.
-- La comprobación `health` fue confirmada desde una sesión administrativa real: `Canal administrativo seguro` mostró `Listo`.
-- El panel Admin ya enruta autorizar plan, suspender y eliminar por `admin-profile-actions` cuando el canal seguro está disponible.
-- Las RPC antiguas permanecen temporalmente como respaldo solo si el canal seguro no queda disponible al abrir el Admin.
-- No revocar en bloque las RPC antiguas: `admin_suspend_profile` ya fue cerrada para usuarios autenticados; las tres restantes se retirarán después de confirmar una acción administrativa real por la Edge Function y mantener QA/Security en verde.
+- La comprobación `health` fue confirmada desde una sesión administrativa real.
+- El panel Admin usa `admin-profile-actions` para autorizar plan, suspender y eliminar.
+- El fallback del frontend hacia las RPC antiguas fue retirado del código.
+- QA Gate, Security Gate y Pages pasaron correctamente después del cambio.
+- Se revocó `EXECUTE` a `authenticated` sobre `admin_authorize_plan`, `admin_delete_profile` y `admin_set_profile_suspension`.
+- El asesor de seguridad de Supabase dejó de reportar esas tres advertencias.
+- Las funciones antiguas conservan acceso únicamente de backend mediante `postgres` / `service_role`.
 
 ## Advertencia actual del asesor de Supabase
 
-Supabase marca tres funciones `SECURITY DEFINER` todavía ejecutables por usuarios autenticados:
-
-- `admin_authorize_plan`
-- `admin_delete_profile`
-- `admin_set_profile_suspension`
-
-`admin_suspend_profile` fue verificada contra una copia completa del código: no tenía consumidores de aplicación, solo referencias de documentación. Su permiso para `authenticated` ya fue revocado; conserva acceso de backend mediante `service_role`.
-
-Las tres advertencias restantes se mantienen temporalmente como respaldo mientras confirmamos la primera acción administrativa real por `admin-profile-actions`.
-
-Siguiente endurecimiento recomendado:
-- mover acciones administrativas a una Edge Function administrativa o a un esquema no expuesto,
-- verificar JWT y rol de administrador en servidor,
-- después revocar ejecución directa desde `authenticated`.
+Solo permanece la advertencia de protección contra contraseñas filtradas desactivada. No se modifica en este cierre porque los cambios de Auth/MFA quedaron intencionalmente aplazados hasta adaptar y probar el frontend.
 
 ## Backups aún pendientes
 
