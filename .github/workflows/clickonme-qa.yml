@@ -102,6 +102,7 @@ jobs:
             "builder restores auth handoff": "clickonme_auth_handoff" in builder and "auth.setSession" in builder,
             "publish create/update paths": '.insert(payload)' in builder and '.update(payload)' in builder and "loadOwnProfile" in builder,
             "single customer card guard": "Tu cuenta ya tiene una tarjeta ClickOnMe" in builder,
+  "admin can edit unassigned prospects": "currentUserIsAdmin" in builder and 'if(!currentUserIsAdmin) query=query.eq("user_id",currentUser.id);' in builder,
             "public URL after save": "crear/perfil.html?u=" in builder and "updateProfileLink" in builder,
             "mobile preview/save controls": "mobilePreviewBtn" in builder and "mobileSaveButton" in builder,
             "share copy qr": all(x in profile for x in ("shareBtn","copyBtn","qrBtn","navigator.share","navigator.clipboard")),

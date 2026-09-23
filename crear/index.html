@@ -2255,6 +2255,7 @@ const paymentBox = document.getElementById("paymentBox");
 const payButton = document.getElementById("payButton");
 const mobileSaveButton = document.getElementById("mobileSaveBtn");const mobileAuthGate=document.getElementById("mobileAuthGate");document.getElementById("mobileAuthButton").addEventListener("click",()=>document.getElementById("accountArea").scrollIntoView({behavior:"smooth",block:"start"}));
 let currentUser = null;
+let currentUserIsAdmin = false;
 let currentProfileId = null;
 let currentProfileSlug = null;
 let profileLoadedFor = null;
@@ -2443,12 +2444,18 @@ async function loadOwnProfile(){
     else return;
   }
   let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile");
-  if(requestedProfileId) query=query.eq("id",requestedProfileId).eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")');
-  else query=query.eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
+  if(requestedProfileId){
+    query=query.eq("id",requestedProfileId).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")');
+    if(!currentUserIsAdmin) query=query.eq("user_id",currentUser.id);
+  }else query=query.eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
   const {data:rows,error}=await query;
   if(error){ authStatus.textContent="Sesión activa, pero no se pudo cargar tu tarjeta: "+error.message; return; }
   const data=rows?.[0];
   if(requestedProfileId && !data){
+    if(currentUserIsAdmin){
+      authStatus.textContent="No se pudo abrir esa tarjeta desde Admin. Verifica que exista y que no sea interna o demo.";
+      return;
+    }
     authStatus.textContent="Esta tarjeta es interna, de pruebas o no pertenece a tu cuenta. Abriremos tu ClickOnMe principal.";
     window.history.replaceState({},"","/crear/");
     profileLoadedFor=null;
@@ -2471,10 +2478,12 @@ async function applySession(session){
   accountTools.style.display=currentUser?"flex":"none";
   authStatus.textContent=currentUser?`Sesión activa: ${currentUser.email}`:"Aún no has iniciado sesión.";
   if(currentUser){
+    const {data:adminRow}=await supabaseClient.from("admin_users").select("user_id").eq("user_id",currentUser.id).maybeSingle();
+    currentUserIsAdmin=!!adminRow;
     await loadMyCards();
     await loadOwnProfile();
     await confirmReturnedPayment();
-  }
+  }else currentUserIsAdmin=false;
 }
 
 async function confirmReturnedPayment(){
