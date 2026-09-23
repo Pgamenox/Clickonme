@@ -2500,11 +2500,15 @@ async function confirmReturnedPayment(){
   paymentConfirmationAttempted=true;
   retryPaymentConfirmation.style.display="none";
   paymentBox.style.display="block";
+  const previousPayLabel=payButton.textContent;
   payButton.disabled=true;
   payButton.textContent="Confirmando pago con Mercado Pago...";
-  const {data,error}=await supabaseClient.functions.invoke("confirm-mercadopago-payment",{
-    body:{profileId:Number(currentProfileId),paymentId:String(returnedPaymentId)}
-  });
+  let data,error;
+  try{
+    ({data,error}=await supabaseClient.functions.invoke("confirm-mercadopago-payment",{
+      body:{profileId:Number(currentProfileId),paymentId:String(returnedPaymentId)}
+    }));
+  }catch(e){error=e;}
   if(!error && data?.active){
     const end=data.currentPeriodEnd?new Date(data.currentPeriodEnd).toLocaleDateString("es-MX"):"";
     paymentBox.querySelector("strong").textContent="Plan activo";
@@ -2515,7 +2519,7 @@ async function confirmReturnedPayment(){
   }
   paymentConfirmationAttempted=false;
   payButton.disabled=false;
-  refreshCheckoutPlan();
+  payButton.textContent=previousPayLabel;
   retryPaymentConfirmation.style.display="inline-block";
   paymentBox.querySelector("p").textContent=returnedPaymentStatus==="approved"?"Mercado Pago aprobó el pago; estamos esperando la confirmación segura.":(data?.error||"No fue posible confirmar el pago todavía.");
 }
