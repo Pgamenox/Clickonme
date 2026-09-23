@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const allowedOrigins=new Set(["https://clickonme.pro","https://www.clickonme.pro"]);
-const allowed=new Set(["profile_view","audio_play","gallery_nav","video_open","whatsapp_click","phone_click","facebook_click","instagram_click","youtube_click","website_click","custom_click","share_click","copy_click","qr_open","presskit_email","presskit_whatsapp","presskit_pdf"]);
+const allowed=new Set(["profile_view","audio_play","gallery_nav","video_open","whatsapp_click","phone_click","facebook_click","instagram_click","youtube_click","website_click","custom_click","share_click","copy_click","qr_open","presskit_email","presskit_whatsapp","presskit_pdf","install_click","install_complete"]);
 const sessionWindowMs=5*60*1000;
 const sessionLimit=60;
 const profileWindowMs=60*1000;
