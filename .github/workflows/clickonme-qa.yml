@@ -246,6 +246,7 @@ jobs:
             "anapaula":"anapaula",
             "francisco":"francisco",
             "rafael":"rafael",
+            "claudia":"claudia",
           }
           for folder,prefix in people.items():
             p=Path("presentacion")/folder/"index.html"
