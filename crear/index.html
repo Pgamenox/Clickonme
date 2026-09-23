@@ -2266,6 +2266,15 @@ const activationRequested = editorParams.get("activate") === "1";
 const returnedPaymentId = editorParams.get("payment_id") || editorParams.get("collection_id");
 const returnedPaymentStatus = editorParams.get("collection_status") || editorParams.get("status");
 let paymentConfirmationAttempted = false;
+const retryPaymentConfirmation = document.createElement("button");
+retryPaymentConfirmation.type = "button";
+retryPaymentConfirmation.textContent = "Volver a comprobar este pago";
+retryPaymentConfirmation.style.cssText = "display:none;margin-top:10px;padding:10px 14px;border:1px solid currentColor;border-radius:10px;background:transparent;color:inherit;cursor:pointer";
+payButton.insertAdjacentElement("afterend", retryPaymentConfirmation);
+retryPaymentConfirmation.addEventListener("click", () => {
+  if (paymentConfirmationAttempted) return;
+  confirmReturnedPayment();
+});
 // Los precios de checkout se cargan por plan desde business_settings.plan_prices.
 function makeSlug(value){
   return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0,40);
@@ -2489,6 +2498,7 @@ async function applySession(session){
 async function confirmReturnedPayment(){
   if(paymentConfirmationAttempted || !currentUser || !currentProfileId || !returnedPaymentId) return;
   paymentConfirmationAttempted=true;
+  retryPaymentConfirmation.style.display="none";
   paymentBox.style.display="block";
   payButton.disabled=true;
   payButton.textContent="Confirmando pago con Mercado Pago...";
@@ -2503,8 +2513,10 @@ async function confirmReturnedPayment(){
     window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
     return;
   }
+  paymentConfirmationAttempted=false;
   payButton.disabled=false;
-  payButton.textContent="Volver a comprobar el pago";
+  refreshCheckoutPlan();
+  retryPaymentConfirmation.style.display="inline-block";
   paymentBox.querySelector("p").textContent=returnedPaymentStatus==="approved"?"Mercado Pago aprobó el pago; estamos esperando la confirmación segura.":(data?.error||"No fue posible confirmar el pago todavía.");
 }
 
