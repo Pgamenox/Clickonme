@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const allowedOrigins=new Set(["https://clickonme.pro","https://www.clickonme.pro"]);
-const allowedActions=new Set(["health","authorize_plan","set_suspension","delete_profile"]);
+const allowedActions=new Set(["health","authorize_plan","set_suspension","delete_profile","assign_owner"]);
 
 function corsFor(req:Request){
   const origin=req.headers.get("origin")||"";
@@ -78,6 +78,7 @@ Deno.serve(async(req)=>{
   const plan=body?.plan==null?null:String(body.plan).trim().toLowerCase();
   const confirmSlug=body?.confirm_slug==null?null:String(body.confirm_slug).trim().toLowerCase();
   const suspended=typeof body?.suspended==="boolean"?body.suspended:null;
+  const ownerEmail=body?.owner_email==null?null:String(body.owner_email).trim().toLowerCase();
 
   if(action==="authorize_plan"&&!["personal","business","artist","creator"].includes(String(plan||""))){
     return json(req,{error:"Plan inválido"},400);
@@ -87,6 +88,30 @@ Deno.serve(async(req)=>{
   }
   if(action==="set_suspension"&&suspended===null){
     return json(req,{error:"Estado de suspensión requerido"},400);
+  }
+  if(action==="assign_owner"&&(!ownerEmail||ownerEmail.length>320||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerEmail))){
+    return json(req,{error:"Correo del cliente inválido"},400);
+  }
+
+  if(action==="assign_owner"){
+    const {data,error}=await adminClient.rpc("admin_assign_profile_owner_server",{
+      p_admin_user_id:user.id,
+      p_profile_id:profileId,
+      p_owner_email:ownerEmail,
+    });
+    if(error){
+      const msg=String(error.message||"No se pudo entregar la tarjeta");
+      if(/admin required/i.test(msg))return json(req,{error:"Permisos de administrador requeridos"},403);
+      if(/profile not found/i.test(msg))return json(req,{error:"Perfil no encontrado"},404);
+      if(/internal profiles/i.test(msg))return json(req,{error:"Este perfil interno no puede asignarse"},409);
+      if(/profile already assigned/i.test(msg))return json(req,{error:"Esta tarjeta ya fue entregada a una cuenta"},409);
+      if(/confirmed owner account not found/i.test(msg))return json(req,{error:"El cliente debe registrarse y confirmar ese correo antes de recibir la tarjeta"},404);
+      if(/owner already has profile/i.test(msg))return json(req,{error:"Esa cuenta ya tiene una tarjeta ClickOnMe"},409);
+      if(/invalid owner email/i.test(msg))return json(req,{error:"Correo del cliente inválido"},400);
+      console.error("admin assign owner rpc error",error.code,error.message);
+      return json(req,{error:"No se pudo entregar la tarjeta"},500);
+    }
+    return json(req,data??{ok:true});
   }
 
   const {data,error}=await adminClient.rpc("admin_profile_action_server",{

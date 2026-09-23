@@ -295,6 +295,9 @@ jobs:
           grep -q 'id="installGuide"' crear/perfil.html
           grep -q 'beforeinstallprompt' crear/perfil.html
           grep -q 'appinstalled' crear/perfil.html
+          grep -q 'assign_owner' supabase/functions/admin-profile-actions/index.ts
+          grep -q 'data-action="assign"' admin/index.html
+          grep -q 'owner_email:email' admin/index.html
           grep -q 'install_complete' crear/index.html
           grep -q 'install_click' supabase/functions/profile-analytics/index.ts
           grep -q 'install_complete' supabase/functions/profile-analytics/index.ts
