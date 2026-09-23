@@ -52,7 +52,7 @@ jobs:
           PY
           node --check /tmp/profile-inline.js
       - name: Payment confirmation regression
-        run: node --test tests/payment-confirmation.test.cjs
+        run: node --test tests/payment-confirmation.test.cjs tests/auth-payment-return.test.cjs
       - name: Critical auth contract
         run: |
           grep -q 'signInWithPassword' crear/auth-bridge.js
