@@ -109,7 +109,7 @@ jobs:
             "service worker network-first profile/home": 'isProfile||isHomepage' in sw and "fetch(event.request)" in sw,
             "individual manifest wired": "profile-manifest" in profile and "dynamicManifest" in profile,
             "manifest opens exact profile": '"/crear/perfil.html?u="' in manifest and '"&source=pwa"' in manifest,
-            "public install UI removed": 'id="installPanel"' not in profile and 'id="installBtn"' not in profile and "beforeinstallprompt" not in profile and "appinstalled" not in profile,
+            "public install UI active": 'id="installPanel"' in profile and 'id="installBtn"' in profile and 'id="installGuide"' in profile and "beforeinstallprompt" in profile and "appinstalled" in profile,
           }
           for k,v in checks.items(): print(("PASS " if v else "FAIL ")+k)
           if not all(checks.values()): sys.exit(1)
