@@ -2,6 +2,8 @@ name: ClickOnMe QA Gate
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 jobs:
   constructor-integrity:
@@ -49,6 +51,8 @@ jobs:
           Path("/tmp/profile-inline.js").write_text("\n;\n".join(blocks))
           PY
           node --check /tmp/profile-inline.js
+      - name: Payment confirmation regression
+        run: node --test tests/payment-confirmation.test.cjs tests/auth-payment-return.test.cjs tests/payment-return-ui.test.cjs tests/qr-fallback.test.cjs
       - name: Critical auth contract
         run: |
           grep -q 'signInWithPassword' crear/auth-bridge.js

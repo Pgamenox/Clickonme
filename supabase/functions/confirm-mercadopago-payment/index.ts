@@ -82,9 +82,10 @@ Deno.serve(async (req: Request) => {
     });
     if (!rpcResponse.ok) throw new Error(await rpcResponse.text());
     const applied = await rpcResponse.json();
-    const result = applied?.[0] ?? {};
+    const result = Array.isArray(applied) ? applied[0] : applied;
+    if (!result || !allowed.has(String(result.status))) throw new Error("Invalid payment application response");
     const periodEnd = result.current_period_end ?? null;
-    return json(req, { status: nextStatus, active: nextStatus === "approved", currentPeriodEnd: periodEnd });
+    return json(req, { status: result.status, active: result.status === "approved", currentPeriodEnd: periodEnd });
   } catch (error) {
     console.error("Payment confirmation error", error);
     return json(req, { error: "No se pudo confirmar el pago" }, 500);
