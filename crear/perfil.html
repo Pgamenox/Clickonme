@@ -572,178 +572,32 @@ h1{text-wrap:balance}
 
 
 <style id="demoPlanIdentityV1">
-/* Commercial demo identity only. Customer cards remain fully user-designed. */
+/* Demo label only: all visual styling of the card must come from fields available in the editor. */
 .demo-plan-identity{display:none}
-.card[data-demo-plan]{
-  --demo-accent-a:#39dcff;
-  --demo-accent-b:#9b63ff;
-}
 .card[data-demo-plan] .demo-plan-identity{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
-  margin:0 0 15px;
-  padding:7px 10px;
-  border:1px solid rgba(255,255,255,.08);
+  gap:10px;
+  margin:0 0 14px;
+  padding:6px 9px;
+  border:1px solid currentColor;
   border-radius:999px;
-  background:rgba(255,255,255,.035);
-  box-shadow:0 8px 22px rgba(0,0,0,.10);
+  background:rgba(255,255,255,.04);
+  color:inherit;
+  opacity:.62;
 }
-.card[data-demo-plan] .demo-plan-identity span{
-  color:#8d99af;
+.card[data-demo-plan] .demo-plan-identity span,
+.card[data-demo-plan] .demo-plan-identity b{
   font-size:8px;
   font-weight:800;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-.card[data-demo-plan] .demo-plan-identity b{
-  color:#eef6ff;
-  font-size:9px;
   letter-spacing:.11em;
   text-transform:uppercase;
 }
-.card[data-demo-plan] .demo-plan-identity b::before{
-  content:"";
-  display:inline-block;
-  width:6px;
-  height:6px;
-  margin-right:7px;
-  border-radius:50%;
-  background:var(--demo-accent-a);
-  box-shadow:0 0 12px color-mix(in srgb,var(--demo-accent-a) 55%,transparent);
-  vertical-align:1px;
-}
-.card[data-demo-plan]::before{
-  background:linear-gradient(90deg,transparent,var(--demo-accent-a),var(--demo-accent-b),transparent)!important;
-}
-.card[data-demo-plan] .btn,
-.card[data-demo-plan] .share-action,
-.card[data-demo-plan] .gallery-stage,
-.card[data-demo-plan] .video-frame,
-.card[data-demo-plan] .module-audio,
-.card[data-demo-plan] .store-product{
-  transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease,background .18s ease;
-}
-
-/* FREE — clean, restrained, accessible */
-.card[data-demo-plan="free"]{
-  --demo-accent-a:#a8b7c9;
-  --demo-accent-b:#6f8197;
-  box-shadow:0 28px 70px rgba(0,0,0,.34);
-}
-.card[data-demo-plan="free"] .demo-plan-identity{
-  background:rgba(180,195,215,.045);
-  border-color:rgba(180,195,215,.10);
-}
-.card[data-demo-plan="free"] .avatar{
-  box-shadow:0 14px 34px rgba(0,0,0,.26),0 0 0 4px rgba(180,195,215,.045);
-}
-.card[data-demo-plan="free"] .btn{
-  background:rgba(255,255,255,.055)!important;
-  border-color:rgba(185,201,220,.10)!important;
-}
-
-/* PERSONAL — refined cyan/teal glass */
-.card[data-demo-plan="personal"]{
-  --demo-accent-a:#50e0d6;
-  --demo-accent-b:#4a8dff;
-  box-shadow:0 30px 78px rgba(0,40,58,.42),0 0 42px rgba(80,224,214,.055);
-}
-.card[data-demo-plan="personal"] .demo-plan-identity{
-  background:linear-gradient(90deg,rgba(80,224,214,.055),rgba(74,141,255,.055));
-  border-color:rgba(80,224,214,.14);
-}
-.card[data-demo-plan="personal"] .avatar{
-  border-color:rgba(196,255,249,.72);
-  box-shadow:0 17px 38px rgba(0,45,56,.34),0 0 0 5px rgba(80,224,214,.045);
-}
-.card[data-demo-plan="personal"] .btn:hover{
-  border-color:rgba(80,224,214,.28)!important;
-}
-
-/* BUSINESS — editorial executive gold */
-.card[data-demo-plan="business"]{
-  --demo-accent-a:#d8b568;
-  --demo-accent-b:#8d6a2f;
-  box-shadow:0 32px 82px rgba(0,0,0,.50),0 0 45px rgba(216,181,104,.045);
-}
-.card[data-demo-plan="business"] .demo-plan-identity{
-  background:linear-gradient(90deg,rgba(216,181,104,.07),rgba(141,106,47,.05));
-  border-color:rgba(216,181,104,.18);
-}
-.card[data-demo-plan="business"] h1{font-family:Georgia,'Times New Roman',serif;letter-spacing:-.035em}
-.card[data-demo-plan="business"] .avatar{
-  border-radius:20px;
-  border-color:rgba(224,193,127,.34);
-  box-shadow:0 20px 42px rgba(0,0,0,.40),0 0 0 4px rgba(216,181,104,.035);
-}
-.card[data-demo-plan="business"] .btn{
-  border-color:rgba(216,181,104,.18)!important;
-}
-.card[data-demo-plan="business"] .module-gallery h2::before,
-.card[data-demo-plan="business"] .module-store h2::before{
-  background:linear-gradient(90deg,#8d6a2f,#e0bf79);
-}
-
-/* ARTIST — stage / press-kit energy */
-.card[data-demo-plan="artist"]{
-  --demo-accent-a:#ff477d;
-  --demo-accent-b:#b729ff;
-  box-shadow:0 32px 84px rgba(31,0,15,.50),0 0 54px rgba(255,71,125,.055);
-}
-.card[data-demo-plan="artist"] .demo-plan-identity{
-  background:linear-gradient(90deg,rgba(255,71,125,.075),rgba(183,41,255,.06));
-  border-color:rgba(255,100,146,.18);
-}
-.card[data-demo-plan="artist"] .avatar{
-  border-color:rgba(255,151,182,.40);
-  box-shadow:0 20px 46px rgba(38,0,18,.42),0 0 0 5px rgba(255,71,125,.04);
-}
-.card[data-demo-plan="artist"] .presskit-badge{
-  border-color:rgba(255,83,136,.24);
-  background:linear-gradient(90deg,rgba(255,71,125,.10),rgba(183,41,255,.10));
-  color:#ffd6e4;
-}
-.card[data-demo-plan="artist"] .module-gallery h2::before,
-.card[data-demo-plan="artist"] .module-audio h2::before,
-.card[data-demo-plan="artist"] .module-video h2::before,
-.card[data-demo-plan="artist"] .presskit-details h2::before{
-  background:linear-gradient(90deg,#ff477d,#b729ff);
-}
-
-/* CREATOR — richer purple/cyan editorial system */
-.card[data-demo-plan="creator"]{
-  --demo-accent-a:#7d5cff;
-  --demo-accent-b:#ed3cff;
-  box-shadow:0 34px 90px rgba(20,3,48,.52),0 0 58px rgba(125,92,255,.07);
-}
-.card[data-demo-plan="creator"] .demo-plan-identity{
-  background:linear-gradient(90deg,rgba(125,92,255,.09),rgba(237,60,255,.075));
-  border-color:rgba(172,110,255,.19);
-}
-.card[data-demo-plan="creator"] .avatar{
-  border-color:rgba(204,179,255,.40);
-  box-shadow:0 20px 48px rgba(24,4,53,.42),0 0 0 5px rgba(125,92,255,.045);
-}
-.card[data-demo-plan="creator"] .store-product{
-  border-color:rgba(174,111,255,.16);
-  background:linear-gradient(155deg,rgba(125,92,255,.085),rgba(255,255,255,.025));
-}
-.card[data-demo-plan="creator"] .module-gallery h2::before,
-.card[data-demo-plan="creator"] .module-store h2::before,
-.card[data-demo-plan="creator"] .module-video h2::before,
-.card[data-demo-plan="creator"] .presskit-details h2::before{
-  background:linear-gradient(90deg,#7d5cff,#ed3cff);
-}
-.card[data-demo-plan="creator"] .store-order{
-  box-shadow:0 10px 24px rgba(111,55,255,.24);
-}
-
 @media(max-width:600px){
-  .card[data-demo-plan] .demo-plan-identity{margin-bottom:12px;padding:6px 9px}
-  .card[data-demo-plan] .demo-plan-identity span{font-size:7px}
-  .card[data-demo-plan] .demo-plan-identity b{font-size:8px}
+  .card[data-demo-plan] .demo-plan-identity{margin-bottom:11px;padding:6px 8px}
+  .card[data-demo-plan] .demo-plan-identity span,
+  .card[data-demo-plan] .demo-plan-identity b{font-size:7px}
 }
 </style>
 
