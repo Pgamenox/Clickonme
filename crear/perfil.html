@@ -854,6 +854,33 @@ loadProfile();
 </script>
 <script>
 (()=>{
+ const qr=document.getElementById("qrBtn"),image=document.getElementById("qrImage"),dialog=document.getElementById("qrDialog");
+ if(!qr||!image||!dialog)return;
+ const notice=document.createElement("p");notice.id="qrFallback";notice.setAttribute("role","status");notice.style.cssText="display:none;margin:10px 0;color:inherit;text-align:center";
+ const copy=document.createElement("button");copy.type="button";copy.textContent="Copiar enlace";copy.style.cssText="display:none;margin:10px auto;padding:9px 14px;border-radius:10px;cursor:pointer";
+ image.insertAdjacentElement("afterend",notice);notice.insertAdjacentElement("afterend",copy);
+ const link=slug?location.origin+"/crear/perfil.html?u="+encodeURIComponent(slug):location.href.split("#")[0];
+ qr.addEventListener("click",()=>{image.style.display="";notice.style.display="none";copy.style.display="none";});
+ image.addEventListener("load",()=>{image.style.display="";notice.style.display="none";copy.style.display="none";});
+ image.addEventListener("error",()=>{
+   image.style.display="none";
+   notice.textContent="No se pudo cargar el QR. Puedes compartir el enlace de esta tarjeta.";
+   notice.style.display="block";copy.style.display="block";
+ });
+ copy.addEventListener("click",async()=>{
+   try{
+     if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(link);
+     else{
+       const field=document.createElement("textarea");field.value=link;document.body.appendChild(field);field.select();
+       const copied=document.execCommand("copy");field.remove();if(!copied)throw new Error("Copy unavailable");
+     }
+     notice.textContent="Enlace copiado.";
+   }catch{notice.textContent="Copia este enlace: "+link;}
+ });
+})();
+</script>
+<script>
+(()=>{
  const panel=document.getElementById("installPanel"),button=document.getElementById("installBtn"),message=document.getElementById("installText"),guide=document.getElementById("installGuide"),title=document.getElementById("installGuideTitle"),intro=document.getElementById("installGuideIntro"),steps=document.getElementById("installSteps"),close=document.getElementById("installGuideClose");
  if(!panel||!button||!guide||!steps)return;
  let deferredPrompt=null;
