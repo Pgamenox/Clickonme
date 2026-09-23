@@ -883,13 +883,11 @@ function renderPresskitDetails(d){if(d.profileMode!=="presskit")return;const p=d
 
 function renderStoreModule(d){
  const mod=d?.modules?.store,products=Array.isArray(mod?.products)?mod.products.slice(0,6):[];if(!mod?.enabled||!products.length)return;
- const wa=String(mod.whatsapp||d.whatsapp||"").replace(/\D/g,""),isDemo=d?.demo_profile===true;
- if(!wa&&!isDemo)return;
+ const wa=String(mod.whatsapp||d.whatsapp||"").replace(/\D/g,"");
+ if(!wa)return;
  const root=document.getElementById("storeModule"),grid=document.getElementById("storeGrid");document.getElementById("storeModuleTitle").textContent=String(mod.title||"Mi tienda").slice(0,60);
  products.forEach((p,i)=>{const name=String(p.name||"").trim().slice(0,80),price=Number(p.price);if(!name||!Number.isFinite(price)||price<0)return;const card=document.createElement("article");card.className="store-product";const image=safeImage(p.image);if(image){const img=document.createElement("img");img.src=image;img.alt=name;img.loading="lazy";card.appendChild(img);}const body=document.createElement("div");body.className="store-product-body";const title=document.createElement("strong");title.textContent=name;const money=document.createElement("div");money.className="store-price";money.textContent=price.toLocaleString("es-MX",{style:"currency",currency:"MXN"});const desc=document.createElement("div");desc.className="store-desc";desc.textContent=String(p.description||"").slice(0,140);
- let order;
- if(wa){order=document.createElement("a");order.className="store-order";order.target="_blank";order.rel="noopener noreferrer";order.textContent="💬 Pedir por WhatsApp";order.href="https://wa.me/"+wa+"?text="+encodeURIComponent("Hola, quiero pedir: "+name+" ("+money.textContent+")");order.addEventListener("click",()=>trackInteraction("store_order",name));}
- else{order=document.createElement("div");order.className="store-order store-demo-order";order.textContent="Vista demo de tienda";order.setAttribute("aria-label","Producto de demostración");}
+ const order=document.createElement("a");order.className="store-order";order.target="_blank";order.rel="noopener noreferrer";order.textContent="💬 Pedir por WhatsApp";order.href="https://wa.me/"+wa+"?text="+encodeURIComponent("Hola, quiero pedir: "+name+" ("+money.textContent+")");order.addEventListener("click",()=>trackInteraction("store_order",name));
  body.append(title,money,desc,order);card.appendChild(body);grid.appendChild(card);});
  if(grid.children.length)root.style.display="block";
 }
