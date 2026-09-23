@@ -1,0 +1,108 @@
+{
+  "model": "commercial_readiness_v1",
+  "title": "Preparación comercial ClickOnMe",
+  "rule": "Pesos fijos. El porcentaje solo cambia cuando aparece evidencia nueva o una regresión comprobada.",
+  "total_points": 100,
+  "earned_points": 85,
+  "updated_local_date": "2026-09-22",
+  "criteria": [
+    {
+      "id": "ci_security_deploy",
+      "label": "QA, seguridad y despliegue automatizados",
+      "weight": 10,
+      "earned": 9,
+      "status": "partial",
+      "evidence": "QA Gate, Security Gate y Pages en verde. Pendiente: activar protección contra contraseñas filtradas en Supabase Auth."
+    },
+    {
+      "id": "editor_public_lifecycle",
+      "label": "Editor → guardar → perfil público",
+      "weight": 15,
+      "earned": 15,
+      "status": "verified",
+      "evidence": "2,000 ciclos crear/actualizar/borrar aprobados; URL pública y guardado protegidos."
+    },
+    {
+      "id": "data_stress",
+      "label": "Integridad, estrés y rendimiento",
+      "weight": 10,
+      "earned": 10,
+      "status": "verified",
+      "evidence": "10,000 payloads; 0 duplicados/huérfanos; consultas principales usan índices."
+    },
+    {
+      "id": "entitlements",
+      "label": "Planes, permisos y anti-escalamiento",
+      "weight": 10,
+      "earned": 10,
+      "status": "verified",
+      "evidence": "1,000 intentos de auto-subir plan/rol neutralizados."
+    },
+    {
+      "id": "admin_delivery",
+      "label": "Admin: prospecto → entrega al cliente",
+      "weight": 10,
+      "earned": 10,
+      "status": "verified",
+      "evidence": "300 entregas simuladas aprobadas; asignación segura por cuenta confirmada."
+    },
+    {
+      "id": "payment_engine",
+      "label": "Motor de pagos, idempotencia y reembolso",
+      "weight": 10,
+      "earned": 10,
+      "status": "verified",
+      "evidence": "300 ciclos approved/retry/refund aprobados sin doble vigencia ni residuos."
+    },
+    {
+      "id": "production_payment",
+      "label": "Pago real de producción extremo a extremo",
+      "weight": 10,
+      "earned": 0,
+      "status": "pending",
+      "evidence": "Falta un pago real aprobado en producción que recorra Mercado Pago → webhook/confirmación → plan activo."
+    },
+    {
+      "id": "renewal_expiry",
+      "label": "Renovación, vencimiento, downgrade y recordatorios",
+      "weight": 10,
+      "earned": 10,
+      "status": "verified",
+      "evidence": "Cron horario activo; 1,000 vencimientos forzados bajaron a Free conservando datos; cron de correo respondió HTTP 200."
+    },
+    {
+      "id": "external_auth",
+      "label": "Alta externa, confirmación de correo y acceso",
+      "weight": 8,
+      "earned": 6,
+      "status": "partial",
+      "evidence": "Auth y sesiones están implementados y protegidos; falta repetir alta completa con una persona/correo externo nuevo."
+    },
+    {
+      "id": "pwa_devices",
+      "label": "Compartir, QR e instalación en dispositivos",
+      "weight": 7,
+      "earned": 5,
+      "status": "partial",
+      "evidence": "Compartir, QR, manifiesto e instalación están implementados; faltan pruebas físicas completas en Android e iPhone."
+    }
+  ],
+  "next_to_raise": [
+    {
+      "action": "Pago real aprobado en producción",
+      "points": 10
+    },
+    {
+      "action": "Alta externa completa con correo nuevo",
+      "points": 2
+    },
+    {
+      "action": "Prueba física Android e iPhone",
+      "points": 2
+    },
+    {
+      "action": "Activar protección contra contraseñas filtradas",
+      "points": 1
+    }
+  ]
+}
