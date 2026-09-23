@@ -288,10 +288,13 @@ jobs:
           grep -q 'shareBtn' crear/perfil.html
           grep -q 'copyBtn' crear/perfil.html
           grep -q 'qrBtn' crear/perfil.html
-          ! grep -q 'id="installPanel"' crear/perfil.html
-          ! grep -q 'id="installBtn"' crear/perfil.html
-          ! grep -q 'beforeinstallprompt' crear/perfil.html
-          ! grep -q 'appinstalled' crear/perfil.html
+          grep -q 'id="installPanel"' crear/perfil.html
+          grep -q 'id="installBtn"' crear/perfil.html
+          grep -q 'id="installGuide"' crear/perfil.html
+          grep -q 'beforeinstallprompt' crear/perfil.html
+          grep -q 'appinstalled' crear/perfil.html
+          grep -q 'manifestLink.rel="manifest"' crear/perfil.html
+          ! grep -q 'id="dynamicManifest" rel="manifest" href="/manifest.webmanifest"' crear/perfil.html
           ! grep -q 'Esta demo se abrió dentro de tu ClickOnMe instalado' crear/perfil.html
           grep -q 'profile-manifest' crear/perfil.html
           grep -q 'startupGuard' crear/perfil.html

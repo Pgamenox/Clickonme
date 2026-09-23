@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mi ClickOnMe</title>
-<link id="dynamicManifest" rel="manifest" href="/manifest.webmanifest">
+<link id="dynamicManifest" crossorigin="anonymous">
 <meta name="theme-color" content="#090b18">
 <!-- Demo profiles open directly in the canonical public viewer. Legacy standalone blocker removed. -->
 <link id="dynamicAppleIcon" rel="apple-touch-icon" href="/logo-clickonme.png">
@@ -647,6 +647,11 @@ h1{text-wrap:balance}
   <section class="module-video" id="videoModule" aria-label="Video destacado"><h2 id="videoModuleTitle">Video destacado</h2><div class="video-frame" id="videoFrame"></div></section>
   <section class="presskit-details" id="presskitDetails"><div id="presskitBioBlock" style="display:none"><h2>Biografía / Trayectoria</h2><div class="presskit-bio" id="presskitBioText"></div></div><div id="presskitEventsBlock" style="display:none"><h2>Presentaciones / Eventos</h2><div class="presskit-events" id="presskitEventsList"></div></div><div class="presskit-actions" id="presskitActions"></div></section>
   <div class="share-actions" id="shareActions" aria-label="Compartir esta tarjeta"><button type="button" class="share-action" id="shareBtn" title="Compartir esta tarjeta">↗ Compartir</button><button type="button" class="share-action" id="copyBtn" title="Copiar enlace de esta tarjeta">⧉ Copiar enlace</button><button type="button" class="share-action" id="qrBtn" title="Mostrar código QR">▦ QR</button></div>
+  <div class="install-panel" id="installPanel">
+    <strong>📲 Lleva esta tarjeta contigo</strong>
+    <p id="installText">Instálala en tu teléfono o computadora para abrirla con un solo toque.</p>
+    <button type="button" class="install-btn" id="installBtn">Instalar esta tarjeta</button>
+  </div>
   <div class="links">
     <a class="btn" id="whatsappBtn" href="#" style="display:none;">
       💬 &nbsp; WhatsApp
@@ -701,6 +706,7 @@ const slug = (params.get("u")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
 const manifestLink=document.getElementById("dynamicManifest");
 if(slug&&manifestLink){
   manifestLink.href="https://jjiiuvfshzdgjalmsaay.supabase.co/functions/v1/profile-manifest?u="+encodeURIComponent(slug);
+  manifestLink.rel="manifest";
 }
 
 function safeWebUrl(value){
@@ -803,7 +809,8 @@ async function loadProfile(){
  if(planLevel<2&&d.modules?.gallery)d.modules.gallery.enabled=false;if(planLevel<2&&d.modules?.store)d.modules.store.enabled=false;
  if(planLevel<3){if(d.modules?.audio)d.modules.audio.enabled=false;if(d.modules?.video)d.modules.video.enabled=false;d.profileMode='standard';d.presskit={};}
  if(planLevel===0&&Array.isArray(d.extraCustomButtons))d.extraCustomButtons=d.extraCustomButtons.slice(0,4);
- const selectedInstallIcon=d.appIconMode==="custom"?safeImage(d.appIcon):(d.appIconMode==="profile"?safeImage(d.photo):"/pwa-icon.svg");
+ const iconMode=["profile","custom","clickonme"].includes(d.appIconMode)?d.appIconMode:"profile";
+ const selectedInstallIcon=iconMode==="custom"?safeImage(d.appIcon):(iconMode==="profile"?(safeImage(d.appIcon)||safeImage(d.photo)):"/pwa-icon.svg");
  const installIcon=selectedInstallIcon||"/pwa-icon.svg";
  document.getElementById("dynamicAppleIcon").href=installIcon;
  document.getElementById("profileName").textContent=d.name||"Mi ClickOnMe";
@@ -836,8 +843,88 @@ loadProfile();
 </script>
 
 <div class="share-toast" id="shareToast" role="status" aria-live="polite">Enlace copiado</div><dialog class="qr-dialog" id="qrDialog"><strong>Comparte este ClickOnMe</strong><img id="qrImage" alt="Código QR de esta tarjeta"><button type="button" id="qrClose">Cerrar</button></dialog>
+<dialog class="install-guide" id="installGuide">
+  <h3 id="installGuideTitle">Instalar esta tarjeta</h3>
+  <p id="installGuideIntro">Sigue estos pasos en tu navegador.</p>
+  <div class="install-steps" id="installSteps"></div>
+  <button type="button" id="installGuideClose">Cerrar</button>
+</dialog>
 <script>
 (()=>{const url=location.href.split("#")[0],share=document.getElementById("shareBtn"),copy=document.getElementById("copyBtn"),qr=document.getElementById("qrBtn"),toast=document.getElementById("shareToast"),dlg=document.getElementById("qrDialog"),img=document.getElementById("qrImage");const say=t=>{toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1800)};async function copyUrl(){try{await navigator.clipboard.writeText(url);say("Enlace copiado");}catch{const ta=document.createElement("textarea");ta.value=url;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();say("Enlace copiado");}}share.addEventListener("click",async()=>{trackInteraction("share_click");if(navigator.share){try{await navigator.share({title:document.title,text:(window.clickOnMeShareMessage||"Conoce mi perfil en ClickOnMe"),url});}catch(e){if(e?.name!=="AbortError")copyUrl();}}else copyUrl();});copy.addEventListener("click",()=>{trackInteraction("copy_click");copyUrl();});qr.addEventListener("click",()=>{trackInteraction("qr_open");img.src="https://quickchart.io/qr?size=440&text="+encodeURIComponent(url);dlg.showModal();});document.getElementById("qrClose").addEventListener("click",()=>dlg.close());dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});})();
+</script>
+<script>
+(()=>{
+ const panel=document.getElementById("installPanel"),button=document.getElementById("installBtn"),message=document.getElementById("installText"),guide=document.getElementById("installGuide"),title=document.getElementById("installGuideTitle"),intro=document.getElementById("installGuideIntro"),steps=document.getElementById("installSteps"),close=document.getElementById("installGuideClose");
+ if(!panel||!button||!guide||!steps)return;
+ let deferredPrompt=null;
+ const ua=navigator.userAgent||"";
+ const isIOS=/iPad|iPhone|iPod/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+ const isAndroid=/Android/i.test(ua);
+ const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+ const addStep=text=>{const el=document.createElement("div");el.className="install-step";el.textContent=text;steps.appendChild(el);};
+ const showGuide=()=>{
+   steps.replaceChildren();
+   if(isIOS){
+     title.textContent="Instalar en iPhone o iPad";
+     intro.textContent="Hazlo desde Safari. Si abriste la tarjeta dentro de WhatsApp, Facebook o Instagram, primero ábrela en Safari.";
+     addStep("1. Toca el botón Compartir de Safari.");
+     addStep("2. Elige “Añadir a pantalla de inicio”.");
+     addStep("3. Confirma con “Añadir”.");
+   }else if(isAndroid){
+     title.textContent="Instalar en Android";
+     intro.textContent="Si el navegador no muestra la instalación automática, usa el menú de Chrome.";
+     addStep("1. Abre el menú ⋮ del navegador.");
+     addStep("2. Toca “Instalar aplicación” o “Añadir a pantalla de inicio”.");
+     addStep("3. Confirma la instalación.");
+   }else{
+     title.textContent="Instalar en tu computadora";
+     intro.textContent="Los navegadores compatibles muestran la opción de instalación en la barra de direcciones o en su menú.";
+     addStep("1. Busca “Instalar aplicación” en la barra o menú del navegador.");
+     addStep("2. Confirma “Instalar”.");
+     addStep("3. ClickOnMe quedará disponible como acceso directo o aplicación.");
+   }
+   if(typeof guide.showModal==="function")guide.showModal();else guide.setAttribute("open","");
+ };
+ const installedState=()=>{
+   panel.style.display="block";
+   message.textContent="Esta tarjeta ya está abierta como aplicación en este dispositivo.";
+   button.textContent="Instalada ✓";
+   button.disabled=true;
+ };
+ if(slug)panel.style.display="block";
+ if(isStandalone())installedState();
+ window.addEventListener("beforeinstallprompt",event=>{
+   event.preventDefault();
+   deferredPrompt=event;
+   if(!isStandalone()){
+     panel.style.display="block";
+     message.textContent="Esta tarjeta está lista para instalarse y abrirse con un solo toque.";
+     button.textContent="Instalar esta tarjeta";
+     button.disabled=false;
+   }
+ });
+ window.addEventListener("appinstalled",()=>{
+   deferredPrompt=null;
+   installedState();
+   trackInteraction("install_complete");
+ });
+ button.addEventListener("click",async()=>{
+   trackInteraction("install_click");
+   if(isStandalone()){installedState();return;}
+   if(deferredPrompt){
+     const prompt=deferredPrompt;deferredPrompt=null;
+     try{
+       await prompt.prompt();
+       const choice=await prompt.userChoice;
+       if(choice?.outcome==="accepted"){message.textContent="Instalación aceptada. Ya puedes abrirla desde tu dispositivo.";button.textContent="Instalando…";}
+     }catch{showGuide();}
+     return;
+   }
+   showGuide();
+ });
+ close.addEventListener("click",()=>guide.close?.());
+ guide.addEventListener("click",event=>{if(event.target===guide)guide.close?.();});
+})();
 </script>
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{}));}
