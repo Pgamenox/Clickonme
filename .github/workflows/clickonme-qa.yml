@@ -230,7 +230,7 @@ jobs:
           if not all(checks.values()): sys.exit(1)
           PY
 
-      - name: Premium demo identity and presentation kits contract
+      - name: Demo editor-parity identity and presentation kits contract
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -238,7 +238,7 @@ jobs:
           profile=Path("crear/perfil.html").read_text()
           checks={
             "demo plan identity component": 'id="demoPlanIdentity"' in profile and "dataset.demoPlan" in profile and 'id="demoPlanIdentityV1"' in profile,
-            "five premium plan identities": all(('data-demo-plan="'+x+'"') in profile for x in ("free","personal","business","artist","creator")),
+            "demo visual styling comes from editor fields": all(('data-demo-plan="'+x+'"') not in profile for x in ("free","personal","business","artist","creator")) and "all visual styling of the card must come from fields available in the editor" in profile,
           }
           people={
             "pablo":"pablo",
