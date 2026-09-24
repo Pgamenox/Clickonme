@@ -2667,8 +2667,11 @@ async function uploadProfileAsset(value,folder,key){
   return data.publicUrl+"?v="+Date.now();
 }
 
+let publishInFlight=false;
 publishButton.addEventListener("click",async()=>{
-  if(publishButton.disabled) return;
+  if(publishButton.disabled||publishInFlight) return;
+  publishInFlight=true;
+  try{
   publishButton.disabled=true;
   const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session);
   if(!currentUser){ publishButton.disabled=false; alert("Primero crea tu cuenta o inicia sesión."); return; }
@@ -2746,6 +2749,13 @@ publishButton.addEventListener("click",async()=>{
   window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
   window.setTimeout(()=>{publishButton.textContent="Guardar cambios";},1400);
   viewProfileLink.focus();
+  }catch(error){
+    publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
+    alert("No fue posible completar el guardado. Comprueba tu conexión y vuelve a intentar.");
+  }finally{
+    publishInFlight=false;
+    publishButton.disabled=false;
+  }
 });
 
 function goToMobilePreview(){document.getElementById("previewArea").scrollIntoView({behavior:"smooth",block:"start"});}
