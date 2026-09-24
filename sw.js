@@ -1,4 +1,4 @@
-const CACHE="clickonme-pwa-v8";
+const CACHE="clickonme-pwa-v9";
 const OFFLINE="/";
 const CORE=["/","/brand.css","/logo-clickonme.png","/pwa-icon.svg","/crear/perfil.html"];
 self.addEventListener("install",event=>{
@@ -14,7 +14,9 @@ self.addEventListener("fetch",event=>{
  if(u.origin!==self.location.origin)return;
  const isProfile=u.pathname==="/crear/perfil.html";
  const isHomepage=u.pathname==="/" || u.pathname==="/index.html";
- if(isProfile||isHomepage){
+ const isEditor=u.pathname==="/crear/" || u.pathname==="/crear/index.html";
+ const isScript=u.pathname.endsWith(".js");
+ if(isProfile||isHomepage||isEditor||isScript){
    event.respondWith(fetch(event.request).then(r=>{if(r&&r.ok)caches.open(CACHE).then(c=>c.put(event.request,r.clone()));return r;}).catch(()=>caches.match(event.request).then(r=>r||caches.match(isProfile?"/crear/perfil.html":OFFLINE)||caches.match(OFFLINE))));
    return;
  }

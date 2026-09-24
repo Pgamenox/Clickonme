@@ -20,6 +20,7 @@ backup/
 .DS_Store
 Thumbs.db
 node_modules/
+supabase/.temp/
 .vscode/
 .idea/
 
