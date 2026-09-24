@@ -1661,7 +1661,11 @@ const defaultIcons={whatsapp:"💬",phone:"📞",facebook:"f",instagram:"◎",yo
 let customIcons={};
 function renderIcon(key){
   const slot=document.querySelector(`[data-icon-slot="${key}"]`); if(!slot)return;
-  slot.innerHTML=customIcons[key]?`<img src="${customIcons[key]}" alt="">`:defaultIcons[key];
+  slot.replaceChildren();
+  const value=typeof customIcons[key]==="string"?customIcons[key].trim():"";
+  if(/^https?:\/\//i.test(value)||/^data:image\/(png|jpeg|webp);base64,/i.test(value)){
+    const image=document.createElement("img"); image.src=value; image.alt=""; slot.appendChild(image);
+  }else{ slot.textContent=defaultIcons[key]||""; }
 }
 async function optimizeIcon(file){
   if(!/^image\/(jpeg|png|webp)$/i.test(file.type)) throw new Error("Usa un icono PNG, JPG o WebP.");
@@ -2376,6 +2380,9 @@ function populateProfile(row){
   if(activationRequested){window.setTimeout(()=>{paymentBox.style.display="block";paymentBox.scrollIntoView({behavior:"smooth",block:"center"});paymentBox.style.boxShadow="0 0 0 2px rgba(0,229,255,.45),0 14px 40px rgba(0,0,0,.35)";payButton.focus({preventScroll:true});authStatus.textContent="Tarjeta seleccionada. Revisa el plan y pulsa Activar para continuar.";},250);}
 }
 
+function escapeHtml(value){
+  return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+}
 async function showProfileAnalytics(slug,name,button){
  const original=button.textContent;button.disabled=true;button.textContent="Cargando…";
  try{
@@ -2613,13 +2620,16 @@ checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan
 payButton.addEventListener("click",async()=>{
   if(payButton.disabled) return;
   if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
+  const previousLabel=payButton.textContent;
   payButton.disabled=true; payButton.textContent="Creando orden segura...";
   const checkoutPlan=document.getElementById("checkoutPlan");
   const desiredPlan=checkoutPlan?.value||"personal";
-  const {data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}});
+  let data,error;
+  try{ ({data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}})); }
+  catch(e){error=e;}
   if(error || !data?.checkoutUrl){
-    payButton.disabled=false; refreshCheckoutPlan();
-    alert(data?.error||"No fue posible iniciar el pago de prueba.");
+    payButton.disabled=false; payButton.textContent=previousLabel; refreshCheckoutPlan();
+    alert(data?.error||"No fue posible iniciar el pago. Intenta nuevamente.");
     return;
   }
   await trackBusinessEvent("checkout_started",currentProfileId,{source:"editor",plan:data.plan,amount:data.amount});window.location.href=data.checkoutUrl;

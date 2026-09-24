@@ -17,6 +17,7 @@ Deno.serve(async (req: Request) => {
   if (!profilesResponse.ok) return json({ error: "No se pudieron consultar las tarjetas" }, 500);
 
   let sent = 0;
+  let failed = 0;
   for (const profile of profiles) {
     if (profile.account_role === "team" || profile.demo_profile === true) continue;
     const isPaid = ["personal","business","artist","creator"].includes(String(profile.subscription_plan||""));
@@ -27,25 +28,27 @@ Deno.serve(async (req: Request) => {
     if (![7, 3, 0].includes(days)) continue;
     const kind = `${isPaid?"renewal":"trial"}_${days}d`;
     const existingResponse = await fetch(`${supabaseUrl}/rest/v1/notification_log?profile_id=eq.${profile.id}&kind=eq.${kind}&period_end=eq.${encodeURIComponent(endValue)}&select=id`, { headers });
+    if (!existingResponse.ok) { failed++; continue; }
     const existing = await existingResponse.json();
     if (existing?.length) continue;
     const userResponse = await fetch(`${supabaseUrl}/auth/v1/admin/users/${profile.user_id}`, { headers });
-    if (!userResponse.ok) continue;
+    if (!userResponse.ok) { failed++; continue; }
     const user = await userResponse.json();
-    if (!user.email) continue;
+    if (!user.email) { failed++; continue; }
     const urgent = days <= 3;
     const emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST", headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+      method: "POST", headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json", "Idempotency-Key": `renewal/${profile.id}/${kind}/${endValue}` },
       body: JSON.stringify({
         from: "ClickOnMe <avisos@clickonme.pro>", to: [user.email],
         subject: isPaid ? (days === 0 ? "Tu plan ClickOnMe vence hoy" : `Tu plan ClickOnMe vence en ${days} días`) : (days === 0 ? "Tu prueba ClickOnMe termina hoy" : `Tu prueba ClickOnMe termina en ${days} días`),
         html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:auto"><h1 style="color:#6d28d9">${urgent ? "Es momento de renovar" : "Aviso de renovación"}</h1><p>Hola ${String(profile.name).replace(/[<>&\"]/g, "")},</p><p>${isPaid?"Tu plan":"Tu periodo de prueba"} para <strong>${String(profile.slug)}</strong> ${days === 0 ? (isPaid?"vence hoy":"termina hoy") : `${isPaid?"vence":"termina"} en ${days} días`}.</p><p>${isPaid?"Puedes renovar para conservar las funciones de tu plan. Si no renuevas, tu tarjeta seguirá publicada en Free; las funciones premium quedarán ocultas.":"Al terminar la prueba, tu tarjeta seguirá publicada en Free. Puedes contratar un plan para conservar las funciones premium."}</p><p><a href="https://clickonme.pro/crear/?id=${profile.id}" style="background:#6d28d9;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none">Revisar mi plan</a></p><p>Si ya renovaste, puedes ignorar este mensaje.</p></div>`,
       }),
     });
-    if (!emailResponse.ok) { console.error("Resend error", await emailResponse.text()); continue; }
+    if (!emailResponse.ok) { console.error("Resend error", emailResponse.status); failed++; continue; }
     const email = await emailResponse.json();
-    await fetch(`${supabaseUrl}/rest/v1/notification_log`, { method: "POST", headers: { ...headers, Prefer: "return=minimal" }, body: JSON.stringify({ profile_id: profile.id, user_id: profile.user_id, kind, period_end: endValue, provider_message_id: email.id }) });
+    const logged = await fetch(`${supabaseUrl}/rest/v1/notification_log`, { method: "POST", headers: { ...headers, Prefer: "return=minimal" }, body: JSON.stringify({ profile_id: profile.id, user_id: profile.user_id, kind, period_end: endValue, provider_message_id: email.id }) });
+    if (!logged.ok && logged.status !== 409) { failed++; continue; }
     sent++;
   }
-  return json({ ok: true, sent });
+  return json({ ok: failed === 0, sent, failed }, failed ? 502 : 200);
 });

@@ -6,10 +6,11 @@ Deno.serve(async(req)=>{
  const u=new URL(req.url),slug=(u.searchParams.get("u")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
  if(!slug)return new Response("Missing profile",{status:400,headers:cors});
  const sb=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_ANON_KEY")!);
- const {data:row}=await sb.from("profiles").select("name,photo_url,data,status,trial_ends_at,current_period_end,subscription_plan,demo_profile").eq("slug",slug).maybeSingle();
+ const {data:row}=await sb.from("profiles").select("name,photo_url,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile").eq("slug",slug).maybeSingle();
  if(!row)return new Response("Profile not found",{status:404,headers:cors});
  const d={...row,...(row.data||{})} as any,end=row.status==="active"?row.current_period_end:row.trial_ends_at;
- if(["suspended","expired"].includes(row.status)||(end&&new Date(end).getTime()<=Date.now()))return new Response("Profile unavailable",{status:410,headers:cors});
+ const customerFallback=row.account_role==="customer"&&row.demo_profile===false&&["active","trial"].includes(row.status);
+ if(["suspended","expired"].includes(row.status)||(!customerFallback&&end&&new Date(end).getTime()<=Date.now()))return new Response("Profile unavailable",{status:410,headers:cors});
  const origin="https://clickonme.pro",fallback=origin+"/pwa-icon.svg",demo=row.demo_profile===true;
  const photo=typeof d.photo==="string"&&/^https:\/\//.test(d.photo)?d.photo:(typeof row.photo_url==="string"&&/^https:\/\//.test(row.photo_url)?row.photo_url:"");
  let raw=d.appIconMode==="custom"?d.appIcon:(d.appIconMode==="clickonme"?fallback:(d.appIcon||photo));if(!d.appIconMode)raw=d.appIcon||photo||fallback;

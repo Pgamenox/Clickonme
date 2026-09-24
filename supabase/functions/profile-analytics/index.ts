@@ -40,13 +40,14 @@ Deno.serve(async(req)=>{
 
   const sb=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const {data:p}=await sb.from("profiles")
-    .select("slug,status,trial_ends_at,current_period_end")
+    .select("slug,status,trial_ends_at,current_period_end,account_role,demo_profile")
     .eq("slug",slug)
     .maybeSingle();
 
   if(!p)return new Response("Not found",{status:404,headers:cors});
   const now=Date.now();
   const available=
+    (p.account_role==="customer"&&p.demo_profile===false&&["active","trial"].includes(p.status))||
     (p.status==="active"&&(!p.current_period_end||new Date(p.current_period_end).getTime()>now))||
     (p.status==="trial"&&p.trial_ends_at&&new Date(p.trial_ends_at).getTime()>now);
   if(!available)return new Response("Profile unavailable",{status:410,headers:cors});
