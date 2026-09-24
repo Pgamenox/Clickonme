@@ -4,6 +4,21 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const html=fs.readFileSync('crear/index.html','utf8');
 
+test('save recovers after session network failure and blocks concurrent attempts',async()=>{
+  let click,calls=0,rejectSession;
+  const button={disabled:false,textContent:'Guardar cambios',addEventListener:(_,fn)=>click=fn};
+  const source=html.slice(html.indexOf('let publishInFlight=false;'),html.indexOf('function goToMobilePreview'));
+  vm.runInNewContext(source,{publishButton:button,currentProfileId:42,alert(){},
+    supabaseClient:{auth:{getSession:()=>{calls++;return new Promise((_,reject)=>rejectSession=reject);}}}});
+  const saving=click();
+  // Session rendering may touch disabled state; the independent guard must hold.
+  button.disabled=false;
+  await click();assert.equal(calls,1);
+  rejectSession(Error('offline'));await saving;
+  assert.equal(button.disabled,false);assert.equal(button.textContent,'Guardar cambios');
+  const retry=click();assert.equal(calls,2);rejectSession(Error('offline'));await retry;
+});
+
 test('analytics dialog opens and escapes saved profile names',async()=>{
   const source=html.slice(html.indexOf('function escapeHtml(value){'),html.indexOf('async function loadMyCards(){'));
   let opened=false,alerted=false;
