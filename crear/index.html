@@ -2299,6 +2299,10 @@ function updateProfileLink(slug){
   viewProfileLink.removeAttribute("aria-disabled");
 }
 
+function setPayButton(label){
+  payButton.textContent=label;
+}
+
 function renderPlanStatus(row){
   const status=row.status||"trial";
   const endValue=status==="active"?row.current_period_end:row.trial_ends_at;
