@@ -63,3 +63,15 @@ test('checkout recovers after a thrown network error and keeps the original labe
   await click();
   assert.equal(calls,2);
 });
+
+
+test('plan status renders Free and annual plans without interrupting profile loading',()=>{
+  const title={},copy={},button={};
+  const box={style:{},querySelector:s=>s==='strong'?title:copy};
+  const source=html.slice(html.indexOf('function setPayButton(label){'),html.indexOf('let currentSubscriptionPlan='));
+  const context={payButton:button,paymentBox:box};vm.createContext(context);vm.runInContext(source,context);
+  context.renderPlanStatus({status:'active',subscription_plan:'free'});
+  assert.equal(title.textContent,'Tu tarjeta está en Free');assert.equal(button.textContent,'Elegir plan');
+  context.renderPlanStatus({status:'active',subscription_plan:'personal',current_period_end:new Date(Date.now()+365*86400000).toISOString()});
+  assert.equal(title.textContent,'Plan activo');assert.equal(button.textContent,'Renovar anticipadamente');
+});
