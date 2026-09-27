@@ -813,16 +813,18 @@ input[type="file"]::file-selector-button{
 
   <div class="field">
 
-    <label>Foto o logotipo</label>
+    <label for="photo">Foto o logotipo</label>
 
     <input
       class="photo-input"
       type="file"
       id="photo"
-      accept="image/*"
+      accept="image/png,image/jpeg,image/webp"
     >
 
   </div>
+
+  <p class="control-help" id="teamPhotoNotice" hidden>Al guardar, esta foto se actualizará también en tus cinco demos.</p>
 
   <div class="plus-box" id="appIconBox">
     <strong>Icono al instalar tu tarjeta</strong>
@@ -2262,6 +2264,7 @@ let currentUser = null;
 let currentUserIsAdmin = false;
 let currentProfileId = null;
 let currentProfileSlug = null;
+let currentProfileIsTeam = false;
 let profileLoadedFor = null;
 const editorParams = new URLSearchParams(window.location.search);
 const requestedProfileId = editorParams.get("id");
@@ -2366,7 +2369,7 @@ function enforcePlanBeforeSave(profileData){
  return profileData;
 }
 function populateProfile(row){
-  const d={...row,...(row.data||{})}; originalStoredProfileData=cloneData(row.data||{}); currentProfileId=row.id; currentProfileSlug=row.slug; currentSubscriptionPlan=row.subscription_plan||"free";
+  const d={...row,...(row.data||{})}; d.photo=row.account_role==="team"?(row.photo_url||d.photo):(d.photo||row.photo_url); currentProfileIsTeam=row.account_role==="team"&&!row.demo_profile; document.getElementById("teamPhotoNotice").hidden=!currentProfileIsTeam; originalStoredProfileData=cloneData(row.data||{}); currentProfileId=row.id; currentProfileSlug=row.slug; currentSubscriptionPlan=row.subscription_plan||"free";
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];window.__galleryCount=galleryItems.length;
   audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};window.__audioReady=!!audioItem.url; storeProducts=Array.isArray(d.modules?.store?.products)?cloneData(d.modules.store.products).slice(0,6):[]; storeEnabled.checked=Boolean(d.modules?.store?.enabled); storeTitle.value=d.modules?.store?.title||"Mi tienda"; storeWhatsapp.value=d.modules?.store?.whatsapp||d.whatsapp||""; renderStoreEditor();
   profileType.value=({professional:"personal",musician:"artist",visual_artist:"artist",presskit:"artist"}[d.profileType]||d.profileType||"personal"); shareMessage.value=d.shareMessage||"Conoce mi perfil en ClickOnMe";
@@ -2435,7 +2438,7 @@ async function showProfileAnalytics(slug,name,button){
 
 async function loadMyCards(){
   if(!currentUser)return;
-  const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end,updated_at,subscription_plan").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
+  const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end,updated_at,subscription_plan").eq("user_id",currentUser.id).in("account_role",["customer","team"]).eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("account_role",{ascending:true}).order("updated_at",{ascending:false}).limit(1);
   const box=document.getElementById("myCardsBox"),list=document.getElementById("myCardsList"); if(error){box.style.display="none";return}
   box.style.display="block"; list.replaceChildren(); const now=Date.now();
   for(const c of data||[]){
@@ -2463,27 +2466,27 @@ async function loadOwnProfile(){
   if(!currentUser || profileLoadedFor===currentUser.id) return;
   profileLoadedFor=currentUser.id;
   if(createNewProfile){
-    const {data:existing}=await supabaseClient.from("profiles").select("id").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').limit(1);
+    const {data:existing}=await supabaseClient.from("profiles").select("id").eq("user_id",currentUser.id).in("account_role",["customer","team"]).eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').limit(1);
     if((existing||[]).length){ window.history.replaceState({},"","/crear/"); }
     else return;
   }
   let query=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile");
   if(requestedProfileId){
-    query=query.eq("id",requestedProfileId).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")');
+    query=query.eq("id",requestedProfileId).in("account_role",["customer","team"]).eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")');
     if(!currentUserIsAdmin) query=query.eq("user_id",currentUser.id);
-  }else query=query.eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
+  }else query=query.eq("user_id",currentUser.id).in("account_role",["customer","team"]).eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("account_role",{ascending:true}).order("updated_at",{ascending:false}).limit(1);
   const {data:rows,error}=await query;
   if(error){ authStatus.textContent="Sesión activa, pero no se pudo cargar tu tarjeta: "+error.message; return; }
   const data=rows?.[0];
   if(requestedProfileId && !data){
     if(currentUserIsAdmin){
-      authStatus.textContent="No se pudo abrir esa tarjeta desde Admin. Verifica que exista y que no sea interna o demo.";
+      authStatus.textContent="No se pudo abrir esa tarjeta desde Admin. Verifica que exista y que no sea una demo.";
       return;
     }
-    authStatus.textContent="Esta tarjeta es interna, de pruebas o no pertenece a tu cuenta. Abriremos tu ClickOnMe principal.";
+    authStatus.textContent="Esta tarjeta es una demo, de pruebas o no pertenece a tu cuenta. Abriremos tu ClickOnMe principal.";
     window.history.replaceState({},"","/crear/");
     profileLoadedFor=null;
-    let fallback=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("updated_at",{ascending:false}).limit(1);
+    let fallback=supabaseClient.from("profiles").select("id,user_id,slug,name,role,description,photo_url,whatsapp,phone,facebook,instagram,youtube,website,data,status,trial_ends_at,current_period_end,subscription_plan,account_role,demo_profile").eq("user_id",currentUser.id).in("account_role",["customer","team"]).eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("account_role",{ascending:true}).order("updated_at",{ascending:false}).limit(1);
     const {data:fallbackRows,error:fallbackError}=await fallback;
     if(fallbackError){authStatus.textContent="Sesión activa, pero no se pudo cargar tu ClickOnMe principal.";return;}
     if(fallbackRows?.[0])populateProfile(fallbackRows[0]);
@@ -2675,6 +2678,26 @@ async function uploadProfileAsset(value,folder,key){
   return data.publicUrl+"?v="+Date.now();
 }
 
+// A successful HTTP response is insufficient: corrupt images can return 200.
+function validateProfilePhoto(src){
+  return new Promise((resolve,reject)=>{
+    const image=new Image();
+    const timer=setTimeout(()=>finish(new Error("No se pudo comprobar la foto. Intenta nuevamente.")),15000);
+    function finish(error){clearTimeout(timer);image.onload=null;image.onerror=null;error?reject(error):resolve();}
+    image.onload=()=>finish(image.naturalWidth>0&&image.naturalHeight>0?null:new Error("La foto está dañada. Selecciona otra imagen."));
+    image.onerror=()=>finish(new Error("La foto no se puede abrir. Selecciona un JPG, PNG o WebP válido."));
+    image.src=src;
+  });
+}
+async function uploadProfilePhoto(value,folder){
+  if(!value||!value.startsWith("data:image/")) return value||"";
+  await validateProfilePhoto(value);
+  // Immutable object: a failed save cannot replace the photo already in use.
+  const url=await uploadProfileAsset(value,folder,"photo-"+crypto.randomUUID());
+  await validateProfilePhoto(url);
+  return url;
+}
+
 let publishInFlight=false;
 publishButton.addEventListener("click",async()=>{
   if(publishButton.disabled||publishInFlight) return;
@@ -2690,14 +2713,14 @@ publishButton.addEventListener("click",async()=>{
   const urlIds=["facebook","instagram","youtube","website","customButtonUrl"];
   if(urlIds.some(id=>!validWebUrl(document.getElementById(id).value.trim())) || Array.from(document.querySelectorAll(".extraButtonUrl")).some(el=>!validWebUrl(el.value.trim()))){ publishButton.disabled=false; alert("Los enlaces deben comenzar con http:// o https://"); return; }
   if(!validYouTubeUrl(videoUrl.value.trim())){publishButton.disabled=false;alert("El video destacado debe ser un enlace válido de YouTube.");return;}
-  const profileData={name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",appIconMode:appIconMode.value,appIcon:appIconMode.value==="custom"?customAppIconData:"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
+  const profileData={...cloneData(originalStoredProfileData||{}),name,role,slug,description:descriptionInput.value.trim(),photo:document.getElementById("previewPhoto").src||"",appIconMode:appIconMode.value,appIcon:appIconMode.value==="custom"?customAppIconData:"",photoShape:photoShape.value,photoFit:photoFit.value,backgroundType:backgroundType.value,backgroundImage:previewScreen.dataset.backgroundImage||"",backgroundOverlay:backgroundOverlay.value,backgroundBlur:backgroundBlur.value,backgroundOverlayColor:backgroundOverlayColor.value,backgroundPosition:backgroundPosition.value,color1:color1.value,color2:color2.value,cardColor:cardColor.value,buttonColor:buttonColor.value,textColor:textColor.value,secondaryTextColor:secondaryTextColor.value,cardOpacity:cardOpacity.value,buttonRadius:buttonRadius.value,fontFamily:fontFamily.value,buttonStyle:buttonStyle.value,customIcons,whatsapp:whatsappInput.value.trim(),phone:phoneInput.value.trim(),facebook:facebookInput.value.trim(),instagram:instagramInput.value.trim(),youtube:youtubeInput.value.trim(),website:websiteInput.value.trim(),customButtonText:customButtonText.value.trim(),customButtonUrl:customButtonUrl.value.trim(),extraCustomButtons:Array.from(document.querySelectorAll("#extraCustomButtons .field")).map(field=>({text:field.querySelector(".extraButtonText")?.value.trim()||"",url:field.querySelector(".extraButtonUrl")?.value.trim()||""})).filter(x=>x.text&&x.url)};
   profileData.profileType=profileType.value; profileData.shareMessage=(shareMessage.value.trim()||"Conoce mi perfil en ClickOnMe").slice(0,140);
   profileData.presskit={bio:presskitBio.value.trim(),events:presskitEvents.value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,20),bookingEmail:bookingEmail.value.trim(),bookingWhatsapp:bookingWhatsapp.value.replace(/\D/g,""),pdfUrl:presskitPdfItem.url||"",pdfName:presskitPdfItem.name||""};
   profileData.modules={gallery:{enabled:galleryEnabled.checked,title:galleryTitle.value.trim(),items:galleryItems.slice(0,6)},store:{enabled:storeEnabled.checked,title:storeTitle.value.trim()||"Mi tienda",whatsapp:storeWhatsapp.value.replace(/\D/g,""),products:storeProducts.slice(0,6).map(p=>({name:String(p.name||"").trim().slice(0,80),price:String(p.price||"").trim(),description:String(p.description||"").trim().slice(0,140),image:p.image||""})).filter(p=>p.name&&p.price)},audio:{enabled:audioEnabled.checked,title:audioTitle.value.trim(),url:audioItem.url||"",name:audioItem.name||""},video:{enabled:videoEnabled.checked,title:videoTitle.value.trim(),url:videoUrl.value.trim()}}; profileData.profileMode=profileMode.value==="presskit"?"presskit":"standard"; profileData.presskitLabel=presskitLabel.value.trim(); enforcePlanBeforeSave(profileData);
   publishButton.disabled=true; publishButton.textContent="Guardando...";
   try{
     const assetFolder="profile-"+slug;
-    profileData.photo=await uploadProfileAsset(profileData.photo,assetFolder,"photo");
+    profileData.photo=await uploadProfilePhoto(profileData.photo,assetFolder);
     if(profileData.appIconMode==="profile" && profileData.photo){
       try{ profileData.appIcon=await squareIconFromSource(profileData.photo,512); }
       catch{ profileData.appIcon=""; }
@@ -2734,7 +2757,7 @@ publishButton.addEventListener("click",async()=>{
   if(!currentProfileId){ payload.user_id=currentUser.id; payload.created_by=currentUser.id; }
   let result;
   if(!currentProfileId){
-    const {data:existing,error:existingError}=await supabaseClient.from("profiles").select("id,slug").eq("user_id",currentUser.id).eq("account_role","customer").eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').limit(1);
+    const {data:existing,error:existingError}=await supabaseClient.from("profiles").select("id,slug").eq("user_id",currentUser.id).in("account_role",["customer","team"]).eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').limit(1);
     if(existingError){ publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; alert("No se pudo verificar tu cuenta. Intenta nuevamente."); return; }
     if((existing||[]).length){ publishButton.disabled=false; publishButton.textContent="Guardar cambios"; currentProfileId=existing[0].id; currentProfileSlug=existing[0].slug; alert("Tu cuenta ya tiene una tarjeta ClickOnMe. Abriremos esa misma tarjeta para editarla; no se crea una segunda tarjeta ni un nuevo periodo gratuito."); profileLoadedFor=null; await loadOwnProfile(); return; }
   }
@@ -2744,15 +2767,16 @@ publishButton.addEventListener("click",async()=>{
   if(result.error){ publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe"; alert(result.error.code==="23505"?"Esa dirección ya está ocupada. Elige otra.":"No se pudo guardar: "+result.error.message); return; }
   await trackBusinessEvent(currentProfileId?"profile_updated":"profile_created",result.data.id,{slug:result.data.slug});
   const saved=result.data.data||{};
-  const verifyKeys=["whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"];
+  const verifyKeys=["photo","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"];
   const missing=verifyKeys.filter(key=>String(saved[key]||"")!==String(profileData[key]||""));
   if(missing.length){
     publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe";
     alert("La tarjeta no se guardó completa. Intenta nuevamente.");
     return;
   }
+  originalStoredProfileData=cloneData(saved); document.getElementById("previewPhoto").src=saved.photo||"";
   currentProfileId=result.data.id; currentProfileSlug=result.data.slug; updateProfileLink(currentProfileSlug); publishButton.textContent="Guardado ✓";
-  authStatus.textContent=`Tarjeta guardada correctamente. Dirección pública: clickonme.pro/crear/perfil.html?u=${currentProfileSlug}`;
+  authStatus.textContent=(currentProfileIsTeam?"Foto sincronizada con tus cinco demos. ":"")+`Tarjeta guardada correctamente. Dirección pública: clickonme.pro/crear/perfil.html?u=${currentProfileSlug}`;
   paymentBox.style.display="block";
   window.history.replaceState({},"",`/crear/?id=${encodeURIComponent(currentProfileId)}`);
   window.setTimeout(()=>{publishButton.textContent="Guardar cambios";},1400);

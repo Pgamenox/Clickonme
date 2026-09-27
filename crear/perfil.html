@@ -785,6 +785,7 @@ async function loadProfile(){
    revealProfile(); return;
  }
  const d={...row,...(row.data||{})};
+ d.photo=row.account_role==="team"?(row.photo_url||d.photo):(d.photo||row.photo_url);
  const profileCard=document.querySelector(".card");
  profileCard.dataset.storeTheme=String(d.profileType||row.subscription_plan||"personal").toLowerCase();
  const demoPlan=String(row.subscription_plan||"free").toLowerCase();
