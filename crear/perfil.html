@@ -818,7 +818,7 @@ async function loadProfile(){
  document.getElementById("profileRole").textContent=d.role||"";
  document.getElementById("profileDescription").textContent=d.description||"";
  const photo=safeImage(d.photo); const avatar=document.getElementById('avatar');
- if(photo){avatar.innerHTML='';const img=document.createElement('img');img.src=photo;img.alt=d.name||'Foto de perfil';img.style.objectFit=d.photoFit||'cover';avatar.appendChild(img);}
+ if(photo){avatar.innerHTML='';const img=document.createElement('img');img.src=photo;img.alt='';img.style.objectFit=d.photoFit||'cover';img.onerror=()=>{if(img.dataset.fallback==='1')return;img.dataset.fallback='1';img.src='/pwa-icon.svg';img.style.objectFit='contain';img.style.padding='18%';};avatar.appendChild(img);}
  ['rounded','square','portrait','wide'].forEach(s=>avatar.classList.remove('shape-'+s)); if(d.photoShape&&d.photoShape!=='circle')avatar.classList.add('shape-'+d.photoShape);
  const background=safeImage(d.backgroundImage);
  if(d.backgroundType==="image" && background) document.body.style.setProperty('--profile-bg',`url("${background}")`);
