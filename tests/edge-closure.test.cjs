@@ -17,12 +17,12 @@ function edge(name,fetch,extra={}){
 const request=(body,headers={})=>new Request('https://db.test/functions/v1/test',{method:'POST',headers,body:JSON.stringify(body)});
 
 test('checkout ignores client prices and uses all four server plan prices',async()=>{
-  for(const [plan,amount] of Object.entries({personal:399,business:599,artist:799,creator:999})){
+  for(const [plan,amount] of Object.entries({personal:600,business:700,artist:850,creator:999})){
     let item,order;
     const handler=edge('create-mercadopago-order',async(url,options)=>{
       if(url.includes('/auth/v1/user'))return payload({id:'user',email:'qa@example.invalid'});
       if(url.includes('/profiles?'))return payload([{id:42,account_role:'customer',demo_profile:false}]);
-      if(url.includes('/business_settings?'))return payload([{plan_prices:{personal:399,business:599,artist:799,creator:999}}]);
+      if(url.includes('/business_settings?'))return payload([{plan_prices:{personal:600,business:700,artist:850,creator:999}}]);
       if(url.includes('/checkout/preferences')){item=JSON.parse(options.body).items[0];return payload({id:'pref',sandbox_init_point:'https://sandbox.mercadopago.com/checkout'});}
       if(url.endsWith('/payments')){order=JSON.parse(options.body);return payload({});}
       throw Error(url);
@@ -94,4 +94,16 @@ test('expired customers retain their manifest while suspended cards remain unava
     assert.equal(result.status,['active','trial'].includes(status)?200:410);
     if(result.ok)assert.equal((await result.json()).start_url,'https://clickonme.pro/crear/perfil.html?u=qa-card&source=pwa');
   }
+});
+
+test('checkout rejects changed quotes before creating any provider order',async()=>{
+ let providerCalls=0;
+ const handler=edge('create-mercadopago-order',async url=>{
+  if(url.includes('/auth/v1/user'))return payload({id:'user'});
+  if(url.includes('/profiles?'))return payload([{id:42,account_role:'customer'}]);
+  if(url.includes('/business_settings?'))return payload([{plan_prices:{personal:650}}]);
+  providerCalls++;throw Error('provider must not be called');
+ });
+ assert.equal((await handler(request({profileId:42,plan:'personal',expectedAmount:600}))).status,409);
+ assert.equal(providerCalls,0);
 });

@@ -52,7 +52,7 @@ test('checkout recovers after a thrown network error and keeps the original labe
   const end=html.indexOf('async function trackBusinessEvent',start);
   let calls=0;
   vm.runInNewContext(html.slice(start,end),{
-    payButton:button,currentProfileId:42,document:{getElementById:()=>({value:'personal'})},
+    checkoutInFlight:false,checkoutQuotes:{personal:{amount:600}},checkoutPlan:{value:'personal'},loadCheckoutPrices:async()=>true,payButton:button,currentProfileId:42,document:{getElementById:()=>({value:'personal'})},
     supabaseClient:{functions:{invoke:async()=>{calls++;throw Error('offline');}}},
     refreshCheckoutPlan(){},alert(){},Number,window:{location:{}},trackBusinessEvent:async()=>{}
   });

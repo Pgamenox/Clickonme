@@ -434,6 +434,7 @@ textarea{min-height:92px}input:hover,textarea:hover,select:hover{border-color:rg
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
+<script src="../pricing.js"></script>
 <script src="./auth-bridge.js?v=auth4" defer></script>
 
 
@@ -751,13 +752,13 @@ input[type="file"]::file-selector-button{
   <div class="payment-box premium-checkout" id="paymentBox">
 <div class="checkout-eyebrow">ClickOnMe Premium</div><strong class="checkout-title">Haz crecer tu tarjeta</strong><p class="checkout-copy">Elige el nivel que mejor se adapta a ti. Tu tarjeta conserva el mismo enlace al mejorar de plan.</p>
 <div class="plan-cards" id="planCards" aria-label="Planes ClickOnMe">
-<button type="button" class="plan-card selected" data-plan-card="personal"><span class="plan-name">Personal</span><span class="plan-price">$399 <small>MXN/año</small></span><span class="plan-benefit">Tu presencia profesional</span></button>
-<button type="button" class="plan-card" data-plan-card="business"><span class="plan-name">Business</span><span class="plan-price">$599 <small>MXN/año</small></span><span class="plan-benefit">Negocio y portafolio</span></button>
-<button type="button" class="plan-card" data-plan-card="artist"><span class="plan-name">Artista</span><span class="plan-price">$799 <small>MXN/año</small></span><span class="plan-benefit">Multimedia y PressKit</span></button>
-<button type="button" class="plan-card" data-plan-card="creator"><span class="plan-name">Creator</span><span class="plan-price">$999 <small>MXN/año</small></span><span class="plan-benefit">Media Kit y métricas</span></button>
+<button type="button" class="plan-card selected" data-plan-card="personal"><span class="plan-name">Personal</span><span class="plan-price">Consultando… <small>MXN/año</small></span><span class="plan-benefit">Tu presencia profesional</span></button>
+<button type="button" class="plan-card" data-plan-card="business"><span class="plan-name">Business</span><span class="plan-price">Consultando… <small>MXN/año</small></span><span class="plan-benefit">Negocio y portafolio</span></button>
+<button type="button" class="plan-card" data-plan-card="artist"><span class="plan-name">Artista</span><span class="plan-price">Consultando… <small>MXN/año</small></span><span class="plan-benefit">Multimedia y PressKit</span></button>
+<button type="button" class="plan-card" data-plan-card="creator"><span class="plan-name">Creator</span><span class="plan-price">Consultando… <small>MXN/año</small></span><span class="plan-benefit">Media Kit y métricas</span></button>
 </div>
-<label for="checkoutPlan" class="sr-plan-label">Plan a contratar</label><select id="checkoutPlan" class="checkout-select"><option value="personal">Personal · $399/año</option><option value="business">Business · $599/año</option><option value="artist">Artista · $799/año</option><option value="creator">Creator · $999/año</option></select>
-<div class="checkout-summary"><span>Tu selección</span><b id="checkoutPlanSummary">Personal · $399 MXN al año</b></div><button type="button" id="payButton">Continuar con Personal · $399</button><div class="checkout-safe">Pago procesado por Mercado Pago · Plan anual</div></div>
+<label for="checkoutPlan" class="sr-plan-label">Plan a contratar</label><select id="checkoutPlan" class="checkout-select"><option value="personal">Personal · Consultando…</option><option value="business">Business · Consultando…</option><option value="artist">Artista · Consultando…</option><option value="creator">Creator · Consultando…</option></select>
+<div class="checkout-summary"><span>Tu selección</span><b id="checkoutPlanSummary">Consultando precios…</b></div><button type="button" id="payButton" disabled>Consultando precios…</button><div class="checkout-safe">Pago procesado por Mercado Pago · Plan anual</div></div>
   <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
 </div></section>
 
@@ -2622,21 +2623,45 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
 });
 
 const checkoutPlan=document.getElementById("checkoutPlan"),checkoutPlanSummary=document.getElementById("checkoutPlanSummary");
-let CHECKOUT_PRICES={personal:399,business:599,artist:799,creator:999},CHECKOUT_NORMAL_PRICES={...CHECKOUT_PRICES},CHECKOUT_PROMOS={};
+let checkoutQuotes=null,checkoutInFlight=false;
 const CHECKOUT_LABELS={personal:"Personal",business:"Business",artist:"Artista",creator:"Creator"};
-function refreshCheckoutPlan(){if(!checkoutPlan)return;const p=checkoutPlan.value,price=CHECKOUT_PRICES[p]||399,normal=CHECKOUT_NORMAL_PRICES[p]||price,label=CHECKOUT_LABELS[p]||"Personal",promo=CHECKOUT_PROMOS[p]===true&&price<normal;checkoutPlanSummary.textContent=promo?label+" · PROMO $"+price+" MXN/año · precio regular $"+normal:label+" · $"+price+" MXN al año";document.querySelectorAll("[data-plan-card]").forEach(card=>{const cp=card.dataset.planCard,cpPrice=CHECKOUT_PRICES[cp],cpNormal=CHECKOUT_NORMAL_PRICES[cp]||cpPrice,cpPromo=CHECKOUT_PROMOS[cp]===true&&cpPrice<cpNormal,priceEl=card.querySelector(".plan-price");card.classList.toggle("selected",cp===p);card.setAttribute("aria-pressed",String(cp===p));if(priceEl&&cpPrice)priceEl.textContent=(cpPromo?"PROMO $"+cpPrice+" · antes $"+cpNormal:"$"+cpPrice+" MXN/año");});}
-async function loadCheckoutPrices(){try{const {data,error}=await supabaseClient.from("business_settings").select("plan_prices,plan_promos,plan_promo_active").eq("id","main").single();if(error||!data)return;for(const p of Object.keys(CHECKOUT_PRICES)){const normal=Number(data.plan_prices?.[p]),promo=Number(data.plan_promos?.[p]),active=data.plan_promo_active?.[p]===true&&Number.isInteger(promo)&&promo>0&&promo<normal;if(Number.isInteger(normal)&&normal>0&&normal<=999){CHECKOUT_NORMAL_PRICES[p]=normal;CHECKOUT_PRICES[p]=active?promo:normal;CHECKOUT_PROMOS[p]=active;const opt=checkoutPlan?.querySelector('option[value="'+p+'"]');if(opt)opt.textContent=CHECKOUT_LABELS[p]+" · "+(active?"PROMO $"+promo+" (antes $"+normal+")":"$"+normal)+"/año";}}refreshCheckoutPlan();}catch{}}
+function refreshCheckoutPlan(){
+  if(!checkoutPlan)return;
+  const p=checkoutPlan.value,quote=checkoutQuotes?.[p];
+  checkoutPlanSummary.textContent=quote?CHECKOUT_LABELS[p]+" · "+ClickOnMePricing.format(quote)+" MXN al año":"Precio no disponible. Vuelve a consultar los precios.";
+  payButton.disabled=checkoutInFlight||!quote;
+  payButton.textContent=quote?"Continuar con "+CHECKOUT_LABELS[p]+" · $"+quote.amount:"Precio no disponible";
+  document.querySelectorAll("[data-plan-card]").forEach(card=>{
+    const cp=card.dataset.planCard,priceEl=card.querySelector(".plan-price"),q=checkoutQuotes?.[cp];
+    card.classList.toggle("selected",cp===p);card.setAttribute("aria-pressed",String(cp===p));
+    if(priceEl)priceEl.textContent=q?ClickOnMePricing.format(q)+" MXN/año":"Precio no disponible";
+  });
+  for(const p of Object.keys(CHECKOUT_LABELS)){
+    const option=checkoutPlan.querySelector('option[value="'+p+'"]'),q=checkoutQuotes?.[p];
+    if(option)option.textContent=CHECKOUT_LABELS[p]+" · "+(q?ClickOnMePricing.format(q)+"/año":"Precio no disponible");
+  }
+}
+async function loadCheckoutPrices(){
+  try{checkoutQuotes=await ClickOnMePricing.load();}catch{checkoutQuotes=null;}
+  refreshCheckoutPlan();return checkoutQuotes!==null;
+}
 checkoutPlan?.addEventListener("change",refreshCheckoutPlan);refreshCheckoutPlan();loadCheckoutPrices();
+const retryPrices=document.createElement("button");retryPrices.type="button";retryPrices.textContent="Actualizar precios";
+payButton.insertAdjacentElement("afterend",retryPrices);retryPrices.addEventListener("click",()=>{if(!checkoutInFlight)loadCheckoutPrices();});
 
 payButton.addEventListener("click",async()=>{
-  if(payButton.disabled) return;
+  if(payButton.disabled||checkoutInFlight) return;
   if(!currentProfileId){ alert("Primero guarda tu tarjeta."); return; }
+  checkoutInFlight=true;payButton.disabled=true;
+  try{
+  const displayed=checkoutQuotes?.[checkoutPlan.value]?.amount;
+  if(!await loadCheckoutPrices())return;
+  if(displayed!==checkoutQuotes[checkoutPlan.value].amount){alert("El precio cambió. Revisa el importe actualizado y vuelve a continuar.");return;}
   const previousLabel=payButton.textContent;
   payButton.disabled=true; payButton.textContent="Creando orden segura...";
-  const checkoutPlan=document.getElementById("checkoutPlan");
   const desiredPlan=checkoutPlan?.value||"personal";
   let data,error;
-  try{ ({data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan}})); }
+  try{ ({data,error}=await supabaseClient.functions.invoke("create-mercadopago-order",{body:{profileId:Number(currentProfileId),plan:desiredPlan,expectedAmount:checkoutQuotes[desiredPlan].amount}})); }
   catch(e){error=e;}
   if(error || !data?.checkoutUrl){
     payButton.disabled=false; payButton.textContent=previousLabel; refreshCheckoutPlan();
@@ -2644,6 +2669,7 @@ payButton.addEventListener("click",async()=>{
     return;
   }
   await trackBusinessEvent("checkout_started",currentProfileId,{source:"editor",plan:data.plan,amount:data.amount});window.location.href=data.checkoutUrl;
+  }finally{checkoutInFlight=false;refreshCheckoutPlan();}
 });
 
 async function trackBusinessEvent(eventType,profileId=null,metadata={}){if(!currentUser)return;try{await supabaseClient.from("business_events").insert({user_id:currentUser.id,profile_id:profileId?Number(profileId):null,event_type:eventType,metadata})}catch{}}

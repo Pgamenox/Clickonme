@@ -3207,7 +3207,7 @@ Estas cinco tarjetas salen del mismo diseñador que usa el cliente. No son mocku
       <div class="price-head">
         <span class="price-plan">FREE</span>
         <h3>Empieza sin costo</h3>
-        <div class="price-value"><strong>$0</strong><small>Siempre gratis</small></div>
+        <div class="price-value"><strong data-public-price="free">Consultando…</strong><small>Siempre gratis</small></div>
       </div>
       <ul>
         <li>Tarjeta digital esencial</li>
@@ -3222,7 +3222,7 @@ Estas cinco tarjetas salen del mismo diseñador que usa el cliente. No son mocku
       <div class="price-head">
         <span class="price-plan">PERSONAL</span>
         <h3>Tu identidad profesional</h3>
-        <div class="price-value"><strong>$399</strong><small>MXN / año</small></div>
+        <div class="price-value"><strong data-public-price="personal">Consultando…</strong><small>MXN / año</small></div>
       </div>
       <ul>
         <li>Diseño profesional</li>
@@ -3237,7 +3237,7 @@ Estas cinco tarjetas salen del mismo diseñador que usa el cliente. No son mocku
       <div class="price-head">
         <span class="price-plan">BUSINESS</span>
         <h3>Tu negocio en un clic</h3>
-        <div class="price-value"><strong>$599</strong><small>MXN / año</small></div>
+        <div class="price-value"><strong data-public-price="business">Consultando…</strong><small>MXN / año</small></div>
       </div>
       <ul>
         <li>Funciones de Personal</li>
@@ -3252,7 +3252,7 @@ Estas cinco tarjetas salen del mismo diseñador que usa el cliente. No son mocku
       <div class="price-head">
         <span class="price-plan">ARTISTA</span>
         <h3>Tu talento en todas partes</h3>
-        <div class="price-value"><strong>$799</strong><small>MXN / año</small></div>
+        <div class="price-value"><strong data-public-price="artist">Consultando…</strong><small>MXN / año</small></div>
       </div>
       <ul>
         <li>Audio y video</li>
@@ -3268,7 +3268,7 @@ Estas cinco tarjetas salen del mismo diseñador que usa el cliente. No son mocku
       <div class="price-head">
         <span class="price-plan">CREATOR</span>
         <h3>Crea, comparte y conecta</h3>
-        <div class="price-value"><strong>$999</strong><small>MXN / año</small></div>
+        <div class="price-value"><strong data-public-price="creator">Consultando…</strong><small>MXN / año</small></div>
       </div>
       <ul>
         <li>Multimedia completa</li>
@@ -3280,6 +3280,7 @@ Estas cinco tarjetas salen del mismo diseñador que usa el cliente. No son mocku
     </article>
   </div>
 
+  <p id="pricingStatus" class="pricing-note" role="status">Consultando precios vigentes…</p>
   <p class="pricing-note">Puedes comenzar con Free y cambiar de plan cuando necesites más funciones.</p>
 </section>
 
@@ -3389,5 +3390,8 @@ Promise.all(demos.map(preloadHero)).then(()=>{show(i);restart()});
 let sx=0;card.addEventListener('touchstart',e=>{sx=e.changedTouches[0].clientX},{passive:true});card.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>45){show((i+(dx<0?1:-1)+demos.length)%demos.length);restart()}},{passive:true});
 })();
 </script>
+<script src="/supabase-config.js"></script>
+<script src="/pricing.js"></script>
+<script src="/public-pricing.js"></script>
 </body>
 </html>
