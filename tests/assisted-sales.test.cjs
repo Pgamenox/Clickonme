@@ -5,7 +5,7 @@ function setup(rpc){
  for(const [id,value]of Object.entries(values))$(id).value=value;
  $('saleProfile').selectedOptions=[{text:'Cliente QA'}];let sequence=0;
  const ctx={$,Intl,Number,Date,JSON,crypto:{randomUUID:()=>`operation-${++sequence}`},db:{rpc},confirm:()=>true,refreshAll:async()=>{},fmt:v=>v};
- vm.createContext(ctx);vm.runInContext(fs.readFileSync('admin/assisted-sales.js','utf8'),ctx);ctx.initAssistedSales();
+ vm.createContext(ctx);vm.runInContext(fs.readFileSync('admin/sellers.js','utf8')+'\n'+fs.readFileSync('admin/assisted-sales.js','utf8'),ctx);ctx.initAssistedSales();vm.runInContext("sellersReady=true",ctx);
  return {$,ctx,refund:()=>$('refundForm').listeners.submit({preventDefault(){}}),submit:()=>$('assistedSaleForm').listeners.submit({preventDefault(){}})};
 }
 test('assisted sale submits actual amount and retains operation on uncertain retry',async()=>{
@@ -36,4 +36,13 @@ test('refund uses exact receipt and reports preserved entitlement for review',as
 test('net assisted revenue excludes refunded receipts',()=>{
  const ui=setup(async()=>({}));vm.runInContext("assistedSales=[{profile_id:1,amount_mxn:999,payment_status:'refunded'},{profile_id:1,amount_mxn:600,payment_status:'paid'}]",ui.ctx);
  assert.equal(ui.ctx.assistedRevenue(),600);assert.equal(ui.ctx.assistedRevenue(1),600);assert.equal(ui.ctx.assistedRevenue(2),0);
+});
+test('catalog sale submits seller ID instead of free text and supports direct sales',async()=>{
+ const calls=[];const ui=setup(async(name,args)=>{calls.push({name,args});return{error:{message:'QA intentional failure'}}});
+ ui.$('saleSeller').value='00000000-0000-4000-8000-000000000001';await ui.submit();
+ assert.equal(calls[0].name,'admin_record_catalog_sale');assert.equal(calls[0].args.p_seller_id,ui.$('saleSeller').value);assert.equal('p_seller_code' in calls[0].args,false);
+ ui.$('saleSeller').value='';await ui.submit();assert.equal(calls[1].args.p_seller_id,null);
+});
+test('sale is blocked when seller catalog cannot be loaded',async()=>{
+ let calls=0;const ui=setup(async()=>{calls++;return{}});vm.runInContext('sellersReady=false',ui.ctx);await ui.submit();assert.equal(calls,0);assert.match(ui.$('saleMessage').textContent,/catálogo/);
 });

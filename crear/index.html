@@ -752,13 +752,13 @@ input[type="file"]::file-selector-button{
   <div class="payment-box premium-checkout" id="paymentBox">
 <div class="checkout-eyebrow">ClickOnMe Premium</div><strong class="checkout-title">Haz crecer tu tarjeta</strong><p class="checkout-copy">Elige el nivel que mejor se adapta a ti. Tu tarjeta conserva el mismo enlace al mejorar de plan.</p>
 <div class="plan-cards" id="planCards" aria-label="Planes ClickOnMe">
-<button type="button" class="plan-card selected" data-plan-card="personal"><span class="plan-name">Personal</span><span class="plan-price">Consultando… <small>MXN/año</small></span><span class="plan-benefit">Tu presencia profesional</span></button>
-<button type="button" class="plan-card" data-plan-card="business"><span class="plan-name">Business</span><span class="plan-price">Consultando… <small>MXN/año</small></span><span class="plan-benefit">Negocio y portafolio</span></button>
-<button type="button" class="plan-card" data-plan-card="artist"><span class="plan-name">Artista</span><span class="plan-price">Consultando… <small>MXN/año</small></span><span class="plan-benefit">Multimedia y PressKit</span></button>
-<button type="button" class="plan-card" data-plan-card="creator"><span class="plan-name">Creator</span><span class="plan-price">Consultando… <small>MXN/año</small></span><span class="plan-benefit">Media Kit y métricas</span></button>
+<button type="button" class="plan-card selected" data-plan-card="personal"><span class="plan-name">Personal</span><span class="plan-price">Consultando… <small>MXN / año</small></span><span class="plan-benefit">Tu presencia profesional</span></button>
+<button type="button" class="plan-card" data-plan-card="business"><span class="plan-name">Business</span><span class="plan-price">Consultando… <small>MXN / año</small></span><span class="plan-benefit">Negocio y portafolio</span></button>
+<button type="button" class="plan-card" data-plan-card="artist"><span class="plan-name">Artista</span><span class="plan-price">Consultando… <small>MXN / año</small></span><span class="plan-benefit">Multimedia y PressKit</span></button>
+<button type="button" class="plan-card" data-plan-card="creator"><span class="plan-name">Creator</span><span class="plan-price">Consultando… <small>MXN / año</small></span><span class="plan-benefit">Media Kit y métricas</span></button>
 </div>
 <label for="checkoutPlan" class="sr-plan-label">Plan a contratar</label><select id="checkoutPlan" class="checkout-select"><option value="personal">Personal · Consultando…</option><option value="business">Business · Consultando…</option><option value="artist">Artista · Consultando…</option><option value="creator">Creator · Consultando…</option></select>
-<div class="checkout-summary"><span>Tu selección</span><b id="checkoutPlanSummary">Consultando precios…</b></div><button type="button" id="payButton" disabled>Consultando precios…</button><div class="checkout-safe">Pago procesado por Mercado Pago · Plan anual</div></div>
+<div class="checkout-summary"><span>Tu selección</span><b id="checkoutPlanSummary">Consultando precios…</b></div><button type="button" id="payButton" disabled>Consultando precios…</button><div class="checkout-safe">MXN / año · Un solo pago · Vigencia de 12 meses. No es cobro mensual. Pago procesado por Mercado Pago.</div></div>
   <p style="font-size:12px;line-height:1.45;color:#aaa">Al continuar aceptas los <a href="/legal/terminos.html" target="_blank">términos</a>, el <a href="/legal/privacidad.html" target="_blank">aviso de privacidad</a> y la política de <a href="/legal/cancelaciones.html" target="_blank">cancelaciones</a>.</p>
 </div></section>
 
@@ -2631,13 +2631,13 @@ const CHECKOUT_LABELS={personal:"Personal",business:"Business",artist:"Artista",
 function refreshCheckoutPlan(){
   if(!checkoutPlan)return;
   const p=checkoutPlan.value,quote=checkoutQuotes?.[p];
-  checkoutPlanSummary.textContent=quote?CHECKOUT_LABELS[p]+" · "+ClickOnMePricing.format(quote)+" MXN al año":"Precio no disponible. Vuelve a consultar los precios.";
+  checkoutPlanSummary.textContent=quote?CHECKOUT_LABELS[p]+" · "+ClickOnMePricing.format(quote)+" MXN / año · Un solo pago · Vigencia de 12 meses":"Precio no disponible. Vuelve a consultar los precios.";
   payButton.disabled=checkoutInFlight||!quote;
   payButton.textContent=quote?"Continuar con "+CHECKOUT_LABELS[p]+" · $"+quote.amount:"Precio no disponible";
   document.querySelectorAll("[data-plan-card]").forEach(card=>{
     const cp=card.dataset.planCard,priceEl=card.querySelector(".plan-price"),q=checkoutQuotes?.[cp];
     card.classList.toggle("selected",cp===p);card.setAttribute("aria-pressed",String(cp===p));
-    if(priceEl)priceEl.textContent=q?ClickOnMePricing.format(q)+" MXN/año":"Precio no disponible";
+    if(priceEl)priceEl.textContent=q?ClickOnMePricing.format(q)+" MXN / año":"Precio no disponible";
   });
   for(const p of Object.keys(CHECKOUT_LABELS)){
     const option=checkoutPlan.querySelector('option[value="'+p+'"]'),q=checkoutQuotes?.[p];
