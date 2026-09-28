@@ -2439,7 +2439,10 @@ async function showProfileAnalytics(slug,name,button){
 
 async function loadMyCards(){
   if(!currentUser)return;
-  const{data,error}=await supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end,updated_at,subscription_plan").eq("user_id",currentUser.id).in("account_role",["customer","team"]).eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")').order("account_role",{ascending:true}).order("updated_at",{ascending:false}).limit(1);
+  let query=supabaseClient.from("profiles").select("id,slug,name,status,trial_ends_at,current_period_end,updated_at,subscription_plan").in("account_role",["customer","team"]).eq("demo_profile",false).not("slug","in",'("pablogarza","prueba-automatica-3506001","prueba-produccion-180926","beta2-laboratorio")');
+  if(requestedProfileId)query=query.eq("id",requestedProfileId);
+  if(!requestedProfileId||!currentUserIsAdmin)query=query.eq("user_id",currentUser.id);
+  const{data,error}=await query.order("account_role",{ascending:true}).order("updated_at",{ascending:false}).limit(1);
   const box=document.getElementById("myCardsBox"),list=document.getElementById("myCardsList"); if(error){box.style.display="none";return}
   box.style.display="block"; list.replaceChildren(); const now=Date.now();
   for(const c of data||[]){

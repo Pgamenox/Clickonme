@@ -55,3 +55,15 @@ test('non-admin requested cards remain scoped to their owner',async()=>{
  const {context,calls}=editorQueryContext({rows:[{id:16}]});await context.loadOwnProfile();
  assert.ok(calls.some(x=>x[0]==='eq'&&x[1]==='user_id'&&x[2]==='owner'));
 });
+
+test('card summary uses the requested card and preserves non-admin ownership scope',async()=>{
+ for(const admin of [false,true]){
+  const calls=[],query={then(resolve){resolve({data:[],error:null});}};
+  for(const method of ['select','eq','in','not','order','limit'])query[method]=(...args)=>{calls.push([method,...args]);return query;};
+  const context={currentUser:{id:'owner'},requestedProfileId:'92',currentUserIsAdmin:admin,supabaseClient:{from:()=>query},document:{getElementById:()=>({style:{},replaceChildren(){}})}};
+  vm.createContext(context);vm.runInContext(html.slice(html.indexOf('async function loadMyCards(){'),html.indexOf('async function loadOwnProfile(){')),context);
+  await context.loadMyCards();
+  assert.ok(calls.some(x=>x[0]==='eq'&&x[1]==='id'&&x[2]==='92'));
+  assert.equal(calls.some(x=>x[0]==='eq'&&x[1]==='user_id'),!admin);
+ }
+});
