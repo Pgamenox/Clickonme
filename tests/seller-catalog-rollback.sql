@@ -36,6 +36,7 @@ end $$;
 grant all on catalog_results,catalog_fixture to authenticated;
 set local role authenticated;
 insert into catalog_results select 'admin_can_see_sale_and_seller',count(*)=1 from public.assisted_sales s join public.sales_representatives v on v.id=s.seller_id where s.id=(select sid from catalog_fixture);
+insert into catalog_results select 'authenticated_admin_can_retry_catalog_sale', (public.admin_record_catalog_sale(s.id,s.profile_id,s.plan,s.amount_mxn,s.seller_id,s.payment_method,s.payment_reference,s.paid_at,s.discount_note)).id=s.id from public.assisted_sales s where s.id=(select sid from catalog_fixture);
 select set_config('request.jwt.claim.sub',(select owner_id::text from catalog_fixture),true);
 insert into catalog_results select 'customer_cannot_read_catalog',count(*)=0 from public.sales_representatives;
 do $$ begin
@@ -44,5 +45,6 @@ do $$ begin
 end $$;
 reset role;
 insert into catalog_results values('anonymous_cannot_create_seller',not has_function_privilege('anon','public.admin_save_sales_representative(uuid,text,text,boolean,numeric)','EXECUTE'));
+insert into catalog_results values('free_text_sale_rpc_not_available_to_clients',not has_function_privilege('authenticated','public.admin_record_assisted_sale(uuid,bigint,text,numeric,text,text,text,timestamptz,text)','EXECUTE'));
 select * from catalog_results;
 rollback;
