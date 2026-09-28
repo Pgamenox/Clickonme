@@ -1,7 +1,7 @@
 let sellers=[],sellersReady=false;
 async function loadSellers(){
  sellersReady=false;$('saleSeller').disabled=true;
- const {data,error}=await db.from('sales_representatives').select('*').order('name');
+ const {data,error}=await db.from('sales_representatives').select('*').eq('is_qa',qaMode).order('name');
  if(error){$('sellersMessage').textContent='No se pudo cargar el catálogo: '+error.message;return;}
  sellers=data||[];sellersReady=true;$('sellersMessage').textContent='';
  const previous=$('saleSeller').value;
@@ -26,6 +26,8 @@ function initSellers(){
  $('sellerForm').addEventListener('submit',async e=>{
   e.preventDefault();if($('saveSeller').disabled||!$('sellerForm').reportValidity())return;
   const payload={p_id:$('sellerId').value||null,p_name:$('sellerName').value.trim(),p_code:$('sellerCode').value.trim().toUpperCase(),p_active:$('sellerActive').value==='true',p_commission_percent:Number($('sellerRate').value)};
+  if(qaMode&&!payload.p_code.startsWith('QA-E2E-')){$('sellersMessage').textContent='El código QA debe comenzar con QA-E2E-';return;}
+  if(!qaMode&&payload.p_code.startsWith('QA-E2E-')){$('sellersMessage').textContent='Abre la vista QA para crear vendedores de prueba.';return;}
   if(!confirm('Guardar vendedor '+payload.p_name+' ('+payload.p_code+') con comisión '+payload.p_commission_percent+'% para primeras ventas nuevas? El historial no cambia.'))return;
   $('saveSeller').disabled=true;
   try{const {error}=await db.rpc('admin_save_sales_representative',payload);if(error)throw error;resetSellerForm();await loadSellers();await loadAudit();$('sellersMessage').textContent='Vendedor guardado. Las comisiones anteriores conservan su porcentaje.';}

@@ -4,7 +4,7 @@ function setup(rpc){
  const values={salePaidAt:'2026-09-27T12:00',saleProfile:'123',salePlan:'personal',saleAmount:'500.50',saleSeller:'SELLER',saleMethod:'efectivo',saleReference:'RECEIPT-1',saleDiscount:'Promo'};
  for(const [id,value]of Object.entries(values))$(id).value=value;
  $('saleProfile').selectedOptions=[{text:'Cliente QA'}];let sequence=0;
- const ctx={$,Intl,Number,Date,JSON,crypto:{randomUUID:()=>`operation-${++sequence}`},db:{rpc},confirm:()=>true,refreshAll:async()=>{},fmt:v=>v};
+ const ctx={qaMode:false,$,Intl,Number,Date,JSON,crypto:{randomUUID:()=>`operation-${++sequence}`},db:{rpc},confirm:()=>true,refreshAll:async()=>{},fmt:v=>v};
  vm.createContext(ctx);vm.runInContext(fs.readFileSync('admin/sellers.js','utf8')+'\n'+fs.readFileSync('admin/assisted-sales.js','utf8'),ctx);ctx.initAssistedSales();vm.runInContext("sellersReady=true",ctx);
  return {$,ctx,refund:()=>$('refundForm').listeners.submit({preventDefault(){}}),submit:()=>$('assistedSaleForm').listeners.submit({preventDefault(){}})};
 }

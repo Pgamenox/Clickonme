@@ -14,7 +14,7 @@ function saleEstimate() {
 }
 async function loadAssistedSales() {
  assistedSalesReady=false;
- const {data,error}=await db.from('assisted_sales').select('*').order('activated_at',{ascending:false});
+ const {data,error}=await db.from('assisted_sales').select('*').eq('is_qa',qaMode).order('activated_at',{ascending:false});
  if(error){$('assistedSalesMessage').textContent='No se pudo cargar el registro de ventas: '+error.message;return;}
  assistedSales=data||[]; assistedSalesReady=true; updateRefundSales(); $('assistedSalesMessage').textContent='';
  const pending=assistedSales.filter(s=>s.commission_status==='pending').reduce((n,s)=>n+Number(s.commission_mxn),0);
@@ -34,6 +34,7 @@ function initAssistedSales() {
   if(!Number.isFinite(paidAt.getTime())){$('saleMessage').textContent='Revisa la fecha del pago.';return;}
   const payload={p_profile_id:Number($('saleProfile').value),p_plan:$('salePlan').value,p_amount:Number($('saleAmount').value),p_seller_id:$('saleSeller').value||null,p_method:$('saleMethod').value,p_reference:$('saleReference').value.trim(),p_paid_at:paidAt.toISOString(),p_discount_note:$('saleDiscount').value.trim()};
   if(!payload.p_profile_id||!$('saleVerified').checked)return;
+  if(qaMode&&!payload.p_reference.toUpperCase().startsWith('QA-E2E-')){$('saleMessage').textContent='Folio QA requerido: QA-E2E-…';return;}
   if(!confirm('Registrar '+salesMoney(payload.p_amount)+' ya recibidos para '+$('saleProfile').selectedOptions[0].text+' y activar '+payload.p_plan+' por un año?'))return;
   // Reuse the operation identifier for a network retry with identical data.
   const fingerprint=JSON.stringify(payload);

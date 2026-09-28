@@ -1,0 +1,21 @@
+begin;
+create temp table qa_results(test text,passed boolean) on commit drop;
+select set_config('request.jwt.claim.sub',(select user_id::text from public.admin_users limit 1),true);
+do $$ declare p public.profiles;v public.sales_representatives;s public.assisted_sales;u uuid:=gen_random_uuid();begin
+ insert into auth.users(id,email,email_confirmed_at,aud,role) values(u,'qa-e2e-isolation-'||u||'@example.invalid',now(),'authenticated','authenticated');
+ select * into p from public.admin_create_card('qa-e2e-isolation-'||substr(u::text,1,8),'QA E2E reversible');
+ perform public.admin_assign_profile_owner_server(auth.uid(),p.id,'qa-e2e-isolation-'||u||'@example.invalid');
+ select * into v from public.admin_save_sales_representative(null,'QA E2E reversible','QA-E2E-'||substr(u::text,1,8),true,20);
+ select * into s from public.admin_record_catalog_sale(gen_random_uuid(),p.id,'personal',600,v.id,'efectivo','QA-E2E-'||u,now(),'');
+ insert into qa_results values('qa_identity_and_sale_derived_server_side',p.is_qa and v.is_qa and s.is_qa);
+ insert into qa_results select 'qa_not_in_production_sales',count(*)=0 from public.assisted_sales where id=s.id and not is_qa;
+ begin update public.profiles set is_qa=false where id=p.id;insert into qa_results values('qa_cannot_be_converted_to_real',false);exception when others then insert into qa_results values('qa_cannot_be_converted_to_real',sqlerrm like 'QA classification%');end;
+ select * into v from public.admin_save_sales_representative(null,'Reversible isolation fixture','ISOLATION-'||substr(u::text,1,8),true,20);
+ begin perform public.admin_record_catalog_sale(gen_random_uuid(),p.id,'personal',600,v.id,'efectivo','QA-E2E-CROSS-'||u,now(),'');insert into qa_results values('mixed_real_seller_qa_customer_blocked',false);exception when others then insert into qa_results values('mixed_real_seller_qa_customer_blocked',sqlerrm like 'QA sellers%');end;
+ insert into public.profile_analytics_events(profile_slug,event_type,session_id) values(p.slug,'profile_view',gen_random_uuid());
+ insert into qa_results select 'qa_analytics_not_recorded',count(*)=0 from public.profile_analytics_events where profile_slug=p.slug;
+ insert into public.business_events(user_id,profile_id,event_type,metadata) values(u,p.id,'profile_created','{}');
+ insert into qa_results select 'qa_business_events_separate',bool_and(is_qa) from public.business_events where profile_id=p.id;
+end $$;
+select * from qa_results;
+rollback;
