@@ -107,3 +107,15 @@ test('checkout rejects changed quotes before creating any provider order',async(
  assert.equal((await handler(request({profileId:42,plan:'personal',expectedAmount:600}))).status,409);
  assert.equal(providerCalls,0);
 });
+
+test('Creator quoted at legacy 399 cannot create a provider order',async()=>{
+ let providerCalls=0;
+ const handler=edge('create-mercadopago-order',async url=>{
+  if(url.includes('/auth/v1/user'))return payload({id:'user'});
+  if(url.includes('/profiles?'))return payload([{id:42,account_role:'customer'}]);
+  if(url.includes('/business_settings?'))return payload([{plan_prices:{creator:999}}]);
+  providerCalls++;throw Error('provider must not be called');
+ });
+ const response=await handler(request({profileId:42,plan:'creator',expectedAmount:399}));
+ assert.equal(response.status,409);assert.equal(providerCalls,0);
+});
