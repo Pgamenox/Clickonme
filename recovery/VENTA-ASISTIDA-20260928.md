@@ -8,16 +8,17 @@ Registro administrativo de pago asistido y activación anual atómicos; comisió
 
 Se entrega primero la tarjeta a la cuenta confirmada del cliente; después se registra el cobro. El cliente puede ser captado y su tarjeta creada por el administrador antes de registrarse. La activación reutiliza admin_authorize_plan. Las cortesías siguen disponibles separadas de ingresos. No se realizaron cargos ni pagos reales.
 
-Migración aplicada: 20260928065907 assisted_sales_receipts_and_first_commission. Fuente reproducible: supabase/assisted-sales.sql. Es aditiva; no reemplaza funciones existentes. Respaldo anterior: outputs/ClickOnMe-antes-venta-asistida-20260928.zip en el espacio de trabajo; el ZIP contiene código, no copia completa de datos/Auth/Storage.
+Migración aplicada: 20260928065907 assisted_sales_receipts_and_first_commission; ajuste posterior assisted_commission_zero_rounding para redondeo menor a un centavo. Fuente reproducible: supabase/assisted-sales.sql. Es aditiva; no reemplaza funciones existentes. Respaldo anterior: outputs/ClickOnMe-antes-venta-asistida-20260928.zip en el espacio de trabajo; el ZIP contiene código, no copia completa de datos/Auth/Storage.
 
 ## Evidencia y estados
 
 - IMPLEMENTADO: tabla privada por RLS para administradores, funciones de registro/activación y pago de comisión, formulario, reporte y exportación CSV.
-- PROBADO: 17 pruebas SQL con rollback (descuento, centavos, 20%, anualidad, renovación, folios/idempotencia, permisos, comisión pagada). Cero residuos confirmados.
+- PROBADO: 19 pruebas SQL con rollback (descuento, centavos, 20%, anualidad, renovación, folios/idempotencia, permisos, comisión pagada). Cero residuos confirmados.
 - PROBADO: 38 pruebas Node, incluidas concurrencia de formulario, reintento incierto y confirmación obligatoria de recepción.
 - PROBADO: controles estáticos QA y seguridad locales aprobados.
 - FUNCIONAL EN PRUEBA CONTROLADA: operación completa de base de datos entrega → cobro → activación → renovación → comisión pagada. No equivale a una venta real.
-- PENDIENTE: comprobar panel desplegado y registrar primera venta real con comprobante auténtico. No inventar ingresos para hacer QA.
+- FUNCIONAL EN PRODUCCIÓN (lectura y formulario): panel desplegado, listado y precios cargan; $500.50 muestra $100.10 de comisión posible. Formulario de QA limpiado sin guardar. GitHub QA, Security, Source Backup y Pages terminaron correctamente para f42f3341.
+- PENDIENTE: registrar primera venta real con comprobante auténtico. No inventar ingresos para hacer QA.
 
 ## Uso de la primera venta
 
@@ -44,4 +45,4 @@ Si la conexión falla, reintentar exactamente el mismo folio y datos. El servido
 - Sigue pendiente activar protección de contraseñas filtradas: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 - Fallo inicial de ejecución de tests: se lanzaron desde carpeta superior y no encontraban archivos; repetidos desde la raíz real del repositorio: 38/38 aprobados. No fue fallo del producto.
 
-SIGUIENTE ACCIÓN EXACTA: comprobar despliegue de este bloque en /admin/, abrir Venta asistida y validar carga del listado y campos sin registrar dinero ficticio. Después acompañar un cliente real nuevo: confirmar su correo, entregar su tarjeta y registrar un comprobante auténtico. Si aún no hay cliente/cobro, completar prueba de integración del panel con servicio simulado y probar reembolso asistido antes de ampliar autoservicio.
+SIGUIENTE ACCIÓN EXACTA: acompañar un cliente real nuevo: confirmar su correo, entregar su tarjeta y registrar un comprobante auténtico. Si aún no hay cliente/cobro, completar prueba de integración del panel con servicio simulado y probar reembolso asistido antes de ampliar autoservicio.

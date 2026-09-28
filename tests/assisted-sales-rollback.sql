@@ -58,5 +58,22 @@ end $$;
 reset role;
 insert into sales_results values('anonymous_cannot_record_sale',not has_function_privilege('anon','public.admin_record_assisted_sale(uuid,bigint,text,numeric,text,text,text,timestamptz,text)','EXECUTE'));
 insert into sales_results values('authenticated_cannot_write_ledger_directly',not has_table_privilege('authenticated','public.assisted_sales','INSERT,UPDATE,DELETE'));
+
+select set_config('request.jwt.claim.sub',(select admin_id::text from sales_fixture),true);
+do $$ declare u uuid:=gen_random_uuid(); c public.profiles; s public.assisted_sales; begin
+ insert into auth.users(id,email,email_confirmed_at,aud,role) values(u,'qa-cent-'||u||'@example.invalid',now(),'authenticated','authenticated');
+ select * into c from public.admin_create_card('qa-cent-'||substr(u::text,1,8),'QA cents');
+ perform public.admin_assign_profile_owner_server((select admin_id from sales_fixture),c.id,'qa-cent-'||u||'@example.invalid');
+ select * into s from public.admin_record_assisted_sale(gen_random_uuid(),c.id,'personal',0.01,'QA','efectivo','QA-cent-'||u,now(),'QA cents');
+ insert into sales_results values('sub_cent_commission_rounds_without_failure',s.commission_mxn=0 and s.commission_status='not_applicable');
+ u:=gen_random_uuid();
+ insert into auth.users(id,email,email_confirmed_at,aud,role) values(u,'qa-prior-'||u||'@example.invalid',now(),'authenticated','authenticated');
+ select * into c from public.admin_create_card('qa-prior-'||substr(u::text,1,8),'QA prior gateway');
+ perform public.admin_assign_profile_owner_server((select admin_id from sales_fixture),c.id,'qa-prior-'||u||'@example.invalid');
+ insert into public.payments(user_id,profile_id,external_reference,amount_mxn,status,environment,provider_payload) values(u,c.id,'qa-prior-'||u,600,'approved','production','{"plan":"personal"}');
+ select * into s from public.admin_record_assisted_sale(gen_random_uuid(),c.id,'personal',600,'QA','efectivo','QA-prior-'||u,now(),'');
+ insert into sales_results values('prior_gateway_payment_excludes_new_commission',not s.first_payment and s.commission_mxn=0);
+end $$;
+
 select * from sales_results;
 rollback;

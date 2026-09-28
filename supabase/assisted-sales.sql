@@ -61,7 +61,7 @@ begin
  -- Reuse annual activation, atomically with the receipt. Any failure rolls everything back.
  select * into activated from public.admin_authorize_plan(p_profile_id,p_plan);
  insert into public.assisted_sales(id,profile_id,customer_id,customer_name,seller_code,plan,list_price_mxn,amount_mxn,discount_note,payment_method,payment_reference,paid_at,expires_at,first_payment,commission_mxn,commission_status,recorded_by)
- values(p_request_id,card.id,card.user_id,card.name,seller,p_plan,price,p_amount,coalesce(trim(p_discount_note),''),p_method,ref,p_paid_at,activated.current_period_end,first_paid,case when first_paid and seller is not null then round(p_amount*0.20,2) else 0 end,case when first_paid and seller is not null then 'pending' else 'not_applicable' end,actor) returning * into sale;
+ values(p_request_id,card.id,card.user_id,card.name,seller,p_plan,price,p_amount,coalesce(trim(p_discount_note),''),p_method,ref,p_paid_at,activated.current_period_end,first_paid,case when first_paid and seller is not null then round(p_amount*0.20,2) else 0 end,case when first_paid and seller is not null and round(p_amount*0.20,2)>0 then 'pending' else 'not_applicable' end,actor) returning * into sale;
  insert into public.admin_audit_log(admin_user_id,action,entity_type,entity_id,details) values(actor,'record_assisted_sale','assisted_sale',sale.id::text,jsonb_build_object('profile_id',card.id,'amount_mxn',sale.amount_mxn,'commission_mxn',sale.commission_mxn,'seller_code',seller));
  return sale;
 end $$;
