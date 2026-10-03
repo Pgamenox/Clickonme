@@ -1,13 +1,24 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
-function setup(rpc){
+function setup(rpc,decision=true){
  const elements={};const $=id=>elements[id]??=( {value:'',checked:true,disabled:false,textContent:'',listeners:{},addEventListener(type,fn){this.listeners[type]=fn},reportValidity(){return true}} );
  const values={salePaidAt:'2026-09-27T12:00',saleProfile:'123',salePlan:'personal',saleAmount:'500.50',saleSeller:'SELLER',saleMethod:'efectivo',saleReference:'RECEIPT-1',saleDiscount:'Promo'};
  for(const [id,value]of Object.entries(values))$(id).value=value;
  $('saleProfile').selectedOptions=[{text:'Cliente QA'}];let sequence=0;
- const ctx={qaMode:false,$,Intl,Number,Date,JSON,crypto:{randomUUID:()=>`operation-${++sequence}`},db:{rpc},confirm:()=>true,refreshAll:async()=>{},fmt:v=>v};
+ let dialog;
+ const document={createElement(tag){return {tag,style:{},listeners:{},children:[],setAttribute(){},addEventListener(type,fn){this.listeners[type]=fn},append(...children){this.children.push(...children)},showModal(){dialog=this},close(){},remove(){},focus(){if(decision!==null)dialog.children[decision?4:3].onclick()}}},body:{append(){}}};
+ const ctx={document,qaMode:false,$,Intl,Number,Date,JSON,crypto:{randomUUID:()=>`operation-${++sequence}`},db:{rpc},confirm:()=>true,refreshAll:async()=>{},fmt:v=>v};
  vm.createContext(ctx);vm.runInContext(fs.readFileSync('admin/sellers.js','utf8')+'\n'+fs.readFileSync('admin/assisted-sales.js','utf8'),ctx);ctx.initAssistedSales();vm.runInContext("sellersReady=true",ctx);
- return {$,ctx,refund:()=>$('refundForm').listeners.submit({preventDefault(){}}),submit:()=>$('assistedSaleForm').listeners.submit({preventDefault(){}})};
+ return {$,ctx,dialog:()=>dialog,refund:()=>$('refundForm').listeners.submit({preventDefault(){}}),submit:()=>$('assistedSaleForm').listeners.submit({preventDefault(){}})};
 }
+test('cancelling visible confirmation does not register a payment',async()=>{
+ let calls=0;const ui=setup(async()=>{calls++;return{}},false);await ui.submit();
+ assert.equal(calls,0);assert.equal(ui.$('saveAssistedSale').disabled,false);assert.match(ui.$('saleMessage').textContent,/cancelado/);
+});
+test('open confirmation blocks duplicate submissions and Escape cancels',async()=>{
+ let calls=0;const ui=setup(async()=>{calls++;return{}},null);const pending=ui.submit();await ui.submit();
+ assert.equal(ui.$('saveAssistedSale').disabled,true);assert.equal(calls,0);
+ ui.dialog().listeners.cancel({preventDefault(){}});await pending;assert.equal(calls,0);assert.equal(ui.$('saveAssistedSale').disabled,false);
+});
 test('assisted sale submits actual amount and retains operation on uncertain retry',async()=>{
  const calls=[];const ui=setup(async(name,payload)=>{calls.push({name,payload});return {error:{message:'network unavailable'}}});
  await ui.submit();await ui.submit();assert.equal(calls.length,2);assert.equal(calls[0].payload.p_amount,500.50);assert.equal(calls[0].payload.p_request_id,calls[1].payload.p_request_id);assert.equal(ui.$('saveAssistedSale').disabled,false);
