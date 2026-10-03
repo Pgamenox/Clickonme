@@ -22,6 +22,24 @@ async function loadAssistedSales() {
  const labels={pending:'Pendiente',paid:'Pagada',not_applicable:'No corresponde',cancelled:'Cancelada',recovery_due:'Por recuperar',recovered:'Recuperada'};
  $('assistedSalesRows').innerHTML=assistedSales.map(s=>`<tr><td>${escapeHtml(s.customer_name)}<br>Tarjeta #${s.profile_id}<br>${escapeHtml(s.seller_name_snapshot||'Venta directa / Sin comisión')}<br>${escapeHtml(s.seller_code||'')}<br><small>${escapeHtml(s.seller_id||'')}</small></td><td>${escapeHtml(s.plan)} · ${salesMoney(s.amount_mxn)}<br><small>Lista: ${salesMoney(s.list_price_mxn)} · ${escapeHtml(s.discount_note||'Sin descuento')}</small></td><td>${s.payment_status==='refunded'?'Devuelto':'Recibido'} · ${escapeHtml(s.payment_method)}<br>${escapeHtml(s.payment_reference)}<br>${fmt(s.paid_at)}${s.payment_status==='refunded'?'<br>Devolución: '+escapeHtml(s.refund_reference)+'<br>'+escapeHtml(s.refund_reason)+'<br>'+fmt(s.refunded_at):''}</td><td>${fmt(s.activated_at)}<br>${fmt(s.expires_at)}${s.refund_access_action==='review_required'?'<br><strong>Revisar vigencia: se conservó el plan actual</strong>':s.refund_access_action==='restored'?'<br>Estado anterior restaurado':''}</td><td>${Number(s.commission_percent||0)}% · ${salesMoney(s.commission_mxn)} · ${labels[s.commission_status]}${s.commission_status==='pending'?`<br><button data-commission="${s.id}">Registrar comisión pagada</button>`:''}${s.commission_reference?'<br>'+escapeHtml(s.commission_reference):''}${s.commission_status==='recovery_due'?`<br><button data-recover="${s.id}">Registrar comisión recuperada</button>`:''}${s.commission_recovery_reference?'<br>Recuperación: '+escapeHtml(s.commission_recovery_reference):''}</td></tr>`).join('')||'<tr><td colspan="5">Todavía no hay ventas asistidas registradas.</td></tr>';
 }
+function confirmAssistedSale(message) {
+ return new Promise(resolve=>{
+  const dialog=document.createElement('dialog');
+  dialog.id='assistedSaleConfirmation';
+  dialog.setAttribute('aria-labelledby','assistedSaleConfirmationTitle');
+  dialog.style.cssText='margin:auto;max-width:520px;width:calc(100% - 40px);padding:24px;border:1px solid #454867;border-radius:20px;background:#101426;color:#fff';
+  const title=document.createElement('h2');title.id='assistedSaleConfirmationTitle';title.textContent=qaMode?'Confirmar simulación QA':'Confirmar pago recibido';
+  const detail=document.createElement('p');detail.textContent=message;
+  const note=document.createElement('p');note.textContent=qaMode?'Prueba QA sin dinero real. No realiza cargos ni transferencias.':'Este registro no realiza cargos ni transferencias.';
+  const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancelar';
+  const accept=document.createElement('button');accept.type='button';accept.className='primary';accept.textContent=qaMode?'Confirmar registro QA':'Confirmar registro';
+  let settled=false;
+  const finish=value=>{if(settled)return;settled=true;dialog.close();dialog.remove();resolve(value);};
+  cancel.onclick=()=>finish(false);accept.onclick=()=>finish(true);
+  dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false);});
+  dialog.append(title,detail,note,cancel,accept);document.body.append(dialog);dialog.showModal();cancel.focus();
+ });
+}
 function initAssistedSales() {
  initAssistedRefunds();
  initSellers();
@@ -35,7 +53,12 @@ function initAssistedSales() {
   const payload={p_profile_id:Number($('saleProfile').value),p_plan:$('salePlan').value,p_amount:Number($('saleAmount').value),p_seller_id:$('saleSeller').value||null,p_method:$('saleMethod').value,p_reference:$('saleReference').value.trim(),p_paid_at:paidAt.toISOString(),p_discount_note:$('saleDiscount').value.trim()};
   if(!payload.p_profile_id||!$('saleVerified').checked)return;
   if(qaMode&&!payload.p_reference.toUpperCase().startsWith('QA-E2E-')){$('saleMessage').textContent='Folio QA requerido: QA-E2E-…';return;}
-  if(!confirm('Registrar '+salesMoney(payload.p_amount)+' ya recibidos para '+$('saleProfile').selectedOptions[0].text+' y activar '+payload.p_plan+' por un año?'))return;
+  $('saveAssistedSale').disabled=true;
+  let confirmed=false;
+  try{confirmed=await confirmAssistedSale('Registrar '+salesMoney(payload.p_amount)+(qaMode?' simulados':' ya recibidos')+' para '+$('saleProfile').selectedOptions[0].text+' y activar '+payload.p_plan+' por un año?');}
+  catch(error){$('saleMessage').textContent='No se pudo abrir la confirmación: '+error.message;return;}
+  finally{$('saveAssistedSale').disabled=false;}
+  if(!confirmed){$('saleMessage').textContent='Registro cancelado. No se guardó ningún pago.';return;}
   // Reuse the operation identifier for a network retry with identical data.
   const fingerprint=JSON.stringify(payload);
   if(!saleRequest||saleRequest.fingerprint!==fingerprint)saleRequest={fingerprint,id:crypto.randomUUID()};
