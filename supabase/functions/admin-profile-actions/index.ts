@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const allowedOrigins=new Set(["https://clickonme.pro","https://www.clickonme.pro"]);
-const allowedActions=new Set(["health","authorize_plan","set_suspension","delete_profile","assign_owner"]);
+const allowedActions=new Set(["health","authorize_plan","set_suspension","delete_profile","assign_owner","set_nfc"]);
 
 function corsFor(req:Request){
   const origin=req.headers.get("origin")||"";
@@ -79,6 +79,8 @@ Deno.serve(async(req)=>{
   const confirmSlug=body?.confirm_slug==null?null:String(body.confirm_slug).trim().toLowerCase();
   const suspended=typeof body?.suspended==="boolean"?body.suspended:null;
   const ownerEmail=body?.owner_email==null?null:String(body.owner_email).trim().toLowerCase();
+  const nfcStatus=body?.nfc_status==null?null:String(body.nfc_status).trim().toLowerCase();
+  const nfcCardId=body?.nfc_card_id==null?null:String(body.nfc_card_id).trim();
 
   if(action==="authorize_plan"&&!["personal","business","artist","creator"].includes(String(plan||""))){
     return json(req,{error:"Plan inválido"},400);
@@ -91,6 +93,34 @@ Deno.serve(async(req)=>{
   }
   if(action==="assign_owner"&&(!ownerEmail||ownerEmail.length>320||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerEmail))){
     return json(req,{error:"Correo del cliente inválido"},400);
+  }
+
+  if(action==="set_nfc"&&!["sin_tarjeta","solicitada","programada","entregada"].includes(String(nfcStatus||""))){
+    return json(req,{error:"Estado NFC inválido"},400);
+  }
+  if(action==="set_nfc"&&nfcCardId&&nfcCardId.length>120){
+    return json(req,{error:"ID NFC demasiado largo"},400);
+  }
+
+  if(action==="set_nfc"){
+    const {data,error}=await adminClient
+      .from("profiles")
+      .update({
+        nfc_status:nfcStatus,
+        nfc_card_id:nfcCardId||null,
+        updated_at:new Date().toISOString(),
+      })
+      .eq("id",profileId)
+      .neq("account_role","team")
+      .eq("demo_profile",false)
+      .select("id,nfc_status,nfc_card_id")
+      .maybeSingle();
+    if(error){
+      console.error("set nfc profile error",error.code,error.message);
+      return json(req,{error:"No se pudo guardar el estado NFC"},500);
+    }
+    if(!data)return json(req,{error:"Perfil no encontrado o no elegible para NFC"},404);
+    return json(req,data);
   }
 
   if(action==="assign_owner"){
