@@ -138,7 +138,6 @@ Deno.serve(async(req)=>{
       return json(req,{error:"Contenido de perfil inválido"},400);
     }
     const updatePayload={
-      slug,
       name,
       role,
       description:String(p.description||""),
