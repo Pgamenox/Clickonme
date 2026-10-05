@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const allowedOrigins=new Set(["https://clickonme.pro","https://www.clickonme.pro"]);
-const allowedActions=new Set(["health","authorize_plan","set_suspension","delete_profile","assign_owner","set_nfc"]);
+const allowedActions=new Set(["health","authorize_plan","set_suspension","delete_profile","assign_owner","set_nfc","update_unowned_profile"]);
 
 function corsFor(req:Request){
   const origin=req.headers.get("origin")||"";
@@ -120,6 +120,53 @@ Deno.serve(async(req)=>{
       return json(req,{error:"No se pudo guardar el estado NFC"},500);
     }
     if(!data)return json(req,{error:"Perfil no encontrado o no elegible para NFC"},404);
+    return json(req,data);
+  }
+
+  if(action==="update_unowned_profile"){
+    const p=body?.profile;
+    if(!p||typeof p!=="object"||Array.isArray(p)){
+      return json(req,{error:"Datos de perfil inválidos"},400);
+    }
+    const slug=String(p.slug||"").trim().toLowerCase();
+    const name=String(p.name||"").trim();
+    const role=String(p.role||"").trim();
+    if(!/^[a-z0-9-]{3,40}$/.test(slug)||!name||!role){
+      return json(req,{error:"Nombre, actividad o dirección inválidos"},400);
+    }
+    if(!p.data||typeof p.data!=="object"||Array.isArray(p.data)){
+      return json(req,{error:"Contenido de perfil inválido"},400);
+    }
+    const updatePayload={
+      slug,
+      name,
+      role,
+      description:String(p.description||""),
+      photo_url:String(p.photo_url||""),
+      whatsapp:String(p.whatsapp||""),
+      phone:String(p.phone||""),
+      facebook:String(p.facebook||""),
+      instagram:String(p.instagram||""),
+      youtube:String(p.youtube||""),
+      website:String(p.website||""),
+      data:p.data,
+      updated_at:new Date().toISOString(),
+    };
+    const {data,error}=await adminClient
+      .from("profiles")
+      .update(updatePayload)
+      .eq("id",profileId)
+      .is("user_id",null)
+      .neq("account_role","team")
+      .eq("demo_profile",false)
+      .select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at")
+      .maybeSingle();
+    if(error){
+      console.error("update unowned profile error",error.code,error.message);
+      if(error.code==="23505")return json(req,{error:"Esa dirección ya está ocupada"},409);
+      return json(req,{error:"No se pudo guardar la tarjeta sin propietario"},500);
+    }
+    if(!data)return json(req,{error:"Perfil no encontrado, ya entregado o no elegible"},404);
     return json(req,data);
   }
 
