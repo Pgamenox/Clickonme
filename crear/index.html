@@ -2378,7 +2378,7 @@ function populateProfile(row){
   presskitBio.value=d.presskit?.bio||"";presskitEvents.value=(d.presskit?.events||[]).join("\n");bookingEmail.value=d.presskit?.bookingEmail||"";bookingWhatsapp.value=d.presskit?.bookingWhatsapp||"";presskitPdfItem=d.presskit?.pdfUrl?{url:d.presskit.pdfUrl,name:d.presskit.pdfName||"PressKit PDF"}:{url:"",name:""};presskitPdfStatus.textContent=presskitPdfItem.url?"PDF guardado: "+presskitPdfItem.name:"";
   videoEnabled.checked=Boolean(d.modules?.video?.enabled); applyProfileType(); videoTitle.value=d.modules?.video?.title||""; videoUrl.value=d.modules?.video?.url||""; profileMode.value=d.profileMode==="presskit"?"presskit":"standard"; presskitLabel.value=d.presskitLabel||""; audioEnabled.checked=Boolean(d.modules?.audio?.enabled); audioTitle.value=d.modules?.audio?.title||""; renderAudioEditor(); galleryEnabled.checked=Boolean(d.modules?.gallery?.enabled); galleryTitle.value=d.modules?.gallery?.title||""; renderGalleryEditor();
   setField("name",d.name||row.name||""); setField("role",d.role||row.role||""); setField("description",d.description||row.description||"");
-  setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1";
+  setField("slug",row.slug||d.slug||""); slugInput.dataset.edited="1"; slugInput.readOnly=true; slugInput.title="La dirección pública queda fija después de publicar para que QR, enlaces y NFC sigan funcionando.";
   ["backgroundType","color1","color2","backgroundOverlay","backgroundBlur","backgroundOverlayColor","backgroundPosition","photoShape","photoFit","cardColor","buttonColor","textColor","secondaryTextColor","cardOpacity","buttonRadius","fontFamily","buttonStyle","whatsapp","phone","facebook","instagram","youtube","website","customButtonText","customButtonUrl"].forEach(id=>setField(id,d[id]));
   if(d.photo) document.getElementById("previewPhoto").src=d.photo;
   if(d.appIconMode) appIconMode.value=d.appIconMode;
@@ -2736,7 +2736,7 @@ publishButton.addEventListener("click",async()=>{
   publishButton.disabled=true;
   const {data:{session}}=await supabaseClient.auth.getSession(); await applySession(session);
   if(!currentUser){ publishButton.disabled=false; alert("Primero crea tu cuenta o inicia sesión."); return; }
-  const name=nameInput.value.trim(); const role=roleInput.value.trim(); const slug=makeSlug(slugInput.value||name);
+  const name=nameInput.value.trim(); const role=roleInput.value.trim(); const slug=currentProfileId?currentProfileSlug:makeSlug(slugInput.value||name);
   if(!profileType.value){ publishButton.disabled=false; profileType.scrollIntoView({behavior:"smooth",block:"center"}); profileType.focus(); alert("Primero elige cómo vas a usar ClickOnMe: Personal, Negocio, Artista o Creator."); return; }
   if(!name || !role){ publishButton.disabled=false; alert("Completa tu nombre y actividad o profesión."); return; }
   if(slug.length<3){ publishButton.disabled=false; alert("La dirección debe tener al menos 3 caracteres."); return; }
