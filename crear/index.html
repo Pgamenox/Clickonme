@@ -2265,6 +2265,7 @@ let currentUser = null;
 let currentUserIsAdmin = false;
 let currentProfileId = null;
 let currentProfileSlug = null;
+let currentProfileOwnerId = null;
 let currentProfileIsTeam = false;
 let profileLoadedFor = null;
 const editorParams = new URLSearchParams(window.location.search);
@@ -2370,7 +2371,7 @@ function enforcePlanBeforeSave(profileData){
  return profileData;
 }
 function populateProfile(row){
-  const d={...row,...(row.data||{})}; d.photo=row.account_role==="team"?(row.photo_url||d.photo):(d.photo||row.photo_url); currentProfileIsTeam=row.account_role==="team"&&!row.demo_profile; document.getElementById("teamPhotoNotice").hidden=!currentProfileIsTeam; originalStoredProfileData=cloneData(row.data||{}); currentProfileId=row.id; currentProfileSlug=row.slug; currentSubscriptionPlan=row.subscription_plan||"free";
+  const d={...row,...(row.data||{})}; d.photo=row.account_role==="team"?(row.photo_url||d.photo):(d.photo||row.photo_url); currentProfileOwnerId=row.user_id||null; currentProfileIsTeam=row.account_role==="team"&&!row.demo_profile; document.getElementById("teamPhotoNotice").hidden=!currentProfileIsTeam; originalStoredProfileData=cloneData(row.data||{}); currentProfileId=row.id; currentProfileSlug=row.slug; currentSubscriptionPlan=row.subscription_plan||"free";
   galleryItems=Array.isArray(d.modules?.gallery?.items)?d.modules.gallery.items.slice(0,6):[];window.__galleryCount=galleryItems.length;
   audioItem=d.modules?.audio?.url?{url:d.modules.audio.url,name:d.modules.audio.name||""}:{url:"",name:""};window.__audioReady=!!audioItem.url; storeProducts=Array.isArray(d.modules?.store?.products)?cloneData(d.modules.store.products).slice(0,6):[]; storeEnabled.checked=Boolean(d.modules?.store?.enabled); storeTitle.value=d.modules?.store?.title||"Mi tienda"; storeWhatsapp.value=d.modules?.store?.whatsapp||d.whatsapp||""; renderStoreEditor();
   profileType.value=({professional:"personal",musician:"artist",visual_artist:"artist",presskit:"artist"}[d.profileType]||d.profileType||"personal"); shareMessage.value=d.shareMessage||"Conoce mi perfil en ClickOnMe";
@@ -2790,8 +2791,14 @@ publishButton.addEventListener("click",async()=>{
     if(existingError){ publishButton.disabled=false; publishButton.textContent="Crear mi ClickOnMe"; alert("No se pudo verificar tu cuenta. Intenta nuevamente."); return; }
     if((existing||[]).length){ publishButton.disabled=false; publishButton.textContent="Guardar cambios"; currentProfileId=existing[0].id; currentProfileSlug=existing[0].slug; alert("Tu cuenta ya tiene una tarjeta ClickOnMe. Abriremos esa misma tarjeta para editarla; no se crea una segunda tarjeta ni un nuevo periodo gratuito."); profileLoadedFor=null; await loadOwnProfile(); return; }
   }
-  if(currentProfileId) result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
-  else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+  if(currentProfileId){
+    if(currentUserIsAdmin && currentProfileOwnerId===null && requestedProfileId){
+      const {data:adminSaved,error:adminSaveError}=await supabaseClient.functions.invoke("admin-profile-actions",{body:{action:"update_unowned_profile",profile_id:Number(currentProfileId),profile:payload}});
+      result={data:adminSaved,error:adminSaveError};
+    }else{
+      result=await supabaseClient.from("profiles").update(payload).eq("id",currentProfileId).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
+    }
+  }else result=await supabaseClient.from("profiles").insert(payload).select("id,slug,data,whatsapp,phone,facebook,instagram,youtube,website,updated_at").single();
   publishButton.disabled=false;
   if(result.error){ publishButton.textContent=currentProfileId?"Guardar cambios":"Crear mi ClickOnMe"; alert(result.error.code==="23505"?"Esa dirección ya está ocupada. Elige otra.":"No se pudo guardar: "+result.error.message); return; }
   await trackBusinessEvent(currentProfileId?"profile_updated":"profile_created",result.data.id,{slug:result.data.slug});
