@@ -1,0 +1,32 @@
+name: External assisted checkout tests
+on:
+  pull_request:
+    paths:
+      - "admin/external-payment-links.js"
+      - "admin/index.html"
+      - "tests/external-payment-links.test.cjs"
+      - ".github/workflows/assisted-external-checkout-tests.yml"
+  push:
+    branches:
+      - "feature/assisted-external-checkout-links"
+    paths:
+      - "admin/external-payment-links.js"
+      - "admin/index.html"
+      - "tests/external-payment-links.test.cjs"
+      - ".github/workflows/assisted-external-checkout-tests.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check external checkout helper syntax
+        run: node --check admin/external-payment-links.js
+      - name: Check existing admin script syntax
+        run: node --check admin/assisted-sales.js
+      - name: Test external checkout links
+        run: node --test tests/external-payment-links.test.cjs
