@@ -57,6 +57,7 @@ async function copyExternalPaymentText(value, status) {
 function initExternalPaymentLinks() {
   $('saveExternalLinks').onclick = async () => {
     const status = $('externalLinksMessage'), button = $('saveExternalLinks'), next = {};
+    if (qaMode) { status.textContent = 'Sal de la vista QA para configurar enlaces de cobro reales.'; return; }
     try {
       for (const plan of Object.keys(EXTERNAL_PAYMENT_PLANS)) {
         const value = normalizeExternalPaymentUrl($('externalUrl-' + plan).value);
@@ -80,6 +81,7 @@ function initExternalPaymentLinks() {
   };
   const make = async (kit) => {
     const status = $('externalKitMessage'), plan = $('externalPlan').value;
+    if (qaMode) { status.textContent = 'La vista QA no comparte enlaces de cobro reales.'; return; }
     if (!sellersReady) { status.textContent = 'No se cargó el catálogo de vendedores.'; return; }
     let link;
     try { link = normalizeExternalPaymentUrl($('externalUrl-' + plan).value); }
